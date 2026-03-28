@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LGU Portal — Staff Login</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Source+Sans+3:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="css/staff-portal.css" rel="stylesheet">
+</head>
+
+<body>
+
+  <!-- Official government banner -->
+  <div class="gov-banner">
+    <div class="gov-banner-left">
+      <div class="flag">
+        <div class="flag-stripe" style="background:#0038a8;"></div>
+        <div class="flag-stripe" style="background:#ce1126;"></div>
+        <div class="flag-stripe" style="background:#fcd116;"></div>
+      </div>
+      <span>Republic of the Philippines &nbsp;·&nbsp; Local Government Information System</span>
+    </div>
+    <div class="gov-banner-right">AUTHORIZED PERSONNEL ONLY</div>
+  </div>
+
+  <!-- Main content -->
+  <div class="main-layout">
+
+    <!-- Left decorative panel -->
+    <div class="left-panel">
+      <div class="seal-area">
+
+        <!-- SVG Government Seal placeholder -->
+        <svg class="seal-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="50" cy="50" r="47" fill="none" stroke="rgba(201,168,76,0.5)" stroke-width="1.5"/>
+          <circle cx="50" cy="50" r="40" fill="none" stroke="rgba(201,168,76,0.25)" stroke-width="1"/>
+          <circle cx="50" cy="50" r="32" fill="rgba(201,168,76,0.07)"/>
+          <!-- Star burst -->
+          <g fill="rgba(201,168,76,0.7)">
+            <polygon points="50,18 52,26 60,26 54,31 56,39 50,34 44,39 46,31 40,26 48,26" />
+          </g>
+          <!-- Horizontal rule -->
+          <line x1="30" y1="44" x2="70" y2="44" stroke="rgba(201,168,76,0.4)" stroke-width="0.75"/>
+          <!-- Text lines placeholder -->
+          <rect x="33" y="48" width="34" height="2" rx="1" fill="rgba(255,255,255,0.15)"/>
+          <rect x="37" y="53" width="26" height="2" rx="1" fill="rgba(255,255,255,0.1)"/>
+          <rect x="40" y="58" width="20" height="2" rx="1" fill="rgba(255,255,255,0.08)"/>
+          <!-- Bottom arc dots -->
+          <circle cx="36" cy="68" r="1.2" fill="rgba(201,168,76,0.5)"/>
+          <circle cx="42" cy="71" r="1.2" fill="rgba(201,168,76,0.5)"/>
+          <circle cx="50" cy="72" r="1.2" fill="rgba(201,168,76,0.5)"/>
+          <circle cx="58" cy="71" r="1.2" fill="rgba(201,168,76,0.5)"/>
+          <circle cx="64" cy="68" r="1.2" fill="rgba(201,168,76,0.5)"/>
+        </svg>
+
+        <div class="panel-title">Municipal<br><span>e-Gov</span> Portal</div>
+        <div class="panel-divider"></div>
+        <div class="panel-sub">
+          Integrated digital management system for local government unit operations, records, and public services.
+        </div>
+      </div>
+
+      <div class="panel-stats">
+        <div class="stat-item">
+          <span class="stat-number">24/7</span>
+          <span class="stat-label">Uptime</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number">128-bit</span>
+          <span class="stat-label">Encrypted</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number">v3.1</span>
+          <span class="stat-label">System</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right login panel -->
+    <div class="right-panel">
+      <div class="login-box">
+
+        <div class="form-eyebrow">Staff Portal</div>
+        <div class="form-heading">Sign In</div>
+        <div class="form-sub">Enter your official credentials to access the system</div>
+
+        <form>
+          <!-- Employee ID / Email -->
+          <div class="mb-3">
+            <label for="email" class="form-label">Employee Email</label>
+            <div class="input-wrapper">
+              <input type="email" id="email" class="form-control" placeholder="firstname.lastname@lgu.gov.ph" required>
+              <i class="bi bi-person input-icon"></i>
+            </div>
+            <span class="form-text">Use your official government email address</span>
+          </div>
+
+          <!-- Password -->
+          <div class="mb-4">
+            <label for="password" class="form-label">Password</label>
+            <div class="input-wrapper">
+              <input type="password" id="password" class="form-control" placeholder="••••••••••" required>
+              <i class="bi bi-lock input-icon"></i>
+              <button type="button" class="toggle-pw" onclick="togglePassword()">
+                <i class="bi bi-eye" id="eyeIcon"></i>
+              </button>
+            </div>
+            <span class="form-text">Password must be at least 8 characters long</span>
+          </div>
+
+          <!-- Extras -->
+          <div class="form-extras">
+            <div class="form-check d-flex align-items-center">
+              <input type="checkbox" class="form-check-input" id="remember">
+              <label class="form-check-label" for="remember">Remember this device</label>
+            </div>
+            <a href="#" class="forgot-link">Forgot password?</a>
+          </div>
+
+          <!-- Submit -->
+          <button type="submit" class="btn-login">
+            <i class="bi bi-shield-lock"></i>
+            Access System
+          </button>
+          <div class="btn-accent-line"></div>
+        </form>
+
+        <!-- Notice -->
+        <div class="access-notice">
+          <strong>Authorized Access Only.</strong> This system is restricted to LGU personnel. Unauthorized access attempts are monitored and logged in accordance with RA 10175.
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Footer -->
+  <div class="page-footer">
+    <div class="footer-left">
+      &copy; 2026 Municipal Government &nbsp;·&nbsp; Department of Information Technology
+    </div>
+    <div class="footer-right">
+      <span class="secure-dot"></span>
+      SECURE CONNECTION &nbsp;·&nbsp; TLS 1.3
+    </div>
+  </div>
+
+  <script src="js/staff-portal.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Staff Portal — Welcome</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,500&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="css/portal-entry.css" rel="stylesheet">
+</head>
+
+<body>
+
+  <!-- Government banner -->
+  <div class="gov-banner">
+    <div class="gov-banner-left">
+      <div class="flag">
+        <div class="flag-stripe" style="background:#0038a8;"></div>
+        <div class="flag-stripe" style="background:#ce1126;"></div>
+        <div class="flag-stripe" style="background:#fcd116;"></div>
+      </div>
+      Republic of the Philippines &nbsp;·&nbsp; Local Government Unit — Digital Services Portal
+    </div>
+    <div class="gov-banner-right">SECURE &nbsp;·&nbsp; OFFICIAL &nbsp;·&nbsp; AUTHORIZED</div>
+  </div>
+
+  <!-- Page wrapper -->
+  <div class="page-wrapper">
+
+    <!-- Header -->
+    <div class="portal-header">
+
+      <!-- SVG Seal -->
+      <svg class="header-seal" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="50" cy="50" r="47" fill="none" stroke="rgba(201,168,76,0.4)" stroke-width="1.5"/>
+        <circle cx="50" cy="50" r="40" fill="none" stroke="rgba(201,168,76,0.2)" stroke-width="1"/>
+        <circle cx="50" cy="50" r="30" fill="rgba(201,168,76,0.06)"/>
+        <g fill="rgba(201,168,76,0.8)">
+          <polygon points="50,20 52.5,28 61,28 54.5,33 57,41 50,36 43,41 45.5,33 39,28 47.5,28"/>
+        </g>
+        <line x1="32" y1="46" x2="68" y2="46" stroke="rgba(201,168,76,0.35)" stroke-width="0.75"/>
+        <rect x="34" y="50" width="32" height="2.5" rx="1.25" fill="rgba(255,255,255,0.12)"/>
+        <rect x="38" y="55" width="24" height="2" rx="1" fill="rgba(255,255,255,0.08)"/>
+        <rect x="41" y="60" width="18" height="2" rx="1" fill="rgba(255,255,255,0.06)"/>
+        <circle cx="38" cy="70" r="1.2" fill="rgba(201,168,76,0.5)"/>
+        <circle cx="44" cy="73" r="1.2" fill="rgba(201,168,76,0.5)"/>
+        <circle cx="50" cy="74" r="1.2" fill="rgba(201,168,76,0.5)"/>
+        <circle cx="56" cy="73" r="1.2" fill="rgba(201,168,76,0.5)"/>
+        <circle cx="62" cy="70" r="1.2" fill="rgba(201,168,76,0.5)"/>
+      </svg>
+
+      <div class="portal-eyebrow">Official Government Portal</div>
+      <div class="portal-title">
+        Welcome to the<br><span>LGU Digital Services</span>
+      </div>
+      <div class="portal-sub">
+        Choose how you would like to access the system. Each portal is tailored to your role.
+      </div>
+    </div>
+
+    <!-- Choose label -->
+    <div class="choose-label">Who are you signing in as?</div>
+
+    <!-- Portal cards -->
+    <div class="portal-cards" style="position:relative;">
+
+      <!-- Resident card -->
+      <a href="resident-portal.html" class="portal-card card-resident">
+        <div class="card-deco"></div>
+
+        <div class="card-badge">
+          <i class="bi bi-people-fill"></i>
+        </div>
+
+        <div class="card-type">For the Public</div>
+        <div class="card-title-text">I'm a<br>Resident</div>
+        <div class="card-desc">
+          Access government services, request documents, and track your applications online.
+        </div>
+
+        <ul class="card-features">
+          <li>
+            <i class="bi bi-check2"></i>
+            Request barangay clearance & cedula
+          </li>
+          <li>
+            <i class="bi bi-check2"></i>
+            Pay fees & taxes online
+          </li>
+          <li>
+            <i class="bi bi-check2"></i>
+            Book health & community services
+          </li>
+          <li>
+            <i class="bi bi-check2"></i>
+            Track application status
+          </li>
+        </ul>
+
+        <a href="resident-portal.html" class="card-cta">
+          <span>Continue as Resident</span>
+          <div class="cta-arrow"><i class="bi bi-arrow-right"></i></div>
+        </a>
+      </a>
+
+      <!-- OR divider -->
+      <div class="cards-divider">
+        <div class="divider-line"></div>
+        <div class="divider-badge">OR</div>
+        <div class="divider-line"></div>
+      </div>
+
+      <!-- Staff card -->
+      <a href="lgu-login.html" class="portal-card card-staff">
+        <div class="card-deco"></div>
+
+        <div class="card-badge">
+          <i class="bi bi-shield-fill-check"></i>
+        </div>
+
+        <div class="card-type">Authorized Personnel</div>
+        <div class="card-title-text">I'm LGU<br>Staff</div>
+        <div class="card-desc">
+          Access the internal administration system. Restricted to authorized government employees only.
+        </div>
+
+        <ul class="card-features">
+          <li>
+            <i class="bi bi-check2"></i>
+            Manage records & applications
+          </li>
+          <li>
+            <i class="bi bi-check2"></i>
+            Process permits & clearances
+          </li>
+          <li>
+            <i class="bi bi-check2"></i>
+            Generate reports & analytics
+          </li>
+          <li>
+            <i class="bi bi-check2"></i>
+            Internal communications
+          </li>
+        </ul>
+
+        <a href="staff-portal.html" class="card-cta">
+          <span>Continue as Staff</span>
+          <div class="cta-arrow"><i class="bi bi-arrow-right"></i></div>
+        </a>
+      </a>
+
+    </div>
+
+    <!-- Footer note -->
+    <div class="portal-footer-note">
+      <div class="secure-badge">
+        <div class="secure-dot"></div>
+        Secured with TLS 1.3
+      </div>
+      &nbsp; Unauthorized access is prohibited under RA 10175
+    </div>
+
+  </div>
+
+  <!-- Page footer -->
+  <div class="page-footer">
+    <div class="footer-links">
+      <a href="#" class="footer-link">Privacy Policy</a>
+      <a href="#" class="footer-link">Terms of Use</a>
+      <a href="#" class="footer-link">Accessibility</a>
+      <a href="#" class="footer-link">Help & Support</a>
+    </div>
+    <div class="footer-copy">&copy; 2026 Local Government Unit &nbsp;·&nbsp; Department of Information Technology</div>
+  </div>
+
+  <script src="js/portal-entry.js"></script>
+
+</body>
+</html>

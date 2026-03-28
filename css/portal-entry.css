@@ -1,0 +1,519 @@
+/* ============================================
+   portal-entry.css
+   Styles for the LGU Portal entry/role selection page
+   ============================================ */
+
+:root {
+  --navy:         #0d1f42;
+  --navy-mid:     #162d5c;
+  --sky:          #1a7fd4;
+  --sky-light:    #e8f3fc;
+  --gold:         #c9a84c;
+  --gold-light:   #e2c078;
+  --gold-pale:    rgba(201,168,76,0.12);
+  --white:        #ffffff;
+  --cream:        #f8f7f3;
+  --border:       #e2e0d8;
+  --text-dark:    #0d1f42;
+  --text-mid:     #3a4f72;
+  --text-muted:   #7a8fae;
+  --resident-bg:  #eef6fd;
+  --resident-acc: #1a7fd4;
+  --staff-bg:     #0d1f42;
+  --staff-acc:    #c9a84c;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background: var(--navy);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+}
+
+/* ── Government banner ── */
+.gov-banner {
+  background: rgba(0,0,0,0.3);
+  border-bottom: 1px solid rgba(201,168,76,0.2);
+  padding: 6px 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 10;
+  position: relative;
+}
+
+.gov-banner-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.7rem;
+  color: rgba(255,255,255,0.5);
+  letter-spacing: 0.04em;
+}
+
+.flag { display: flex; gap: 2px; align-items: center; }
+.flag-stripe { width: 5px; height: 12px; border-radius: 1px; }
+
+.gov-banner-right {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.62rem;
+  color: rgba(255,255,255,0.3);
+  letter-spacing: 0.06em;
+}
+
+/* ── Main wrapper ── */
+.page-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem 1.5rem 3rem;
+  position: relative;
+}
+
+/* Background grid */
+.page-wrapper::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(201,168,76,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(201,168,76,0.03) 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events: none;
+}
+
+/* Radial glow behind cards */
+.page-wrapper::after {
+  content: '';
+  position: fixed;
+  top: 30%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 800px;
+  height: 500px;
+  background: radial-gradient(ellipse, rgba(26,127,212,0.1) 0%, transparent 65%);
+  pointer-events: none;
+}
+
+/* ── Header block ── */
+.portal-header {
+  text-align: center;
+  margin-bottom: 3rem;
+  position: relative;
+  z-index: 1;
+  animation: fadeDown 0.55s ease both;
+}
+
+@keyframes fadeDown {
+  from { opacity: 0; transform: translateY(-18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.header-seal {
+  width: 72px;
+  height: 72px;
+  margin: 0 auto 1.25rem;
+}
+
+.portal-eyebrow {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 0.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.portal-eyebrow::before,
+.portal-eyebrow::after {
+  content: '';
+  width: 24px;
+  height: 1px;
+  background: var(--gold);
+  opacity: 0.5;
+}
+
+.portal-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.4rem;
+  font-weight: 700;
+  color: var(--white);
+  line-height: 1.15;
+  margin-bottom: 0.6rem;
+}
+
+.portal-title span { color: var(--gold); }
+
+.portal-sub {
+  font-size: 0.88rem;
+  color: rgba(255,255,255,0.5);
+  max-width: 380px;
+  margin: 0 auto;
+  line-height: 1.65;
+}
+
+/* ── Question label ── */
+.choose-label {
+  text-align: center;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.35);
+  margin-bottom: 1.25rem;
+  position: relative;
+  z-index: 1;
+  animation: fadeDown 0.55s ease 0.1s both;
+}
+
+/* ── Portal cards row ── */
+.portal-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+  width: 100%;
+  max-width: 760px;
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Individual portal card ── */
+.portal-card {
+  border-radius: 20px;
+  padding: 2.5rem 2rem 2rem;
+  cursor: pointer;
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  border: 1px solid transparent;
+}
+
+.portal-card:hover { transform: translateY(-6px); }
+
+/* ── Resident card ── */
+.card-resident {
+  background: var(--white);
+  border-color: rgba(26,127,212,0.15);
+  box-shadow: 0 8px 32px rgba(26,127,212,0.12);
+  animation: riseLeft 0.6s ease 0.2s both;
+}
+
+@keyframes riseLeft {
+  from { opacity: 0; transform: translateX(-24px) translateY(10px); }
+  to   { opacity: 1; transform: translateX(0) translateY(0); }
+}
+
+.card-resident:hover {
+  box-shadow: 0 16px 48px rgba(26,127,212,0.22);
+  border-color: rgba(26,127,212,0.3);
+}
+
+/* ── Staff card ── */
+.card-staff {
+  background: var(--navy-mid);
+  border-color: rgba(201,168,76,0.2);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.35);
+  animation: riseRight 0.6s ease 0.3s both;
+}
+
+@keyframes riseRight {
+  from { opacity: 0; transform: translateX(24px) translateY(10px); }
+  to   { opacity: 1; transform: translateX(0) translateY(0); }
+}
+
+.card-staff:hover {
+  box-shadow: 0 16px 48px rgba(0,0,0,0.5);
+  border-color: rgba(201,168,76,0.45);
+}
+
+/* Decorative corner shape */
+.card-deco {
+  position: absolute;
+  top: -30px;
+  right: -30px;
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.card-resident .card-deco { background: rgba(26,127,212,0.06); }
+.card-staff   .card-deco { background: rgba(201,168,76,0.06); }
+
+/* Card icon badge */
+.card-badge {
+  width: 58px;
+  height: 58px;
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+}
+
+.card-resident .card-badge { background: var(--sky-light); color: var(--sky); }
+.card-staff   .card-badge  { background: var(--gold-pale); color: var(--gold); }
+
+/* Card type label */
+.card-type {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 0.4rem;
+  position: relative;
+  z-index: 1;
+}
+
+.card-resident .card-type { color: var(--sky); }
+.card-staff   .card-type { color: var(--gold); }
+
+/* Card title */
+.card-title-text {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.6rem;
+  font-weight: 700;
+  line-height: 1.15;
+  margin-bottom: 0.75rem;
+  position: relative;
+  z-index: 1;
+}
+
+.card-resident .card-title-text { color: var(--text-dark); }
+.card-staff   .card-title-text  { color: var(--white); }
+
+/* Card description */
+.card-desc {
+  font-size: 0.82rem;
+  line-height: 1.6;
+  margin-bottom: 1.75rem;
+  position: relative;
+  z-index: 1;
+  flex: 1;
+}
+
+.card-resident .card-desc { color: var(--text-muted); }
+.card-staff   .card-desc  { color: rgba(255,255,255,0.45); }
+
+/* Feature list */
+.card-features {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 2rem;
+  position: relative;
+  z-index: 1;
+  width: 100%;
+}
+
+.card-features li {
+  font-size: 0.78rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.card-features li i {
+  font-size: 0.7rem;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.card-resident .card-features li         { color: var(--text-mid); }
+.card-resident .card-features li i       { background: var(--sky-light); color: var(--sky); }
+.card-staff   .card-features li          { color: rgba(255,255,255,0.6); }
+.card-staff   .card-features li i        { background: var(--gold-pale); color: var(--gold); }
+
+/* CTA button */
+.card-cta {
+  width: 100%;
+  border-radius: 10px;
+  padding: 0.75rem 1.25rem;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 700;
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.1s, box-shadow 0.2s;
+  position: relative;
+  z-index: 1;
+  text-decoration: none;
+}
+
+.card-cta:active { transform: scale(0.98); }
+
+.card-resident .card-cta {
+  background: var(--sky);
+  color: var(--white);
+  box-shadow: 0 4px 14px rgba(26,127,212,0.3);
+}
+
+.card-resident .card-cta:hover {
+  background: #1366b0;
+  box-shadow: 0 6px 20px rgba(26,127,212,0.4);
+  color: white;
+}
+
+.card-staff .card-cta {
+  background: var(--gold);
+  color: var(--navy);
+  box-shadow: 0 4px 14px rgba(201,168,76,0.25);
+}
+
+.card-staff .card-cta:hover {
+  background: var(--gold-light);
+  color: var(--navy);
+  box-shadow: 0 6px 20px rgba(201,168,76,0.4);
+}
+
+.cta-arrow {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  transition: transform 0.2s;
+}
+
+.card-resident .cta-arrow { background: rgba(255,255,255,0.2); }
+.card-staff   .cta-arrow  { background: rgba(13,31,66,0.15); }
+
+.card-cta:hover .cta-arrow { transform: translateX(4px); }
+
+/* ── OR Divider between cards ── */
+.cards-divider {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  pointer-events: none;
+}
+
+.divider-line {
+  width: 1px;
+  height: 60px;
+  background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.12), transparent);
+}
+
+.divider-badge {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--navy);
+  border: 1px solid rgba(255,255,255,0.1);
+  display: grid;
+  place-items: center;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.35);
+  letter-spacing: 0.04em;
+}
+
+/* ── Footer note ── */
+.portal-footer-note {
+  text-align: center;
+  margin-top: 2.5rem;
+  font-size: 0.74rem;
+  color: rgba(255,255,255,0.25);
+  position: relative;
+  z-index: 1;
+  animation: fadeDown 0.55s ease 0.45s both;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.secure-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 20px;
+  padding: 3px 10px;
+  font-size: 0.65rem;
+  color: rgba(255,255,255,0.3);
+}
+
+.secure-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #22c97a;
+  box-shadow: 0 0 5px #22c97a;
+  animation: pulse 2.5s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
+}
+
+/* ── Page footer ── */
+.page-footer {
+  background: rgba(0,0,0,0.25);
+  border-top: 1px solid rgba(255,255,255,0.05);
+  padding: 0.85rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  z-index: 1;
+}
+
+.footer-links { display: flex; gap: 1.25rem; }
+
+.footer-link {
+  font-size: 0.7rem;
+  color: rgba(255,255,255,0.25);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.footer-link:hover { color: rgba(255,255,255,0.55); }
+
+.footer-copy {
+  font-size: 0.68rem;
+  color: rgba(255,255,255,0.2);
+}
+
+/* ── Responsive ── */
+@media (max-width: 640px) {
+  .portal-cards        { grid-template-columns: 1fr; max-width: 400px; }
+  .cards-divider       { display: none; }
+  .portal-title        { font-size: 1.8rem; }
+  .gov-banner-right    { display: none; }
+  .page-footer         { flex-direction: column; gap: 0.5rem; text-align: center; }
+}
