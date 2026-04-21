@@ -441,9 +441,40 @@ body {
   50%       { opacity: 0.3; }
 }
 
-/* ── Responsive ── */
-@media (max-width: 768px) {
-  .left-panel         { display: none; }
   .right-panel        { padding: 2rem 1.5rem; }
   .gov-banner-right   { display: none; }
+}
+
+/* ============================================
+   RESPONSIVE — DESKTOP FIRST
+   Base = 1280px+ desktop
+   ============================================ */
+
+@media (max-width: 1280px) {
+  .left-panel  { width: 38%; padding: 2.5rem 2.5rem 2rem; }
+  .panel-title { font-size: 1.85rem; }
+}
+
+@media (max-width: 1024px) {
+  .left-panel  { width: 36%; padding: 2rem 2rem 2rem; }
+  .panel-title { font-size: 1.65rem; }
+  .seal-svg    { width: 75px; height: 75px; }
+  .right-panel { padding: 2rem 1.75rem; }
+}
+
+@media (max-width: 768px) {
+  .left-panel       { display: none; }
+  .right-panel      { padding: 2rem 1.5rem; }
+  .gov-banner-right { display: none; }
+  .form-heading     { font-size: 1.55rem; }
+  .page-footer      { padding: 0.75rem 1.5rem; flex-direction: column; gap: 0.5rem; text-align: center; }
+}
+
+@media (max-width: 480px) {
+  .right-panel  { padding: 1.5rem 1rem; }
+  .login-box    { max-width: 100%; }
+  .form-heading { font-size: 1.35rem; }
+  .form-sub     { font-size: 0.8rem; }
+  .btn-login    { font-size: 0.85rem; padding: 0.68rem 1rem; }
+  .gov-banner   { padding: 6px 1rem; }
 }
