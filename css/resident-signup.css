@@ -1,0 +1,706 @@
+/* ============================================
+   resident-signup.css
+   Styles for the MySerbisyo Resident Sign-Up page
+   Matches resident-portal.css theme
+   ============================================ */
+
+:root {
+  --sky:          #1a7fd4;
+  --sky-dark:     #1366b0;
+  --sky-light:    #e8f3fc;
+  --sky-pale:     #f2f8fd;
+  --green:        #1a9e5f;
+  --green-light:  #e6f7ef;
+  --sun:          #f59e0b;
+  --sun-light:    #fef3c7;
+  --red:          #dc2626;
+  --red-light:    #fee2e2;
+  --white:        #ffffff;
+  --gray-50:      #f8fafc;
+  --gray-100:     #f1f5f9;
+  --gray-200:     #e2e8f0;
+  --gray-400:     #94a3b8;
+  --gray-500:     #64748b;
+  --gray-700:     #334155;
+  --gray-900:     #0f172a;
+  --text-dark:    #0f172a;
+  --text-mid:     #334155;
+  --text-muted:   #64748b;
+  --border:       #e2e8f0;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background: var(--gray-50);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Top nav (identical to resident-portal) ── */
+.top-nav {
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  padding: 0.75rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+}
+
+.brand-logo {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, var(--sky), var(--sky-dark));
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  color: white;
+  font-size: 1.1rem;
+  box-shadow: 0 2px 8px rgba(26,127,212,0.3);
+  flex-shrink: 0;
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.brand-name {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--sky);
+  letter-spacing: -0.01em;
+}
+
+.brand-tagline {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.nav-link-item {
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-decoration: none;
+  padding: 0.4rem 0.85rem;
+  border-radius: 6px;
+  transition: background 0.15s, color 0.15s;
+}
+
+.nav-link-item:hover {
+  background: var(--sky-light);
+  color: var(--sky);
+}
+
+.nav-link-item.signin {
+  background: var(--sky);
+  color: white;
+  font-weight: 600;
+}
+
+.nav-link-item.signin:hover {
+  background: var(--sky-dark);
+  color: white;
+}
+
+/* ── Hero strip (identical to resident-portal) ── */
+.hero-strip {
+  background: linear-gradient(100deg, var(--sky-dark) 0%, var(--sky) 60%, #2e9fd8 100%);
+  padding: 2.5rem 2rem 5rem;
+  position: relative;
+  overflow: hidden;
+  animation: fadeDown 0.5s ease both;
+}
+
+@keyframes fadeDown {
+  from { opacity: 0; transform: translateY(-12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.hero-strip::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background: var(--gray-50);
+  clip-path: ellipse(55% 100% at 50% 100%);
+}
+
+.hero-strip::before {
+  content: '';
+  position: absolute;
+  top: -60px;
+  right: -60px;
+  width: 280px;
+  height: 280px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.06);
+  pointer-events: none;
+}
+
+.hero-deco {
+  position: absolute;
+  bottom: 30px;
+  right: 10%;
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.04);
+  pointer-events: none;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 1;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: rgba(255,255,255,0.9);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-bottom: 0.85rem;
+}
+
+.hero-title {
+  font-family: 'Lora', serif;
+  font-size: 2rem;
+  font-weight: 600;
+  color: white;
+  line-height: 1.25;
+  margin-bottom: 0.5rem;
+  max-width: 480px;
+}
+
+.hero-title em {
+  font-style: italic;
+  color: rgba(255,255,255,0.85);
+}
+
+.hero-sub {
+  font-size: 0.875rem;
+  color: rgba(255,255,255,0.7);
+  max-width: 400px;
+  line-height: 1.6;
+}
+
+/* ── Main content ── */
+.main-content {
+  flex: 1;
+  max-width: 1100px;
+  margin: 0 auto;
+  width: 100%;
+  padding: 0 1.5rem 3rem;
+  margin-top: -3rem;
+  position: relative;
+  z-index: 10;
+  animation: riseUp 0.55s ease 0.1s both;
+}
+
+@keyframes riseUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Layout: benefits left, form right ── */
+.signup-layout {
+  display: grid;
+  grid-template-columns: 1fr 460px;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+/* ── Benefits panel ── */
+.benefits-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding-top: 0.5rem;
+}
+
+.benefits-heading {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding-left: 0.25rem;
+}
+
+.benefit-item {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1rem 1.1rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  transition: box-shadow 0.2s, transform 0.15s;
+}
+
+.benefit-item:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.07);
+  transform: translateY(-2px);
+}
+
+.benefit-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.benefit-title {
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: 3px;
+}
+
+.benefit-desc {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.already-account {
+  text-align: center;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  padding: 0.5rem;
+}
+
+.already-account a {
+  color: var(--sky);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.already-account a:hover { text-decoration: underline; }
+
+/* ── Sign-up card ── */
+.signup-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+}
+
+.signup-card-header {
+  background: linear-gradient(135deg, var(--sky) 0%, var(--sky-dark) 100%);
+  padding: 1.4rem 1.5rem 1.2rem;
+  position: relative;
+}
+
+.signup-card-header::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 20px;
+  background: var(--white);
+  clip-path: ellipse(52% 100% at 50% 100%);
+}
+
+.signup-card-header-deco {
+  position: absolute;
+  top: -20px;
+  right: -20px;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.08);
+}
+
+.signup-welcome {
+  font-family: 'Lora', serif;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: white;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.signup-welcome-sub {
+  font-size: 0.78rem;
+  color: rgba(255,255,255,0.72);
+  margin-top: 3px;
+  position: relative;
+  z-index: 1;
+}
+
+.signup-card-body {
+  padding: 1.5rem 1.5rem 1.25rem;
+}
+
+/* ── Form layout ── */
+.field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.85rem;
+}
+
+.field-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1.1rem;
+}
+
+/* ── Labels ── */
+.form-label {
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--text-mid);
+  margin-bottom: 0.4rem;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.form-label i {
+  font-size: 0.78rem;
+  color: var(--sky);
+}
+
+/* ── Inputs ── */
+.form-control {
+  background: var(--gray-50);
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-dark);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.875rem;
+  padding: 0.62rem 0.9rem;
+  width: 100%;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+  outline: none;
+}
+
+.form-control::placeholder { color: var(--gray-400); }
+
+.form-control:focus {
+  background: var(--white);
+  border-color: var(--sky);
+  box-shadow: 0 0 0 3px rgba(26,127,212,0.12);
+}
+
+/* Valid state */
+.form-control.is-valid {
+  border-color: var(--green);
+  background: var(--white);
+}
+
+.form-control.is-valid:focus {
+  box-shadow: 0 0 0 3px rgba(26,158,95,0.12);
+}
+
+/* Error state */
+.form-control.is-invalid {
+  border-color: var(--red);
+  background: var(--white);
+}
+
+.form-control.is-invalid:focus {
+  box-shadow: 0 0 0 3px rgba(220,38,38,0.12);
+  border-color: var(--red);
+}
+
+/* ── Input with icon ── */
+.input-with-icon { position: relative; }
+
+.input-with-icon .form-control { padding-right: 2.5rem; }
+
+.input-end-icon {
+  position: absolute;
+  right: 11px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--gray-400);
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 2px 4px;
+  transition: color 0.15s;
+}
+
+.input-end-icon:hover { color: var(--text-mid); }
+
+/* ── Form helper text ── */
+.form-text {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-top: 0.3rem;
+}
+
+/* ── Field errors ── */
+.field-error {
+  font-size: 0.72rem;
+  color: var(--red);
+  margin-top: 0.3rem;
+  display: none;
+  align-items: center;
+  gap: 4px;
+}
+
+.field-error.visible {
+  display: flex;
+}
+
+/* ── Password strength bar ── */
+.strength-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 0.45rem;
+}
+
+.strength-track {
+  flex: 1;
+  height: 4px;
+  background: var(--gray-200);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.strength-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: 2px;
+  transition: width 0.3s ease, background 0.3s ease;
+}
+
+.strength-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  white-space: nowrap;
+  min-width: 56px;
+  text-align: right;
+}
+
+/* Strength levels */
+.strength-fill.weak   { width: 25%; background: var(--red); }
+.strength-fill.fair   { width: 50%; background: var(--sun); }
+.strength-fill.good   { width: 75%; background: #3b82f6; }
+.strength-fill.strong { width: 100%; background: var(--green); }
+
+.strength-label.weak   { color: var(--red); }
+.strength-label.fair   { color: var(--sun); }
+.strength-label.good   { color: #3b82f6; }
+.strength-label.strong { color: var(--green); }
+
+/* ── Password match indicator ── */
+.match-indicator {
+  font-size: 0.72rem;
+  font-weight: 600;
+  margin-top: 0.3rem;
+  display: none;
+  align-items: center;
+  gap: 4px;
+}
+
+.match-indicator.match {
+  display: flex;
+  color: var(--green);
+}
+
+.match-indicator.no-match {
+  display: flex;
+  color: var(--red);
+}
+
+/* ── Terms checkbox ── */
+.terms-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 0.4rem;
+}
+
+.form-check-input {
+  width: 15px;
+  height: 15px;
+  border: 1.5px solid var(--border);
+  border-radius: 4px;
+  background: var(--white);
+  cursor: pointer;
+  flex-shrink: 0;
+  margin-top: 2px;
+  accent-color: var(--sky);
+}
+
+.terms-label {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  line-height: 1.5;
+}
+
+.terms-label a {
+  color: var(--sky);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.terms-label a:hover { text-decoration: underline; }
+
+/* ── Submit button ── */
+.btn-signup {
+  width: 100%;
+  background: linear-gradient(135deg, var(--sky) 0%, var(--sky-dark) 100%);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  padding: 0.78rem 1rem;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.1s, box-shadow 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 14px rgba(26,127,212,0.35);
+  margin-top: 1.1rem;
+}
+
+.btn-signup:hover {
+  opacity: 0.92;
+  box-shadow: 0 6px 20px rgba(26,127,212,0.45);
+}
+
+.btn-signup:active { transform: scale(0.98); }
+
+.btn-signup:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ── Sign in prompt ── */
+.signin-prompt {
+  text-align: center;
+  margin-top: 1.1rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.signin-prompt a {
+  color: var(--sky);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.signin-prompt a:hover { text-decoration: underline; }
+
+/* ── Page footer (identical to resident-portal) ── */
+.page-footer {
+  background: var(--white);
+  border-top: 1px solid var(--border);
+  padding: 1rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.footer-links {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.footer-link {
+  font-size: 0.74rem;
+  color: var(--text-muted);
+  text-decoration: none;
+}
+
+.footer-link:hover { color: var(--sky); }
+
+.footer-copy {
+  font-size: 0.72rem;
+  color: var(--gray-400);
+}
+
+/* ════════════════════════════════════════════
+   RESPONSIVE — DESKTOP FIRST
+   Base = 1280px+ desktop
+   ════════════════════════════════════════════ */
+
+@media (max-width: 1280px) {
+  .main-content   { max-width: 1000px; }
+  .signup-layout  { grid-template-columns: 1fr 420px; }
+}
+
+@media (max-width: 1024px) {
+  .signup-layout  { grid-template-columns: 1fr 380px; gap: 1.25rem; }
+  .hero-title     { font-size: 1.8rem; }
+  .top-nav        { padding: 0.65rem 1.5rem; }
+}
+
+@media (max-width: 768px) {
+  .signup-layout              { grid-template-columns: 1fr; }
+  .signup-layout .signup-card { order: -1; }
+  .hero-title                 { font-size: 1.5rem; }
+  .nav-links                  { display: none; }
+  .hero-strip                 { padding-bottom: 4.5rem; }
+  .top-nav                    { padding: 0.65rem 1rem; }
+  .main-content               { padding: 0 1rem 2.5rem; }
+  .page-footer                { padding: 0.75rem 1rem; flex-direction: column; gap: 0.5rem; text-align: center; }
+  .footer-links               { flex-wrap: wrap; justify-content: center; }
+}
+
+@media (max-width: 480px) {
+  .hero-strip     { padding: 1.75rem 1rem 4rem; }
+  .hero-title     { font-size: 1.3rem; }
+  .hero-sub       { font-size: 0.8rem; }
+  .main-content   { padding: 0 0.75rem 2rem; margin-top: -2.5rem; }
+  .field-row      { grid-template-columns: 1fr; }
+  .signup-card-body { padding: 1.25rem 1.1rem 1rem; }
+}
