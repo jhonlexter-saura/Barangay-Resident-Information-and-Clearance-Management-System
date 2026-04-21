@@ -441,10 +441,6 @@ body {
   50%       { opacity: 0.3; }
 }
 
-  .right-panel        { padding: 2rem 1.5rem; }
-  .gov-banner-right   { display: none; }
-}
-
 /* ============================================
    RESPONSIVE — DESKTOP FIRST
    Base = 1280px+ desktop

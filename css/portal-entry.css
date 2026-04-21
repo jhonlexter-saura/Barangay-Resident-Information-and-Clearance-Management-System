@@ -370,25 +370,25 @@ body {
 
 .card-resident .card-cta {
   background: var(--sky);
-  color: var(--white);
+  color: #ffffff !important;
   box-shadow: 0 4px 14px rgba(26,127,212,0.3);
 }
 
 .card-resident .card-cta:hover {
-  background: #1366b0;
+  background: #1366b0!important;
   box-shadow: 0 6px 20px rgba(26,127,212,0.4);
-  color: white;
+  color: white !important;
 }
 
 .card-staff .card-cta {
-  background: var(--gold);
-  color: var(--navy);
+  background: var(--gold)!important;
+  color: var(--navy)!important;
   box-shadow: 0 4px 14px rgba(201,168,76,0.25);
 }
 
 .card-staff .card-cta:hover {
-  background: var(--gold-light);
-  color: var(--navy);
+  background: var(--gold-light)!important;
+  color: var(--navy)!important;
   box-shadow: 0 6px 20px rgba(201,168,76,0.4);
 }
 
