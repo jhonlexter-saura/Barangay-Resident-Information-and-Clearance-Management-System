@@ -31,7 +31,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     
     if ($stmt->execute([$firstname,$lasttname,$email,$hashedPassword])) {
         $_SESSION['success'] = "Your account has been created. You can now login";
-        header('Location: login.php');
+        header('Location: resident-portal.php');
         exit();
     } else {
         echo("There's an error");
