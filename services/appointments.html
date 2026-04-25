@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Appointment - MySerbisyo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Lora:wght@600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="../css/services.css">
+    <style>
+        /* [CSS VARIABLES & RESET] */
+        :root {
+            --sky: #1a7fd4; --sky-dark: #145da0; --sky-light: #e8f2fb; --sky-pale: #f0f7fe;
+            --white: #ffffff; --border: #e2e8f0; --gray-50: #f8fafc; --gray-100: #f1f5f9;
+            --gray-200: #e2e8f0; --gray-400: #94a3b8; --text-dark: #1e293b; --text-mid: #475569;
+            --text-muted: #64748b; --sun: #f59e0b; --sun-light: #fef3c7; --red: #ef4444;
+        }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f8fafc; margin: 0; color: var(--text-mid); }
+        
+        /* [LAYOUT] */
+        .r-content { max-width: 1100px; margin: 2rem auto; padding: 0 1rem; }
+        .svc-layout { display: grid; grid-template-columns: 1fr 320px; gap: 1.5rem; }
+        
+        /* [HERO & STEPS] */
+        .svc-page-hero { background: linear-gradient(100deg, var(--sky-dark), var(--sky)); border-radius: 16px; padding: 1.5rem; color: white; position: relative; margin-bottom: 1.5rem; overflow: hidden; }
+        .svc-hero-title { font-family: 'Lora', serif; font-size: 1.5rem; margin: 0 0 0.5rem; }
+        .svc-hero-meta { position: absolute; right: 1.5rem; top: 50%; transform: translateY(-50%); text-align: right; }
+        .svc-steps { display: flex; gap: 1rem; margin-bottom: 1.5rem; }
+        .svc-step { flex: 1; display: flex; align-items: center; gap: 8px; font-size: 0.75rem; font-weight: 700; color: var(--gray-400); }
+        .svc-step.active { color: var(--sky); }
+        .step-num { width: 24px; height: 24px; border-radius: 50%; border: 2px solid currentColor; display: grid; place-items: center; }
+
+        /* [FORM COMPONENTS] */
+        .svc-form-card { background: white; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+        .svc-form-header { padding: 1rem; background: var(--gray-50); border-bottom: 1px solid var(--border); display: flex; gap: 12px; align-items: center; }
+        .svc-form-body { padding: 1.5rem; }
+        .svc-field-section { margin-bottom: 1.5rem; }
+        .svc-field-section-label { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 1rem; display: block; border-bottom: 1px solid var(--gray-100); padding-bottom: 4px; }
+        
+        .svc-select, .svc-textarea { width: 100%; padding: 0.75rem; border: 1.5px solid var(--border); border-radius: 8px; font-family: inherit; outline: none; }
+        .svc-select:focus, .svc-textarea:focus { border-color: var(--sky); }
+        .svc-select.error { border-color: var(--red); }
+
+        /* [CALENDAR & SLOTS] */
+        .cal-strip { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; scrollbar-width: none; }
+        .cal-day { min-width: 55px; padding: 10px 5px; border: 1.5px solid var(--border); border-radius: 10px; text-align: center; cursor: pointer; background: white; }
+        .cal-day.selected { background: var(--sky); color: white; border-color: var(--sky); }
+        .cal-day.disabled { opacity: 0.3; cursor: not-allowed; }
+        .cal-day-num { font-size: 1.1rem; font-weight: 700; }
+        .cal-day-name { font-size: 0.6rem; text-transform: uppercase; font-weight: 700; }
+
+        .slot-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+        .slot-btn { padding: 10px; border: 1.5px solid var(--border); border-radius: 8px; background: white; font-weight: 600; font-size: 0.8rem; cursor: pointer; }
+        .slot-btn.selected { background: var(--sky-light); color: var(--sky); border-color: var(--sky); }
+        .slot-btn.taken { background: var(--gray-100); color: var(--gray-400); cursor: not-allowed; text-decoration: line-through; }
+
+        /* [SIDEBAR] */
+        .svc-summary-card { background: white; border: 1px solid var(--border); border-radius: 12px; margin-bottom: 1rem; overflow: hidden; }
+        .svc-summary-header { padding: 0.8rem; background: var(--sky); color: white; font-weight: 700; font-size: 0.85rem; }
+        .svc-summary-row { display: flex; justify-content: space-between; padding: 0.8rem; border-bottom: 1px solid var(--gray-50); font-size: 0.8rem; }
+        .btn-add-cart { width: 100%; padding: 0.8rem; background: var(--sky); color: white; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-add-cart.added { background: #10b981; }
+
+        @media (max-width: 768px) { .svc-layout { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+<main class="r-content">
+    <div class="svc-page-hero">
+        <div class="svc-hero-title">Book Appointment</div>
+        <p style="margin:0; font-size:0.8rem; opacity:0.8;">Skip the line at the Municipal Hall.</p>
+        <div class="svc-hero-meta">
+            <div style="font-size: 0.6rem; opacity: 0.7;">SERVICE FEE</div>
+            <div style="font-size: 1.2rem; font-weight: 700;">Free</div>
+        </div>
+    </div>
+
+    <div class="svc-steps">
+        <div class="svc-step active"><div class="step-num">1</div> Details</div>
+        <div class="svc-step"><div class="step-num">2</div> Review</div>
+        <div class="svc-step"><div class="step-num">3</div> Success</div>
+    </div>
+
+    <div class="svc-layout">
+        <div class="svc-form-card">
+            <div class="svc-form-header">
+                <i class="bi bi-calendar-check" style="font-size: 1.5rem; color: var(--sky);"></i>
+                <div>
+                    <div style="font-weight:700; font-size:0.9rem;">Schedule Visit</div>
+                    <div style="font-size:0.7rem; color:var(--text-muted);">Please provide the visit details.</div>
+                </div>
+            </div>
+
+            <div class="svc-form-body">
+                <div class="svc-field-section">
+                    <label class="svc-field-section-label">Select Office</label>
+                    <select class="svc-select" id="appt_office" required>
+                        <option value="">Choose an office...</option>
+                        <option value="Mayor">Mayor's Office</option>
+                        <option value="Registrar">Civil Registrar</option>
+                        <option value="Assessor">Assessor's Office</option>
+                    </select>
+                </div>
+
+                <div class="svc-field-section">
+                    <label class="svc-field-section-label">Pick a Date</label>
+                    <div class="cal-strip" id="calStrip">
+                        </div>
+                </div>
+
+                <div class="svc-field-section" id="slotSection" style="display:none;">
+                    <label class="svc-field-section-label">Available Time Slots</label>
+                    <div class="slot-grid" id="slotGrid">
+                        </div>
+                </div>
+
+                <div class="svc-field-section">
+                    <label class="svc-field-section-label">Reason for Visit</label>
+                    <textarea class="svc-textarea" id="appt_reason" placeholder="Briefly describe your purpose..."></textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="svc-sidebar">
+            <div class="svc-summary-card">
+                <div class="svc-summary-header">Booking Summary</div>
+                <div class="svc-summary-body" id="summaryBody">
+                    <div class="svc-summary-row"><span>Date</span><span id="sumDate">Not Selected</span></div>
+                    <div class="svc-summary-row"><span>Time</span><span id="sumTime">Not Selected</span></div>
+                    <div class="svc-summary-row"><span>Fee</span><span style="color:var(--sky); font-weight:700;">Free</span></div>
+                </div>
+            </div>
+            <button class="btn-add-cart" id="addCartBtn" onclick="handleAddAppointment()">
+                <i class="bi bi-cart-plus"></i> Add to Cart
+            </button>
+        </div>
+    </div>
+</main>
+
+<script src="../js/services.js">
+    // Constants
+    const CART_KEY = 'lgu_cart';
+    const ALL_SLOTS = ['08:00 AM', '09:30 AM', '11:00 AM', '01:30 PM', '03:00 PM'];
+    let selectedDate = null;
+    let selectedSlot = null;
+
+    // Initialization
+    document.addEventListener('DOMContentLoaded', () => {
+        initCalendar();
+    });
+
+    function initCalendar() {
+        const strip = document.getElementById('calStrip');
+        const today = new Date();
+        
+        for (let i = 1; i <= 10; i++) {
+            const d = new Date(today);
+            d.setDate(today.getDate() + i);
+            const dow = d.getDay(); // 0=Sun, 6=Sat
+            
+            const el = document.createElement('div');
+            el.className = 'cal-day' + (dow === 0 || dow === 6 ? ' disabled' : '');
+            el.innerHTML = `
+                <div class="cal-day-name">${d.toLocaleDateString('en-US', {weekday:'short'})}</div>
+                <div class="cal-day-num">${d.getDate()}</div>
+            `;
+            
+            if (dow !== 0 && dow !== 6) {
+                el.onclick = () => {
+                    document.querySelectorAll('.cal-day').forEach(x => x.classList.remove('selected'));
+                    el.classList.add('selected');
+                    selectedDate = d.toLocaleDateString('en-PH', { month: 'long', day: 'numeric', year: 'numeric' });
+                    document.getElementById('sumDate').textContent = selectedDate;
+                    renderSlots();
+                };
+            }
+            strip.appendChild(el);
+        }
+    }
+
+    function renderSlots() {
+        const section = document.getElementById('slotSection');
+        const grid = document.getElementById('slotGrid');
+        section.style.display = 'block';
+        grid.innerHTML = '';
+
+        ALL_SLOTS.forEach(time => {
+            const btn = document.createElement('button');
+            btn.className = 'slot-btn';
+            btn.textContent = time;
+            btn.onclick = () => {
+                document.querySelectorAll('.slot-btn').forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+                selectedSlot = time;
+                document.getElementById('sumTime').textContent = time;
+            };
+            grid.appendChild(btn);
+        });
+    }
+
+    // Cart Logic
+    function handleAddAppointment() {
+        const office = document.getElementById('appt_office');
+        
+        // Basic Validation
+        if (!office.value) { 
+            office.classList.add('error');
+            alert('Please select an office.');
+            return;
+        }
+        if (!selectedDate || !selectedSlot) {
+            alert('Please pick a date and time slot.');
+            return;
+        }
+
+        const cart = JSON.parse(localStorage.getItem(CART_KEY)) || [];
+        const item = {
+            id: Date.now(),
+            name: `Appointment: ${office.value}`,
+            fee: 0,
+            feeLabel: 'Free',
+            icon: 'bi-calendar-check',
+            iconBg: '#e8f2fb',
+            iconColor: '#1a7fd4',
+            formData: {
+                office: office.value,
+                date: selectedDate,
+                slot: selectedSlot,
+                reason: document.getElementById('appt_reason').value
+            }
+        };
+
+        cart.push(item);
+        localStorage.setItem(CART_KEY, JSON.stringify(cart));
+
+        // Feedback
+        const btn = document.getElementById('addCartBtn');
+        btn.classList.add('added');
+        btn.innerHTML = '<i class="bi bi-check-circle"></i> Added to Cart!';
+        btn.disabled = true;
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MySerbisyo — Health Certificate</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Lora:wght@600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        :root {
+            --red: #dc2626; --red-light: #fde8e8; --red-dark: #991b1b;
+            --white: #ffffff; --border: #e2e8f0; --gray-50: #f8fafc; --gray-100: #f1f5f9;
+            --gray-200: #e2e8f0; --text-dark: #1e293b; --text-mid: #475569;
+            --text-muted: #64748b;
+        }
+
+        body {
+            margin: 0; padding: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #f1f5f9; color: var(--text-mid);
+        }
+
+        .r-content { max-width: 1100px; margin: 2rem auto; padding: 0 1.5rem; }
+
+        /* Hero Section */
+        .svc-page-hero {
+            background: linear-gradient(100deg, #dc2626 0%, #ef4444 100%);
+            border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem; color: white;
+        }
+        .svc-hero-title { font-family: 'Lora', serif; font-size: 1.5rem; margin: 0 0 0.3rem 0; }
+        .svc-hero-sub { font-size: 0.8rem; color: rgba(255,255,255,0.85); margin: 0; }
+
+        /* Layout */
+        .svc-layout { display: grid; grid-template-columns: 1fr 300px; gap: 1.5rem; align-items: start; }
+        .svc-form-card { background: var(--white); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .svc-form-body { padding: 1.5rem; }
+
+        /* Form Controls */
+        .svc-field-section { margin-bottom: 1.5rem; }
+        .svc-field-section-label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 0.75rem; display: block; border-bottom: 1px solid var(--gray-100); padding-bottom: 4px; }
+        
+        .svc-select { width: 100%; padding: 0.75rem; border: 1.5px solid var(--border); border-radius: 8px; font-family: inherit; font-size: 0.85rem; background: var(--gray-50); }
+
+        /* File Upload */
+        .svc-file-upload { 
+            border: 2px dashed var(--gray-200); border-radius: 10px; padding: 1.5rem; 
+            text-align: center; background: var(--gray-50); cursor: pointer; position: relative; 
+        }
+        .svc-file-upload:hover { border-color: var(--red); background: var(--red-light); }
+        .svc-file-upload input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+        .upload-preview { margin-top: 10px; font-size: 0.75rem; color: var(--red); font-weight: 600; }
+
+        /* Sidebar & Button */
+        .btn-add-cart { 
+            width: 100%; background: linear-gradient(135deg, var(--red), var(--red-dark)); border: none; 
+            border-radius: 9px; color: white; padding: 0.85rem; font-weight: 700; font-size: 0.88rem; 
+            cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .btn-add-cart.added { background: #10b981; }
+
+        @media (max-width: 768px) { .svc-layout { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+    <main class="r-content">
+        <div class="svc-page-hero">
+            <h1 class="svc-hero-title">Health Certificate</h1>
+            <p class="svc-hero-sub">For food handlers, workers, and sanitary permits.</p>
+        </div>
+
+        <div class="svc-layout">
+            <div class="svc-form-card">
+                <div class="svc-form-body">
+                    <div class="svc-field-section">
+                        <label class="svc-field-section-label">Job Category</label>
+                        <select class="svc-select" id="healthCat">
+                            <option>Food Establishment</option>
+                            <option>Non-Food Worker</option>
+                        </select>
+                    </div>
+                    
+                    <div class="svc-field-section">
+                        <label class="svc-field-section-label">X-Ray Results (PDF)</label>
+                        <div class="svc-file-upload" id="fileDropZone">
+                            <input type="file" id="healthFile" accept=".pdf">
+                            <i class="bi bi-file-earmark-medical" style="font-size: 1.5rem; color: var(--red);"></i>
+                            <div style="font-size: 0.8rem; font-weight: 700; margin-top: 5px;">Click to upload X-Ray</div>
+                            <div style="font-size: 0.65rem; color: var(--text-muted);">PDF format only</div>
+                        </div>
+                        <div id="filePreview" class="upload-preview"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="svc-sidebar">
+                <div style="background: white; border: 1px solid var(--border); border-radius: 12px; padding: 1rem; margin-bottom: 1rem;">
+                    <div style="display: flex; justify-content: space-between; font-size: 0.8rem;">
+                        <span>Service Fee</span>
+                        <span style="font-weight: 700; color: var(--red);">₱100.00</span>
+                    </div>
+                </div>
+                <button class="btn-add-cart" id="addCartBtn" onclick="handleHealthCart()">
+                    <i class="bi bi-cart-plus"></i> Add to Cart
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const CART_KEY = 'lgu_cart';
+
+        // File name preview logic
+        document.getElementById('healthFile').addEventListener('change', function(e) {
+            const fileName = e.target.files[0]?.name;
+            document.getElementById('filePreview').textContent = fileName ? `Selected: ${fileName}` : '';
+        });
+
+        function handleHealthCart() {
+            const category = document.getElementById('healthCat').value;
+            const fileInput = document.getElementById('healthFile');
+
+            if (!fileInput.files.length) {
+                alert('Please upload your X-Ray results.');
+                return;
+            }
+
+            const cart = JSON.parse(localStorage.getItem(CART_KEY)) || [];
+            
+            const item = {
+                id: Date.now(),
+                name: 'Health Certificate',
+                fee: 100.00,
+                feeLabel: '₱100.00',
+                icon: 'bi-heart-pulse-fill',
+                iconBg: '#fde8e8',
+                iconColor: '#dc2626',
+                addedAt: new Date().toISOString(),
+                formData: {
+                    jobCategory: category,
+                    fileName: fileInput.files[0].name
+                }
+            };
+
+            cart.push(item);
+            localStorage.setItem(CART_KEY, JSON.stringify(cart));
+
+            const btn = document.getElementById('addCartBtn');
+            btn.classList.add('added');
+            btn.innerHTML = '<i class="bi bi-check-circle-fill"></i> Added to Cart!';
+            btn.disabled = true;
+        }
+    </script>
+</body>
+</html>
