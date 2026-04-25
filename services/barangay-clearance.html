@@ -1,246 +1,303 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MySerbisyo — Barangay Clearance</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Lora:wght@600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <style>
-        :root {
-            --sky: #1a7fd4; --sky-dark: #145da0; --sky-light: #e8f3fc; --sky-pale: #f0f7fe;
-            --white: #ffffff; --border: #e2e8f0; --gray-50: #f8fafc; --gray-100: #f1f5f9;
-            --gray-200: #e2e8f0; --gray-400: #94a3b8; --text-dark: #1e293b; --text-mid: #475569;
-            --text-muted: #64748b; --red: #ef4444; --green: #10b981;
-        }
-
-        body {
-            margin: 0; padding: 0;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: #f1f5f9;
-            color: var(--text-mid);
-        }
-
-        .r-content { max-width: 1100px; margin: 2rem auto; padding: 0 1.5rem; }
-
-        /* Hero Section */
-        .svc-page-hero {
-            background: linear-gradient(100deg, var(--sky-dark) 0%, var(--sky) 60%, #2e9fd8 100%);
-            border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem; color: white; position: relative; overflow: hidden;
-        }
-
-        .svc-hero-eyebrow { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(255,255,255,0.7); margin-bottom: 0.4rem; display: flex; align-items: center; gap: 6px; }
-        .svc-hero-title { font-family: 'Lora', serif; font-size: 1.5rem; margin: 0 0 0.3rem 0; }
-        .svc-hero-sub { font-size: 0.8rem; color: rgba(255,255,255,0.75); margin: 0; }
-        .svc-hero-meta { position: absolute; right: 1.5rem; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; align-items: flex-end; }
-        .svc-hero-fee { font-family: 'Lora', serif; font-size: 1.5rem; font-weight: 600; }
-        .svc-hero-fee-label { font-size: 0.65rem; color: rgba(255,255,255,0.6); text-transform: uppercase; }
-        .svc-hero-time { font-size: 0.7rem; color: rgba(255,255,255,0.6); display: flex; align-items: center; gap: 4px; }
-
-        /* Layout */
-        .svc-layout { display: grid; grid-template-columns: 1fr 300px; gap: 1.5rem; align-items: start; }
-        .svc-form-card { background: var(--white); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-        .svc-form-header { padding: 1rem 1.25rem; border-bottom: 1px solid var(--gray-100); background: var(--gray-50); display: flex; align-items: center; gap: 10px; }
-        .svc-form-header-icon { width: 36px; height: 36px; border-radius: 9px; display: grid; place-items: center; font-size: 1rem; }
-        .svc-form-title { font-size: 0.9rem; font-weight: 700; color: var(--text-dark); }
-        .svc-form-subtitle { font-size: 0.75rem; color: var(--text-muted); }
-
-        /* Form Controls */
-        .svc-form-body { padding: 1.5rem 1.25rem; }
-        .svc-field-section { margin-bottom: 1.5rem; }
-        .svc-field-section-label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 0.75rem; padding-bottom: 0.4rem; border-bottom: 1px solid var(--gray-100); display: block; }
-        .svc-select { background: var(--gray-50); border: 1.5px solid var(--border); border-radius: 8px; padding: 0.75rem; width: 100%; font-size: 0.85rem; font-family: inherit; }
-        .svc-select.error { border-color: var(--red); }
-        .svc-error-msg { font-size: 0.7rem; color: var(--red); margin-top: 4px; display: none; }
-        .svc-error-msg.show { display: block; }
-
-        /* File Upload */
-        .svc-file-upload { border: 2px dashed var(--gray-200); border-radius: 10px; padding: 1.5rem; text-align: center; background: var(--gray-50); cursor: pointer; transition: 0.2s; position: relative; }
-        .svc-file-upload:hover { border-color: var(--sky); background: var(--sky-pale); }
-        .svc-file-upload.drag-over { border-color: var(--sky); background: var(--sky-light); }
-        .svc-file-upload input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
-        .upload-icon { font-size: 1.8rem; color: var(--sky); margin-bottom: 8px; }
-        .upload-text { font-size: 0.8rem; font-weight: 700; color: var(--text-dark); }
-        .upload-sub { font-size: 0.7rem; color: var(--text-muted); }
-        .upload-preview { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 8px; }
-        .upload-file-chip { background: white; border: 1px solid var(--border); padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; display: flex; align-items: center; gap: 6px; }
-        .upload-file-chip button { border: none; background: none; color: var(--red); font-weight: 800; cursor: pointer; }
-
-        /* Sidebar */
-        .svc-summary-card { background: var(--white); border: 1px solid var(--border); border-radius: 14px; margin-bottom: 1rem; overflow: hidden; }
-        .svc-summary-header { background: linear-gradient(135deg, var(--sky), var(--sky-dark)); padding: 0.85rem 1.1rem; color: white; font-weight: 700; font-size: 0.82rem; }
-        .svc-summary-body { padding: 1rem; }
-        .svc-summary-row { display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid var(--gray-100); font-size: 0.8rem; }
-        .svc-summary-val.fee { color: var(--sky); font-weight: 700; }
-        
-        .btn-add-cart { width: 100%; background: linear-gradient(135deg, var(--sky), var(--sky-dark)); border: none; border-radius: 9px; color: white; padding: 0.8rem; font-weight: 700; font-size: 0.88rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .btn-add-cart.added { background: var(--green); }
-
-        @media (max-width: 768px) { .svc-layout { grid-template-columns: 1fr; } }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MySerbisyo — Barangay Clearance</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="../css/shared.css" rel="stylesheet">
+  <link href="../css/resident-home.css" rel="stylesheet">
+  <link href="../css/services.css" rel="stylesheet">
 </head>
 <body>
 
+  <!-- Sidebar -->
+  <aside class="r-sidebar" id="rSidebar">
+    <div class="r-sidebar-brand">
+      <div class="r-brand-logo"><i class="bi bi-buildings-fill"></i></div>
+      <div class="r-brand-text">
+        <span class="r-brand-name">MySerbisyo</span>
+        <span class="r-brand-sub">Resident Portal</span>
+      </div>
+    </div>
+    
+    <nav class="r-sidebar-nav">
+      <div class="r-nav-label">Menu</div>
+      <a href="../resident-home.html" class="r-nav-item" data-tooltip="Home">
+        <i class="bi bi-house-fill r-nav-icon"></i>
+        <span class="r-nav-text">Home</span>
+      </a>
+      <a href="#" class="r-nav-item" data-tooltip="My Requests">
+        <i class="bi bi-file-earmark-text r-nav-icon"></i>
+        <span class="r-nav-text">My Requests</span>
+        <span class="r-nav-badge">2</span>
+      </a>
+      <a href="resident-payment.html" class="r-nav-item" data-tooltip="Payments">
+        <i class="bi bi-cash-coin r-nav-icon"></i>
+        <span class="r-nav-text">Payments</span>
+        <span class="r-nav-badge" id="cartNavBadge" style="display:none;"></span>
+      </a>
+      <a href="appointments.html" class="r-nav-item" data-tooltip="Appointments">
+        <i class="bi bi-calendar-check r-nav-icon"></i>
+        <span class="r-nav-text">Appointments</span>
+      </a>
+      <a href="#" class="r-nav-item" data-tooltip="Notifications">
+        <i class="bi bi-bell r-nav-icon"></i>
+        <span class="r-nav-text">Notifications</span>
+        <span class="r-nav-badge">5</span>
+      </a>
+      <div class="r-nav-divider"></div>
+      <div class="r-nav-label">Account</div>
+      <a href="../resident-profile.html" class="r-nav-item" data-tooltip="My Profile">
+        <i class="bi bi-person-circle r-nav-icon"></i>
+        <span class="r-nav-text">My Profile</span>
+      </a>
+      <a href="#" class="r-nav-item" data-tooltip="Settings">
+        <i class="bi bi-gear r-nav-icon"></i>
+        <span class="r-nav-text">Settings</span>
+      </a>
+    </nav>
+
+    <div class="r-sidebar-footer">
+      <div class="r-user-row">
+        <div class="r-user-avatar">JD</div>
+        <div class="r-user-info">
+          <span class="r-user-name">Juan Dela Cruz</span>
+          <span class="r-user-sub">Resident ID: RES-00412</span>
+        </div>
+        <a href="../resident-portal.html" class="r-logout-btn" title="Sign out">
+          <i class="bi bi-box-arrow-right"></i>
+        </a>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="r-main" id="rMain">
+    <header class="r-topbar">
+      <div class="r-topbar-left">
+        <button class="r-menu-btn" id="rMenuBtn"><i class="bi bi-list"></i></button>
+        <div class="r-topbar-brand">
+          <div class="r-tb-logo"><i class="bi bi-buildings-fill"></i></div>
+          <span class="r-tb-name">MySerbisyo</span>
+        </div>
+      </div>
+      <div class="r-topbar-right">
+        <a href="resident-payment.html" class="r-topbar-btn" style="position:relative;" title="View cart">
+          <i class="bi bi-cart3"></i>
+          <span class="r-notif-dot" id="cartDot" style="display:none;"></span>
+        </a>
+        <button class="r-topbar-btn"><i class="bi bi-bell"></i><span class="r-notif-dot"></span></button>
+        <a href="../resident-profile.html" class="r-profile-chip">
+          <div class="r-chip-avatar">JD</div>
+          <span class="r-chip-name">Juan</span>
+          <i class="bi bi-chevron-down"></i>
+        </a>
+      </div>
+    </header>
+
     <main class="r-content">
-        <div class="svc-page-hero">
-            <div class="svc-hero-eyebrow"><i class="bi bi-shield-check"></i> Document Request</div>
-            <h1 class="svc-hero-title">Barangay Clearance</h1>
-            <p class="svc-hero-sub">Official clearance for employment, business, or legal requirements.</p>
-            <div class="svc-hero-meta">
-                <div class="svc-hero-fee-label">Standard Fee</div>
-                <div class="svc-hero-fee">₱50.00</div>
-                <div class="svc-hero-time"><i class="bi bi-clock"></i> 1–2 days</div>
+
+      <!-- Back link -->
+      <a href="../resident-home.html" class="svc-back-link" style="display:inline-flex; align-items:center; gap:5px; font-size:0.78rem; font-weight:600; color:var(--text-muted); text-decoration:none; margin-bottom:0.85rem; transition:color 0.15s;">
+        <i class="bi bi-arrow-left"></i> Back to Services
+      </a>
+
+      <!-- Hero -->
+      <div class="svc-page-hero">
+        <div class="svc-hero-eyebrow"><i class="bi bi-file-earmark-text-fill"></i> Service Request</div>
+        <div class="svc-hero-title">Barangay Clearance</div>
+        <div class="svc-hero-sub">For employment, business, travel, and legal purposes</div>
+        <div class="svc-hero-meta">
+          <div class="svc-hero-fee">₱50.00</div>
+          <div class="svc-hero-fee-label">Processing Fee</div>
+          <div class="svc-hero-time"><i class="bi bi-clock"></i> 1–2 business days</div>
+        </div>
+      </div>
+
+      <!-- Steps -->
+      <div class="svc-steps">
+  <div class="svc-step active" id="step-indicator-0">
+    <div class="step-num">1</div>
+    <span class="step-label">Personal Info</span>
+  </div>
+  <div class="svc-step " id="step-indicator-1">
+    <div class="step-num">2</div>
+    <span class="step-label">Purpose & Details</span>
+  </div>
+  <div class="svc-step " id="step-indicator-2">
+    <div class="step-num">3</div>
+    <span class="step-label">Upload Docs</span>
+  </div>
+  <div class="svc-step " id="step-indicator-3">
+    <div class="step-num">4</div>
+    <span class="step-label">Review & Cart</span>
+  </div>
+</div>
+
+      <!-- Layout -->
+      <div class="svc-layout">
+
+        <!-- Form card -->
+        <div class="svc-form-card">
+          <div class="svc-form-header">
+            <div class="svc-form-header-icon" style="background:#e8f3fc; color:#1a7fd4;">
+              <i class="bi bi-file-earmark-text-fill"></i>
             </div>
+            <div class="svc-form-header-text">
+              <div class="svc-form-title">Barangay Clearance</div>
+              <div class="svc-form-subtitle">Fill in all required fields marked with *</div>
+            </div>
+          </div>
+          <div class="svc-form-body">
+            <form id="svcForm" novalidate>
+
+              <!-- Personal information (auto-filled) -->
+              <div class="svc-field-section">
+                <div class="svc-field-section-label"><i class="bi bi-person-fill"></i> Your Information <span style="font-size:0.6rem; color:var(--green); font-weight:600; text-transform:none; letter-spacing:0; background:var(--green-light); padding:2px 6px; border-radius:4px; margin-left:4px;">Auto-filled from profile</span></div>
+                <div class="svc-field-row">
+                  <div class="svc-field">
+                    <label class="svc-label">Full Name</label>
+                    <input type="text" class="svc-input" value="Juan Santos Dela Cruz Jr." disabled>
+                  </div>
+                  <div class="svc-field">
+                    <label class="svc-label">Resident ID</label>
+                    <input type="text" class="svc-input" value="RES-00412" disabled>
+                  </div>
+                </div>
+                <div class="svc-field-row">
+                  <div class="svc-field">
+                    <label class="svc-label">Date of Birth</label>
+                    <input type="text" class="svc-input" value="June 15, 1990" disabled>
+                  </div>
+                  <div class="svc-field">
+                    <label class="svc-label">Address</label>
+                    <input type="text" class="svc-input" value="123 Rizal St., Brgy. San Isidro" disabled>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Service-specific fields -->
+              <div class="svc-field-section">
+                <div class="svc-field-section-label"><i class="bi bi-pencil-square"></i> Service Details</div>
+                
+        <div class="svc-field">
+          <label class="svc-label" for="purpose">Purpose of Clearance<span class="req">*</span></label>
+          <select class="svc-select" id="purpose" name="purpose">
+            <option value="">— Select —</option>
+            <option value="employment">Employment</option>
+            <option value="travel_abroad">Travel Abroad</option>
+            <option value="business">Business</option>
+            <option value="legal_proceedings">Legal Proceedings</option>
+            <option value="scholarship">Scholarship</option>
+            <option value="bank/loan">Bank/Loan</option>
+            <option value="others">Others</option>
+          </select>
+          <span class="svc-error-msg" id="purpose-err"><i class="bi bi-exclamation-circle"></i> This field is required</span>
         </div>
 
-        <div class="svc-layout">
-            <div class="svc-form-card">
-                <div class="svc-form-header">
-                    <div class="svc-form-header-icon" style="background:#e8f3fc; color:#1a7fd4;"><i class="bi bi-file-earmark-text"></i></div>
-                    <div class="svc-form-header-text">
-                        <div class="svc-form-title">Application Form</div>
-                        <div class="svc-form-subtitle">Please provide accurate information</div>
-                    </div>
-                </div>
-                
-                <div class="svc-form-body">
-                    <div class="svc-field-section">
-                        <label class="svc-field-section-label">Purpose of Request</label>
-                        <div class="svc-field">
-                            <select class="svc-select" id="clearancePurpose" required>
-                                <option value="">Select purpose...</option>
-                                <option value="employment">Employment</option>
-                                <option value="business">Business Requirement</option>
-                                <option value="legal">Legal/ID Requirement</option>
-                            </select>
-                            <span class="svc-error-msg" id="clearancePurpose-err">Please select a purpose.</span>
-                        </div>
-                    </div>
-
-                    <div class="svc-field-section">
-                        <label class="svc-field-section-label">Supporting Documents</label>
-                        <div class="svc-file-upload" id="fileDropZone">
-                            <input type="file" id="fileInput" multiple>
-                            <i class="bi bi-cloud-arrow-up upload-icon"></i>
-                            <div class="upload-text">Upload valid ID or proof of residency</div>
-                            <div class="upload-sub">PDF, JPG, or PNG (Max 5MB)</div>
-                        </div>
-                        <div id="uploadPreview" class="upload-preview"></div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="svc-sidebar">
-                <div class="svc-summary-card">
-                    <div class="svc-summary-header">Summary</div>
-                    <div class="svc-summary-body">
-                        <div class="svc-summary-row"><span class="svc-summary-key">Service</span><span class="svc-summary-val">Clearance</span></div>
-                        <div class="svc-summary-row"><span class="svc-summary-key">Fee</span><span class="svc-summary-val fee">₱50.00</span></div>
-                    </div>
-                </div>
-                
-                <button class="btn-add-cart" id="addCartBtn" onclick="addToCart('Barangay Clearance', '₱50.00', 'bi-file-earmark-text', '#e8f3fc', '#1a7fd4')">
-                    <i class="bi bi-cart-plus"></i> Add to Cart
-                </button>
-            </div>
+        <div class="svc-field">
+          <label class="svc-label" for="employer">Name of Employer/Institution (if applicable)<span class="req">*</span></label>
+          <input type="text" class="svc-input" id="employer" name="employer" placeholder="e.g. ABC Corporation">
+          <span class="svc-error-msg" id="employer-err"><i class="bi bi-exclamation-circle"></i> This field is required</span>
         </div>
+                
+                
+              </div>
+
+              <!-- Document uploads -->
+              <div class="svc-field-section">
+                <div class="svc-field-section-label"><i class="bi bi-paperclip"></i> Supporting Documents</div>
+                <div class="svc-file-upload" id="fileDropZone">
+                  <input type="file" id="fileInput" multiple accept=".jpg,.jpeg,.png,.pdf">
+                  <div class="upload-icon"><i class="bi bi-cloud-arrow-up-fill"></i></div>
+                  <div class="upload-text">Click to upload or drag & drop files here</div>
+                  <div class="upload-sub">Accepted: JPG, PNG, PDF &mdash; Max 5MB per file</div>
+                  <div class="upload-preview" id="uploadPreview"></div>
+                </div>
+              </div>
+
+            </form>
+          </div>
+        </div>
+
+        <!-- Right sidebar -->
+        <div class="svc-sidebar">
+
+          <!-- Summary -->
+          <div class="svc-summary-card">
+            <div class="svc-summary-header">
+              <div class="svc-summary-title"><i class="bi bi-receipt"></i> Request Summary</div>
+            </div>
+            <div class="svc-summary-body">
+              <div class="svc-summary-row">
+                <span class="svc-summary-key">Service</span>
+                <span class="svc-summary-val">Barangay Clearance</span>
+              </div>
+              <div class="svc-summary-row">
+                <span class="svc-summary-key">Applicant</span>
+                <span class="svc-summary-val">Juan Dela Cruz</span>
+              </div>
+              <div class="svc-summary-row">
+                <span class="svc-summary-key">Processing</span>
+                <span class="svc-summary-val">1–2 business days</span>
+              </div>
+              <div class="svc-summary-row">
+                <span class="svc-summary-key">Fee</span>
+                <span class="svc-summary-val fee">₱50.00</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Requirements -->
+          <div class="svc-info-card">
+            <div class="svc-info-title"><i class="bi bi-clipboard-check"></i> Requirements</div>
+            <div class="req-checklist">
+                            <div class="req-item"><i class="bi bi-check-circle-fill"></i> Valid government-issued ID</div>
+              <div class="req-item"><i class="bi bi-check-circle-fill"></i> Proof of residency (utility bill or lease agreement)</div>
+              <div class="req-item"><i class="bi bi-check-circle-fill"></i> Barangay ID or voter's ID (if available)</div>
+            </div>
+          </div>
+
+          <!-- Notice -->
+          <div class="svc-notice">
+            <i class="bi bi-info-circle-fill"></i>
+            <span>Adding to cart does not yet submit your request. Proceed to <strong>Payments</strong> to finalize and send your request to the LGU office.</span>
+          </div>
+
+          <!-- Cart section -->
+          <div class="svc-cart-section">
+            <div class="svc-cart-fee-row">
+              <span class="svc-cart-fee-label">Service Fee</span>
+              <span class="svc-cart-fee-value" id="displayFee">₱50.00</span>
+            </div>
+            <button class="btn-add-cart" id="addCartBtn" onclick="addToCart('Barangay Clearance', '₱50.00', 'bi-file-earmark-text-fill', '#e8f3fc', '#1a7fd4')">
+              <i class="bi bi-cart-plus-fill"></i> Add to Cart
+            </button>
+            <div class="svc-cart-note">
+              <i class="bi bi-cart3"></i>
+              View cart in <a href="resident-payment.html">Payments</a>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
     </main>
+  </div>
 
-    <script>
-        // Shared Logic Implementation
-        const CART_KEY = 'lgu_cart';
+  <div class="r-overlay" id="rOverlay"></div>
 
-        function getCart() { return JSON.parse(localStorage.getItem(CART_KEY)) || []; }
-        function saveCart(cart) { localStorage.setItem(CART_KEY, JSON.stringify(cart)); }
+  <!-- Floating cart button -->
+  <a href="../resident-payment.html" class="cart-float" id="cartFloat" style="display:none;">
+    <i class="bi bi-cart-fill"></i>
+    <span id="cartFloatLabel">View Cart</span>
+    <span class="cart-float-count" id="cartFloatCount">0</span>
+  </a>
 
-        function addToCart(name, fee, icon, iconBg, iconColor) {
-            if (!validateForm()) return;
-
-            const cart = getCart();
-            if (cart.find(item => item.name === name)) {
-                showToast(`"${name}" is already in your cart.`, 'info');
-                return;
-            }
-
-            const feeNum = 50.00;
-            const item = {
-                id: Date.now(),
-                name,
-                fee: feeNum,
-                feeLabel: fee,
-                icon, iconBg, iconColor,
-                addedAt: new Date().toISOString(),
-                formData: collectFormData()
-            };
-
-            cart.push(item);
-            saveCart(cart);
-
-            const btn = document.getElementById('addCartBtn');
-            btn.classList.add('added');
-            btn.innerHTML = '<i class="bi bi-check-circle-fill"></i> Added to Cart!';
-            
-            showToast(`"${name}" added to cart.`, 'success');
-        }
-
-        function collectFormData() {
-            const data = {};
-            document.querySelectorAll('.svc-select, .svc-input').forEach(el => {
-                if (el.id) data[el.id] = el.value;
-            });
-            return data;
-        }
-
-        function validateForm() {
-            let valid = true;
-            const purpose = document.getElementById('clearancePurpose');
-            const err = document.getElementById('clearancePurpose-err');
-
-            if (!purpose.value) {
-                purpose.classList.add('error');
-                err.classList.add('show');
-                valid = false;
-            } else {
-                purpose.classList.remove('error');
-                err.classList.remove('show');
-            }
-            return valid;
-        }
-
-        // File Upload Logic
-        function initFileUpload() {
-            const zone = document.getElementById('fileDropZone');
-            const input = document.getElementById('fileInput');
-            const preview = document.getElementById('uploadPreview');
-            let files = [];
-
-            function render() {
-                preview.innerHTML = '';
-                files.forEach((f, i) => {
-                    const chip = document.createElement('div');
-                    chip.className = 'upload-file-chip';
-                    chip.innerHTML = `<i class="bi bi-file-earmark"></i> ${f.name} <button onclick="removeFile(${i})">&times;</button>`;
-                    preview.appendChild(chip);
-                });
-            }
-
-            input.onchange = () => { files = [...files, ...Array.from(input.files)]; render(); };
-            zone.ondragover = (e) => { e.preventDefault(); zone.classList.add('drag-over'); };
-            zone.ondragleave = () => zone.classList.remove('drag-over');
-            zone.ondrop = (e) => { e.preventDefault(); zone.classList.remove('drag-over'); files = [...files, ...Array.from(e.dataTransfer.files)]; render(); };
-
-            window.removeFile = (i) => { files.splice(i, 1); render(); };
-        }
-
-        function showToast(msg, type) {
-            const toast = document.createElement('div');
-            toast.style.cssText = `position:fixed; bottom:20px; right:20px; background:white; padding:12px 20px; border-radius:10px; box-shadow:0 10px 30px rgba(0,0,0,0.1); border-left:4px solid ${type === 'success' ? '#10b981' : '#1a7fd4'}; z-index:9999; font-size:0.85rem; font-weight:600;`;
-            toast.innerHTML = msg;
-            document.body.appendChild(toast);
-            setTimeout(() => toast.remove(), 3000);
-        }
-
-        document.addEventListener('DOMContentLoaded', initFileUpload);
-    </script>
+  <script src="../js/resident-home.js"></script>
+  <script src="../js/services.js"></script>
 </body>
 </html>

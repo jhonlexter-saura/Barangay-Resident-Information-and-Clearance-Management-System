@@ -1,156 +1,318 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MySerbisyo — Scholarship Program</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Lora:wght@600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <style>
-        :root {
-            --ocean: #0369a1; --ocean-light: #e8f3fc; --ocean-dark: #075985;
-            --white: #ffffff; --border: #e2e8f0; --gray-50: #f8fafc; --gray-100: #f1f5f9;
-            --gray-200: #e2e8f0; --text-dark: #1e293b; --text-mid: #475569;
-            --text-muted: #64748b; --red: #ef4444;
-        }
-
-        body {
-            margin: 0; padding: 0;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: #f1f5f9; color: var(--text-mid);
-        }
-
-        .r-content { max-width: 1100px; margin: 2rem auto; padding: 0 1.5rem; }
-
-        /* Hero Section */
-        .svc-page-hero {
-            background: linear-gradient(100deg, #0369a1 0%, #0ea5e9 100%);
-            border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem; color: white;
-        }
-        .svc-hero-title { font-family: 'Lora', serif; font-size: 1.5rem; margin: 0 0 0.3rem 0; }
-        .svc-hero-sub { font-size: 0.8rem; color: rgba(255,255,255,0.85); margin: 0; }
-
-        /* Layout */
-        .svc-layout { display: grid; grid-template-columns: 1fr 300px; gap: 1.5rem; align-items: start; }
-        .svc-form-card { background: var(--white); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-        .svc-form-body { padding: 1.5rem; }
-
-        /* Form Controls */
-        .svc-field-section { margin-bottom: 1.5rem; }
-        .svc-field-section-label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 0.75rem; display: block; border-bottom: 1px solid var(--gray-100); padding-bottom: 4px; }
-        
-        .svc-select, .svc-input { width: 100%; padding: 0.75rem; border: 1.5px solid var(--border); border-radius: 8px; font-family: inherit; font-size: 0.85rem; background: var(--gray-50); box-sizing: border-box; }
-        .svc-select:focus, .svc-input:focus { border-color: var(--ocean); outline: none; background: white; }
-        .svc-input.error { border-color: var(--red); }
-
-        /* Sidebar & Button */
-        .btn-add-cart { 
-            width: 100%; background: linear-gradient(135deg, var(--ocean), var(--ocean-dark)); border: none; 
-            border-radius: 9px; color: white; padding: 0.85rem; font-weight: 700; font-size: 0.88rem; 
-            cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
-        }
-        .btn-add-cart.added { background: #10b981; }
-
-        @media (max-width: 768px) { .svc-layout { grid-template-columns: 1fr; } }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MySerbisyo — Scholarship Application</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="../css/shared.css" rel="stylesheet">
+  <link href="../css/resident-home.css" rel="stylesheet">
+  <link href="../css/services.css" rel="stylesheet">
 </head>
 <body>
 
+  <!-- Sidebar -->
+  <aside class="r-sidebar" id="rSidebar">
+    <div class="r-sidebar-brand">
+      <div class="r-brand-logo"><i class="bi bi-buildings-fill"></i></div>
+      <div class="r-brand-text">
+        <span class="r-brand-name">MySerbisyo</span>
+        <span class="r-brand-sub">Resident Portal</span>
+      </div>
+    </div>
+    
+    <nav class="r-sidebar-nav">
+      <div class="r-nav-label">Menu</div>
+      <a href="../resident-home.html" class="r-nav-item" data-tooltip="Home">
+        <i class="bi bi-house-fill r-nav-icon"></i>
+        <span class="r-nav-text">Home</span>
+      </a>
+      <a href="#" class="r-nav-item" data-tooltip="My Requests">
+        <i class="bi bi-file-earmark-text r-nav-icon"></i>
+        <span class="r-nav-text">My Requests</span>
+        <span class="r-nav-badge">2</span>
+      </a>
+      <a href="resident-payment.html" class="r-nav-item" data-tooltip="Payments">
+        <i class="bi bi-cash-coin r-nav-icon"></i>
+        <span class="r-nav-text">Payments</span>
+        <span class="r-nav-badge" id="cartNavBadge" style="display:none;"></span>
+      </a>
+      <a href="appointments.html" class="r-nav-item" data-tooltip="Appointments">
+        <i class="bi bi-calendar-check r-nav-icon"></i>
+        <span class="r-nav-text">Appointments</span>
+      </a>
+      <a href="#" class="r-nav-item" data-tooltip="Notifications">
+        <i class="bi bi-bell r-nav-icon"></i>
+        <span class="r-nav-text">Notifications</span>
+        <span class="r-nav-badge">5</span>
+      </a>
+      <div class="r-nav-divider"></div>
+      <div class="r-nav-label">Account</div>
+      <a href="../resident-profile.html" class="r-nav-item" data-tooltip="My Profile">
+        <i class="bi bi-person-circle r-nav-icon"></i>
+        <span class="r-nav-text">My Profile</span>
+      </a>
+      <a href="#" class="r-nav-item" data-tooltip="Settings">
+        <i class="bi bi-gear r-nav-icon"></i>
+        <span class="r-nav-text">Settings</span>
+      </a>
+    </nav>
+
+    <div class="r-sidebar-footer">
+      <div class="r-user-row">
+        <div class="r-user-avatar">JD</div>
+        <div class="r-user-info">
+          <span class="r-user-name">Juan Dela Cruz</span>
+          <span class="r-user-sub">Resident ID: RES-00412</span>
+        </div>
+        <a href="../resident-portal.html" class="r-logout-btn" title="Sign out">
+          <i class="bi bi-box-arrow-right"></i>
+        </a>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="r-main" id="rMain">
+    <header class="r-topbar">
+      <div class="r-topbar-left">
+        <button class="r-menu-btn" id="rMenuBtn"><i class="bi bi-list"></i></button>
+        <div class="r-topbar-brand">
+          <div class="r-tb-logo"><i class="bi bi-buildings-fill"></i></div>
+          <span class="r-tb-name">MySerbisyo</span>
+        </div>
+      </div>
+      <div class="r-topbar-right">
+        <a href="resident-payment.html" class="r-topbar-btn" style="position:relative;" title="View cart">
+          <i class="bi bi-cart3"></i>
+          <span class="r-notif-dot" id="cartDot" style="display:none;"></span>
+        </a>
+        <button class="r-topbar-btn"><i class="bi bi-bell"></i><span class="r-notif-dot"></span></button>
+        <a href="resident-profile.html" class="r-profile-chip">
+          <div class="r-chip-avatar">JD</div>
+          <span class="r-chip-name">Juan</span>
+          <i class="bi bi-chevron-down"></i>
+        </a>
+      </div>
+    </header>
+
     <main class="r-content">
-        <div class="svc-page-hero">
-            <h1 class="svc-hero-title">Scholarship Program</h1>
-            <p class="svc-hero-sub">LGU-funded educational assistance for qualified students.</p>
+
+      <!-- Back link -->
+      <a href="../resident-home.html" class="svc-back-link" style="display:inline-flex; align-items:center; gap:5px; font-size:0.78rem; font-weight:600; color:var(--text-muted); text-decoration:none; margin-bottom:0.85rem; transition:color 0.15s;">
+        <i class="bi bi-arrow-left"></i> Back to Services
+      </a>
+
+      <!-- Hero -->
+      <div class="svc-page-hero">
+        <div class="svc-hero-eyebrow"><i class="bi bi-mortarboard-fill"></i> Service Request</div>
+        <div class="svc-hero-title">Scholarship Application</div>
+        <div class="svc-hero-sub">LGU-funded education assistance for qualified residents, SY 2026–2027</div>
+        <div class="svc-hero-meta">
+          <div class="svc-hero-fee">Free</div>
+          <div class="svc-hero-fee-label">Processing Fee</div>
+          <div class="svc-hero-time"><i class="bi bi-clock"></i> 5–7 business days</div>
+        </div>
+      </div>
+
+      <!-- Steps -->
+      <div class="svc-steps">
+  <div class="svc-step active" id="step-indicator-0">
+    <div class="step-num">1</div>
+    <span class="step-label">Applicant Info</span>
+  </div>
+  <div class="svc-step " id="step-indicator-1">
+    <div class="step-num">2</div>
+    <span class="step-label">Academic Details</span>
+  </div>
+  <div class="svc-step " id="step-indicator-2">
+    <div class="step-num">3</div>
+    <span class="step-label">Family Background</span>
+  </div>
+  <div class="svc-step " id="step-indicator-3">
+    <div class="step-num">4</div>
+    <span class="step-label">Upload Docs</span>
+  </div>
+  <div class="svc-step " id="step-indicator-4">
+    <div class="step-num">5</div>
+    <span class="step-label">Review & Cart</span>
+  </div>
+</div>
+
+      <!-- Layout -->
+      <div class="svc-layout">
+
+        <!-- Form card -->
+        <div class="svc-form-card">
+          <div class="svc-form-header">
+            <div class="svc-form-header-icon" style="background:#e8f3fc; color:#0369a1;">
+              <i class="bi bi-mortarboard-fill"></i>
+            </div>
+            <div class="svc-form-header-text">
+              <div class="svc-form-title">Scholarship Application</div>
+              <div class="svc-form-subtitle">Fill in all required fields marked with *</div>
+            </div>
+          </div>
+          <div class="svc-form-body">
+            <form id="svcForm" novalidate>
+
+              <!-- Personal information (auto-filled) -->
+              <div class="svc-field-section">
+                <div class="svc-field-section-label"><i class="bi bi-person-fill"></i> Your Information <span style="font-size:0.6rem; color:var(--green); font-weight:600; text-transform:none; letter-spacing:0; background:var(--green-light); padding:2px 6px; border-radius:4px; margin-left:4px;">Auto-filled from profile</span></div>
+                <div class="svc-field-row">
+                  <div class="svc-field">
+                    <label class="svc-label">Full Name</label>
+                    <input type="text" class="svc-input" value="Juan Santos Dela Cruz Jr." disabled>
+                  </div>
+                  <div class="svc-field">
+                    <label class="svc-label">Resident ID</label>
+                    <input type="text" class="svc-input" value="RES-00412" disabled>
+                  </div>
+                </div>
+                <div class="svc-field-row">
+                  <div class="svc-field">
+                    <label class="svc-label">Date of Birth</label>
+                    <input type="text" class="svc-input" value="June 15, 1990" disabled>
+                  </div>
+                  <div class="svc-field">
+                    <label class="svc-label">Address</label>
+                    <input type="text" class="svc-input" value="123 Rizal St., Brgy. San Isidro" disabled>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Service-specific fields -->
+              <div class="svc-field-section">
+                <div class="svc-field-section-label"><i class="bi bi-pencil-square"></i> Service Details</div>
+                
+        <div class="svc-field">
+          <label class="svc-label" for="school">School / University<span class="req">*</span></label>
+          <input type="text" class="svc-input" id="school" name="school" placeholder="e.g. Bukidnon State University">
+          <span class="svc-error-msg" id="school-err"><i class="bi bi-exclamation-circle"></i> This field is required</span>
         </div>
 
-        <div class="svc-layout">
-            <div class="svc-form-card">
-                <div class="svc-form-body">
-                    <div class="svc-field-section">
-                        <label class="svc-field-section-label">Current Year Level</label>
-                        <select class="svc-select" id="scholarLevel">
-                            <option>Senior High School</option>
-                            <option>College (1st Year)</option>
-                            <option>College (2nd Year)</option>
-                            <option>College (3rd Year)</option>
-                            <option>College (4th Year)</option>
-                        </select>
-                    </div>
-                    
-                    <div class="svc-field-section">
-                        <label class="svc-field-section-label">GWA (Last Semester)</label>
-                        <input type="number" step="0.01" class="svc-input" id="scholarGwa" placeholder="0.00" min="1.00" max="5.00">
-                        <p style="font-size: 0.65rem; color: var(--text-muted); margin-top: 5px;">
-                            Please enter your General Weighted Average from the most recent term.
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="svc-sidebar">
-                <div style="background: white; border: 1px solid var(--border); border-radius: 12px; padding: 1rem; margin-bottom: 1rem;">
-                    <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 5px;">
-                        <span>Application Fee</span>
-                        <span style="font-weight: 700; color: var(--ocean);">FREE</span>
-                    </div>
-                    <div style="font-size: 0.65rem; color: var(--text-muted); line-height: 1.3;">
-                        Applications are subject to screening and availability of funds.
-                    </div>
-                </div>
-                <button class="btn-add-cart" id="addCartBtn" onclick="handleScholarCart()">
-                    <i class="bi bi-cart-plus"></i> Add to Cart
-                </button>
-            </div>
+        <div class="svc-field">
+          <label class="svc-label" for="course">Course / Grade Level<span class="req">*</span></label>
+          <input type="text" class="svc-input" id="course" name="course" placeholder="e.g. BS Nursing, Grade 11">
+          <span class="svc-error-msg" id="course-err"><i class="bi bi-exclamation-circle"></i> This field is required</span>
         </div>
+
+        <div class="svc-field">
+          <label class="svc-label" for="school_year">School Year<span class="req">*</span></label>
+          <input type="text" class="svc-input" id="school_year" name="school_year" placeholder="e.g. 2026–2027">
+          <span class="svc-error-msg" id="school_year-err"><i class="bi bi-exclamation-circle"></i> This field is required</span>
+        </div>
+
+        <div class="svc-field">
+          <label class="svc-label" for="gwa">General Average (Last Year)<span class="req">*</span></label>
+          <input type="text" class="svc-input" id="gwa" name="gwa" placeholder="e.g. 90.5">
+          <span class="svc-error-msg" id="gwa-err"><i class="bi bi-exclamation-circle"></i> This field is required</span>
+        </div>
+
+        <div class="svc-field">
+          <label class="svc-label" for="guardian_income">Guardian's Monthly Income (₱)<span class="req">*</span></label>
+          <input type="number" class="svc-input" id="guardian_income" name="guardian_income" placeholder="e.g. 12000">
+          <span class="svc-error-msg" id="guardian_income-err"><i class="bi bi-exclamation-circle"></i> This field is required</span>
+        </div>
+                
+                
+              </div>
+
+              <!-- Document uploads -->
+              <div class="svc-field-section">
+                <div class="svc-field-section-label"><i class="bi bi-paperclip"></i> Supporting Documents</div>
+                <div class="svc-file-upload" id="fileDropZone">
+                  <input type="file" id="fileInput" multiple accept=".jpg,.jpeg,.png,.pdf">
+                  <div class="upload-icon"><i class="bi bi-cloud-arrow-up-fill"></i></div>
+                  <div class="upload-text">Click to upload or drag & drop files here</div>
+                  <div class="upload-sub">Accepted: JPG, PNG, PDF &mdash; Max 5MB per file</div>
+                  <div class="upload-preview" id="uploadPreview"></div>
+                </div>
+              </div>
+
+            </form>
+          </div>
+        </div>
+
+        <!-- Right sidebar -->
+        <div class="svc-sidebar">
+
+          <!-- Summary -->
+          <div class="svc-summary-card">
+            <div class="svc-summary-header">
+              <div class="svc-summary-title"><i class="bi bi-receipt"></i> Request Summary</div>
+            </div>
+            <div class="svc-summary-body">
+              <div class="svc-summary-row">
+                <span class="svc-summary-key">Service</span>
+                <span class="svc-summary-val">Scholarship Application</span>
+              </div>
+              <div class="svc-summary-row">
+                <span class="svc-summary-key">Applicant</span>
+                <span class="svc-summary-val">Juan Dela Cruz</span>
+              </div>
+              <div class="svc-summary-row">
+                <span class="svc-summary-key">Processing</span>
+                <span class="svc-summary-val">5–7 business days</span>
+              </div>
+              <div class="svc-summary-row">
+                <span class="svc-summary-key">Fee</span>
+                <span class="svc-summary-val fee">Free</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Requirements -->
+          <div class="svc-info-card">
+            <div class="svc-info-title"><i class="bi bi-clipboard-check"></i> Requirements</div>
+            <div class="req-checklist">
+                            <div class="req-item"><i class="bi bi-check-circle-fill"></i> Barangay Indigency Certificate</div>
+              <div class="req-item"><i class="bi bi-check-circle-fill"></i> Latest Report Card / Transcript of Records</div>
+              <div class="req-item"><i class="bi bi-check-circle-fill"></i> 2x2 ID photo</div>
+              <div class="req-item"><i class="bi bi-check-circle-fill"></i> Parent/Guardian Valid ID</div>
+              <div class="req-item"><i class="bi bi-check-circle-fill"></i> Enrollment Form or Acceptance Letter (for college)</div>
+            </div>
+          </div>
+
+          <!-- Notice -->
+          <div class="svc-notice">
+            <i class="bi bi-info-circle-fill"></i>
+            <span>Adding to cart does not yet submit your request. Proceed to <strong>Payments</strong> to finalize and send your request to the LGU office.</span>
+          </div>
+
+          <!-- Cart section -->
+          <div class="svc-cart-section">
+            <div class="svc-cart-fee-row">
+              <span class="svc-cart-fee-label">Service Fee</span>
+              <span class="svc-cart-fee-value" id="displayFee">Free</span>
+            </div>
+            <button class="btn-add-cart" id="addCartBtn" onclick="addToCart('Scholarship Application', 'Free', 'bi-mortarboard-fill', '#e8f3fc', '#0369a1')">
+              <i class="bi bi-cart-plus-fill"></i> Add to Cart
+            </button>
+            <div class="svc-cart-note">
+              <i class="bi bi-cart3"></i>
+              View cart in <a href="resident-payment.html">Payments</a>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
     </main>
+  </div>
 
-    <script>
-        const CART_KEY = 'lgu_cart';
+  <div class="r-overlay" id="rOverlay"></div>
 
-        function handleScholarCart() {
-            const level = document.getElementById('scholarLevel').value;
-            const gwaInput = document.getElementById('scholarGwa');
-            const gwaValue = parseFloat(gwaInput.value);
+  <!-- Floating cart button -->
+  <a href="resident-payment.html" class="cart-float" id="cartFloat" style="display:none;">
+    <i class="bi bi-cart-fill"></i>
+    <span id="cartFloatLabel">View Cart</span>
+    <span class="cart-float-count" id="cartFloatCount">0</span>
+  </a>
 
-            // Simple validation
-            if (!gwaValue || gwaValue < 1.0 || gwaValue > 5.0) {
-                gwaInput.classList.add('error');
-                alert('Please enter a valid GWA (1.00 - 5.00).');
-                return;
-            } else {
-                gwaInput.classList.remove('error');
-            }
-
-            const cart = JSON.parse(localStorage.getItem(CART_KEY)) || [];
-            
-            // Prevent duplicate applications
-            if (cart.find(item => item.name === 'Scholarship Application')) {
-                alert('A scholarship application is already in your cart.');
-                return;
-            }
-
-            const item = {
-                id: Date.now(),
-                name: 'Scholarship Application',
-                fee: 0,
-                feeLabel: 'Free',
-                icon: 'bi-mortarboard-fill',
-                iconBg: '#e8f3fc',
-                iconColor: '#0369a1',
-                addedAt: new Date().toISOString(),
-                formData: {
-                    yearLevel: level,
-                    gwa: gwaValue
-                }
-            };
-
-            cart.push(item);
-            localStorage.setItem(CART_KEY, JSON.stringify(cart));
-
-            const btn = document.getElementById('addCartBtn');
-            btn.classList.add('added');
-            btn.innerHTML = '<i class="bi bi-check-circle-fill"></i> Added to Cart!';
-            btn.disabled = true;
-        }
-    </script>
+  <script src="../js/resident-home.js"></script>
+  <script src="../js/services.js"></script>
 </body>
 </html>
