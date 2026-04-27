@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MySerbisyo — My Requests</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="css/shared.css" rel="stylesheet">
+  <link href="css/resident-home.css" rel="stylesheet">
+  <link href="css/resident-requests.css" rel="stylesheet">
+</head>
+<body>
+
+  <!-- ── Sidebar ── -->
+  <aside class="r-sidebar" id="rSidebar">
+    <div class="r-sidebar-brand">
+      <div class="r-brand-logo"><i class="bi bi-buildings-fill"></i></div>
+      <div class="r-brand-text">
+        <span class="r-brand-name">MySerbisyo</span>
+        <span class="r-brand-sub">Resident Portal</span>
+      </div>
+    </div>
+    <nav class="r-sidebar-nav">
+      <div class="r-nav-label">Menu</div>
+      <a href="resident-home.html" class="r-nav-item" data-tooltip="Home">
+        <i class="bi bi-house-fill r-nav-icon"></i>
+        <span class="r-nav-text">Home</span>
+      </a>
+      <a href="resident-requests.html" class="r-nav-item active" data-tooltip="My Requests">
+        <i class="bi bi-file-earmark-text r-nav-icon"></i>
+        <span class="r-nav-text">My Requests</span>
+        <span class="r-nav-badge">2</span>
+      </a>
+      <a href="services/resident-payment.html" class="r-nav-item" data-tooltip="Payments">
+        <i class="bi bi-cash-coin r-nav-icon"></i>
+        <span class="r-nav-text">Payments</span>
+      </a>
+      <a href="#" class="r-nav-item" data-tooltip="Appointments">
+        <i class="bi bi-calendar-check r-nav-icon"></i>
+        <span class="r-nav-text">Appointments</span>
+      </a>
+      <a href="resident-notifications.html" class="r-nav-item" data-tooltip="Notifications">
+        <i class="bi bi-bell r-nav-icon"></i>
+        <span class="r-nav-text">Notifications</span>
+        <span class="r-nav-badge">5</span>
+      </a>
+      <div class="r-nav-divider"></div>
+      <div class="r-nav-label">Account</div>
+      <a href="resident-profile.html" class="r-nav-item" data-tooltip="My Profile">
+        <i class="bi bi-person-circle r-nav-icon"></i>
+        <span class="r-nav-text">My Profile</span>
+      </a>
+      <a href="#" class="r-nav-item" data-tooltip="Settings">
+        <i class="bi bi-gear r-nav-icon"></i>
+        <span class="r-nav-text">Settings</span>
+      </a>
+      <a href="#" class="r-nav-item" data-tooltip="Help">
+        <i class="bi bi-question-circle r-nav-icon"></i>
+        <span class="r-nav-text">Help & Support</span>
+      </a>
+    </nav>
+    <div class="r-sidebar-footer">
+      <div class="r-user-row">
+        <div class="r-user-avatar">JD</div>
+        <div class="r-user-info">
+          <span class="r-user-name">Juan Dela Cruz</span>
+          <span class="r-user-sub">Resident ID: RES-00412</span>
+        </div>
+        <a href="resident-portal.html" class="r-logout-btn" title="Sign out">
+          <i class="bi bi-box-arrow-right"></i>
+        </a>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ── Main ── -->
+  <div class="r-main" id="rMain">
+
+    <header class="r-topbar">
+      <div class="r-topbar-left">
+        <button class="r-menu-btn" id="rMenuBtn"><i class="bi bi-list"></i></button>
+        <div class="r-topbar-brand">
+          <div class="r-tb-logo"><i class="bi bi-buildings-fill"></i></div>
+          <span class="r-tb-name">MySerbisyo</span>
+        </div>
+      </div>
+      <div class="r-topbar-right">
+        <a href="resident-notifications.html" class="r-topbar-btn" title="Notifications">
+          <i class="bi bi-bell"></i>
+          <span class="r-notif-dot"></span>
+        </a>
+        <a href="resident-profile.html" class="r-profile-chip">
+          <div class="r-chip-avatar">JD</div>
+          <span class="r-chip-name">Juan</span>
+          <i class="bi bi-chevron-down"></i>
+        </a>
+      </div>
+    </header>
+
+    <main class="r-content">
+
+      <!-- Page header -->
+      <div class="rq-page-header">
+        <div>
+          <h1 class="rq-page-title">My Requests</h1>
+          <p class="rq-page-sub">Track and manage all your service applications</p>
+        </div>
+        <a href="resident-home.html" class="rq-new-btn">
+          <i class="bi bi-plus-lg"></i> New Request
+        </a>
+      </div>
+
+      <!-- ── Summary strip ── -->
+      <div class="rq-summary-strip">
+        <div class="rq-summary-card" data-filter="all">
+          <div class="rqs-value" id="countAll">10</div>
+          <div class="rqs-label">All Requests</div>
+        </div>
+        <div class="rq-summary-card" data-filter="pending">
+          <div class="rqs-dot" style="background:#f59e0b;"></div>
+          <div class="rqs-value" id="countPending">2</div>
+          <div class="rqs-label">Pending</div>
+        </div>
+        <div class="rq-summary-card" data-filter="processing">
+          <div class="rqs-dot" style="background:#1a7fd4;"></div>
+          <div class="rqs-value" id="countProcessing">1</div>
+          <div class="rqs-label">Processing</div>
+        </div>
+        <div class="rq-summary-card" data-filter="approved">
+          <div class="rqs-dot" style="background:#1a9e5f;"></div>
+          <div class="rqs-value" id="countApproved">6</div>
+          <div class="rqs-label">Approved</div>
+        </div>
+        <div class="rq-summary-card" data-filter="rejected">
+          <div class="rqs-dot" style="background:#dc2626;"></div>
+          <div class="rqs-value" id="countRejected">1</div>
+          <div class="rqs-label">Rejected</div>
+        </div>
+      </div>
+
+      <!-- ── Filters & search ── -->
+      <div class="rq-toolbar">
+        <div class="rq-search-wrap">
+          <i class="bi bi-search rq-search-icon"></i>
+          <input type="text" class="rq-search" id="rqSearch" placeholder="Search by reference, service type…">
+        </div>
+        <div class="rq-filters">
+          <button class="rq-filter-btn active" data-filter="all">All</button>
+          <button class="rq-filter-btn" data-filter="pending">Pending</button>
+          <button class="rq-filter-btn" data-filter="processing">Processing</button>
+          <button class="rq-filter-btn" data-filter="approved">Approved</button>
+          <button class="rq-filter-btn" data-filter="rejected">Rejected</button>
+        </div>
+        <div class="rq-sort-wrap">
+          <select class="rq-sort" id="rqSort">
+            <option value="newest">Newest First</option>
+            <option value="oldest">Oldest First</option>
+            <option value="status">By Status</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- ── Requests list ── -->
+      <div class="rq-list" id="rqList">
+
+        <!-- Request item: Pending -->
+        <div class="rq-item" data-status="pending" data-ref="2026-04-0841">
+          <div class="rq-item-icon" style="background:#e8f3fc; color:#1a7fd4;">
+            <i class="bi bi-file-earmark-text-fill"></i>
+          </div>
+          <div class="rq-item-body">
+            <div class="rq-item-top">
+              <div class="rq-item-name">Barangay Clearance</div>
+              <span class="rq-status-badge pending">
+                <span class="rq-status-dot"></span> Pending
+              </span>
+            </div>
+            <div class="rq-item-ref">Ref # <strong>2026-04-0841</strong></div>
+            <div class="rq-item-meta">
+              <span><i class="bi bi-calendar3"></i> Filed: Apr 21, 2026</span>
+              <span><i class="bi bi-cash"></i> ₱50.00</span>
+              <span><i class="bi bi-clock"></i> Est. release: Apr 23, 2026</span>
+            </div>
+            <div class="rq-timeline">
+              <div class="rq-tl-step done"><div class="rq-tl-dot"></div><span>Submitted</span></div>
+              <div class="rq-tl-line done"></div>
+              <div class="rq-tl-step active"><div class="rq-tl-dot"></div><span>Under Review</span></div>
+              <div class="rq-tl-line"></div>
+              <div class="rq-tl-step"><div class="rq-tl-dot"></div><span>Processing</span></div>
+              <div class="rq-tl-line"></div>
+              <div class="rq-tl-step"><div class="rq-tl-dot"></div><span>Ready</span></div>
+            </div>
+          </div>
+          <div class="rq-item-actions">
+            <button class="rq-action-btn primary" onclick="viewRequest('2026-04-0841')">
+              <i class="bi bi-eye"></i> View
+            </button>
+            <button class="rq-action-btn danger" onclick="cancelRequest('2026-04-0841')">
+              <i class="bi bi-x-lg"></i> Cancel
+            </button>
+          </div>
+        </div>
+
+        <!-- Request item: Processing -->
+        <div class="rq-item" data-status="processing" data-ref="2026-03-0712">
+          <div class="rq-item-icon" style="background:#e6f7ef; color:#1a9e5f;">
+            <i class="bi bi-card-heading"></i>
+          </div>
+          <div class="rq-item-body">
+            <div class="rq-item-top">
+              <div class="rq-item-name">Cedula / Community Tax Certificate</div>
+              <span class="rq-status-badge processing">
+                <span class="rq-status-dot"></span> Processing
+              </span>
+            </div>
+            <div class="rq-item-ref">Ref # <strong>2026-03-0712</strong></div>
+            <div class="rq-item-meta">
+              <span><i class="bi bi-calendar3"></i> Filed: Mar 15, 2026</span>
+              <span><i class="bi bi-cash"></i> ₱30.00</span>
+              <span><i class="bi bi-clock"></i> Est. release: Today</span>
+            </div>
+            <div class="rq-timeline">
+              <div class="rq-tl-step done"><div class="rq-tl-dot"></div><span>Submitted</span></div>
+              <div class="rq-tl-line done"></div>
+              <div class="rq-tl-step done"><div class="rq-tl-dot"></div><span>Under Review</span></div>
+              <div class="rq-tl-line done"></div>
+              <div class="rq-tl-step active"><div class="rq-tl-dot"></div><span>Processing</span></div>
+              <div class="rq-tl-line"></div>
+              <div class="rq-tl-step"><div class="rq-tl-dot"></div><span>Ready</span></div>
+            </div>
+          </div>
+          <div class="rq-item-actions">
+            <button class="rq-action-btn primary" onclick="viewRequest('2026-03-0712')">
+              <i class="bi bi-eye"></i> View
+            </button>
+          </div>
+        </div>
+
+        <!-- Request item: Approved -->
+        <div class="rq-item" data-status="approved" data-ref="2026-02-0589">
+          <div class="rq-item-icon" style="background:#fde8e8; color:#dc2626;">
+            <i class="bi bi-heart-pulse-fill"></i>
+          </div>
+          <div class="rq-item-body">
+            <div class="rq-item-top">
+              <div class="rq-item-name">Health Certificate</div>
+              <span class="rq-status-badge approved">
+                <span class="rq-status-dot"></span> Approved
+              </span>
+            </div>
+            <div class="rq-item-ref">Ref # <strong>2026-02-0589</strong></div>
+            <div class="rq-item-meta">
+              <span><i class="bi bi-calendar3"></i> Filed: Feb 20, 2026</span>
+              <span><i class="bi bi-cash"></i> ₱100.00</span>
+              <span><i class="bi bi-check-circle"></i> Released: Feb 21, 2026</span>
+            </div>
+            <div class="rq-timeline">
+              <div class="rq-tl-step done"><div class="rq-tl-dot"></div><span>Submitted</span></div>
+              <div class="rq-tl-line done"></div>
+              <div class="rq-tl-step done"><div class="rq-tl-dot"></div><span>Under Review</span></div>
+              <div class="rq-tl-line done"></div>
+              <div class="rq-tl-step done"><div class="rq-tl-dot"></div><span>Processing</span></div>
+              <div class="rq-tl-line done"></div>
+              <div class="rq-tl-step done"><div class="rq-tl-dot"></div><span>Ready</span></div>
+            </div>
+          </div>
+          <div class="rq-item-actions">
+            <button class="rq-action-btn primary" onclick="viewRequest('2026-02-0589')">
+              <i class="bi bi-eye"></i> View
+            </button>
+            <button class="rq-action-btn success" onclick="downloadDoc('2026-02-0589')">
+              <i class="bi bi-download"></i> Download
+            </button>
+          </div>
+        </div>
+
+        <!-- Request item: Approved -->
+        <div class="rq-item" data-status="approved" data-ref="2026-01-0441">
+          <div class="rq-item-icon" style="background:#f0e8ff; color:#7c3aed;">
+            <i class="bi bi-people-fill"></i>
+          </div>
+          <div class="rq-item-body">
+            <div class="rq-item-top">
+              <div class="rq-item-name">Indigency Certificate</div>
+              <span class="rq-status-badge approved">
+                <span class="rq-status-dot"></span> Approved
+              </span>
+            </div>
+            <div class="rq-item-ref">Ref # <strong>2026-01-0441</strong></div>
+            <div class="rq-item-meta">
+              <span><i class="bi bi-calendar3"></i> Filed: Jan 10, 2026</span>
+              <span><i class="bi bi-cash"></i> Free</span>
+              <span><i class="bi bi-check-circle"></i> Released: Jan 10, 2026</span>
+            </div>
+            <div class="rq-timeline">
+              <div class="rq-tl-step done"><div class="rq-tl-dot"></div><span>Submitted</span></div>
+              <div class="rq-tl-line done"></div>
+              <div class="rq-tl-step done"><div class="rq-tl-dot"></div><span>Under Review</span></div>
+              <div class="rq-tl-line done"></div>
+              <div class="rq-tl-step done"><div class="rq-tl-dot"></div><span>Processing</span></div>
+              <div class="rq-tl-line done"></div>
+              <div class="rq-tl-step done"><div class="rq-tl-dot"></div><span>Ready</span></div>
+            </div>
+          </div>
+          <div class="rq-item-actions">
+            <button class="rq-action-btn primary" onclick="viewRequest('2026-01-0441')">
+              <i class="bi bi-eye"></i> View
+            </button>
+            <button class="rq-action-btn success" onclick="downloadDoc('2026-01-0441')">
+              <i class="bi bi-download"></i> Download
+            </button>
+          </div>
+        </div>
+
+        <!-- Request item: Rejected -->
+        <div class="rq-item" data-status="rejected" data-ref="2025-12-0388">
+          <div class="rq-item-icon" style="background:#fef3c7; color:#d97706;">
+            <i class="bi bi-house-fill"></i>
+          </div>
+          <div class="rq-item-body">
+            <div class="rq-item-top">
+              <div class="rq-item-name">Business Permit</div>
+              <span class="rq-status-badge rejected">
+                <span class="rq-status-dot"></span> Rejected
+              </span>
+            </div>
+            <div class="rq-item-ref">Ref # <strong>2025-12-0388</strong></div>
+            <div class="rq-item-meta">
+              <span><i class="bi bi-calendar3"></i> Filed: Dec 5, 2025</span>
+              <span><i class="bi bi-cash"></i> Varies</span>
+              <span><i class="bi bi-x-circle"></i> Rejected: Dec 9, 2025</span>
+            </div>
+            <div class="rq-rejection-note">
+              <i class="bi bi-exclamation-triangle-fill"></i>
+              <span><strong>Reason:</strong> Incomplete documents — DTI Certificate of Business Name missing. Please re-apply with complete requirements.</span>
+            </div>
+          </div>
+          <div class="rq-item-actions">
+            <button class="rq-action-btn primary" onclick="viewRequest('2025-12-0388')">
+              <i class="bi bi-eye"></i> View
+            </button>
+            <button class="rq-action-btn warning" onclick="reapply('2025-12-0388')">
+              <i class="bi bi-arrow-clockwise"></i> Re-apply
+            </button>
+          </div>
+        </div>
+
+        <!-- Request items 6-10: Approved (collapsed style) -->
+        <div class="rq-item" data-status="approved" data-ref="2025-11-0301">
+          <div class="rq-item-icon" style="background:#e8f5e8; color:#16a34a;">
+            <i class="bi bi-cash-coin"></i>
+          </div>
+          <div class="rq-item-body">
+            <div class="rq-item-top">
+              <div class="rq-item-name">Real Property Tax Payment</div>
+              <span class="rq-status-badge approved"><span class="rq-status-dot"></span> Approved</span>
+            </div>
+            <div class="rq-item-ref">Ref # <strong>2025-11-0301</strong></div>
+            <div class="rq-item-meta">
+              <span><i class="bi bi-calendar3"></i> Filed: Nov 3, 2025</span>
+              <span><i class="bi bi-cash"></i> ₱3,750.00</span>
+              <span><i class="bi bi-check-circle"></i> Released: Nov 3, 2025</span>
+            </div>
+          </div>
+          <div class="rq-item-actions">
+            <button class="rq-action-btn primary" onclick="viewRequest('2025-11-0301')"><i class="bi bi-eye"></i> View</button>
+            <button class="rq-action-btn success" onclick="downloadDoc('2025-11-0301')"><i class="bi bi-download"></i> Download</button>
+          </div>
+        </div>
+
+        <div class="rq-item" data-status="approved" data-ref="2025-09-0244">
+          <div class="rq-item-icon" style="background:#e8f3fc; color:#0369a1;">
+            <i class="bi bi-mortarboard-fill"></i>
+          </div>
+          <div class="rq-item-body">
+            <div class="rq-item-top">
+              <div class="rq-item-name">Scholarship Application</div>
+              <span class="rq-status-badge approved"><span class="rq-status-dot"></span> Approved</span>
+            </div>
+            <div class="rq-item-ref">Ref # <strong>2025-09-0244</strong></div>
+            <div class="rq-item-meta">
+              <span><i class="bi bi-calendar3"></i> Filed: Sep 12, 2025</span>
+              <span><i class="bi bi-cash"></i> Free</span>
+              <span><i class="bi bi-check-circle"></i> Approved: Sep 20, 2025</span>
+            </div>
+          </div>
+          <div class="rq-item-actions">
+            <button class="rq-action-btn primary" onclick="viewRequest('2025-09-0244')"><i class="bi bi-eye"></i> View</button>
+            <button class="rq-action-btn success" onclick="downloadDoc('2025-09-0244')"><i class="bi bi-download"></i> Download</button>
+          </div>
+        </div>
+
+        <!-- Pending (2nd) -->
+        <div class="rq-item" data-status="pending" data-ref="2026-04-0862">
+          <div class="rq-item-icon" style="background:#fef3c7; color:#b45309;">
+            <i class="bi bi-calendar-heart-fill"></i>
+          </div>
+          <div class="rq-item-body">
+            <div class="rq-item-top">
+              <div class="rq-item-name">Book Appointment — Civil Registrar</div>
+              <span class="rq-status-badge pending"><span class="rq-status-dot"></span> Pending</span>
+            </div>
+            <div class="rq-item-ref">Ref # <strong>2026-04-0862</strong></div>
+            <div class="rq-item-meta">
+              <span><i class="bi bi-calendar3"></i> Filed: Apr 22, 2026</span>
+              <span><i class="bi bi-cash"></i> Free</span>
+              <span><i class="bi bi-clock"></i> Appointment: Apr 25, 2026 10:00 AM</span>
+            </div>
+            <div class="rq-timeline">
+              <div class="rq-tl-step done"><div class="rq-tl-dot"></div><span>Submitted</span></div>
+              <div class="rq-tl-line active"></div>
+              <div class="rq-tl-step active"><div class="rq-tl-dot"></div><span>Under Review</span></div>
+              <div class="rq-tl-line"></div>
+              <div class="rq-tl-step"><div class="rq-tl-dot"></div><span>Confirmed</span></div>
+              <div class="rq-tl-line"></div>
+              <div class="rq-tl-step"><div class="rq-tl-dot"></div><span>Done</span></div>
+            </div>
+          </div>
+          <div class="rq-item-actions">
+            <button class="rq-action-btn primary" onclick="viewRequest('2026-04-0862')"><i class="bi bi-eye"></i> View</button>
+            <button class="rq-action-btn danger" onclick="cancelRequest('2026-04-0862')"><i class="bi bi-x-lg"></i> Cancel</button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Empty state -->
+      <div class="rq-empty" id="rqEmpty" style="display:none;">
+        <div class="rq-empty-icon"><i class="bi bi-folder2-open"></i></div>
+        <div class="rq-empty-title">No requests found</div>
+        <div class="rq-empty-sub">Try adjusting your filters or search term.</div>
+        <a href="resident-home.html" class="rq-empty-link">
+          <i class="bi bi-plus-lg"></i> Start a New Request
+        </a>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- ── Request detail modal ── -->
+  <div class="rq-modal-backdrop" id="rqModalBackdrop">
+    <div class="rq-modal" id="rqModal">
+      <div class="rq-modal-header">
+        <div class="rq-modal-title" id="rqModalTitle">Request Details</div>
+        <button class="rq-modal-close" onclick="closeModal()"><i class="bi bi-x-lg"></i></button>
+      </div>
+      <div class="rq-modal-body" id="rqModalBody">
+        <!-- Filled by JS -->
+      </div>
+    </div>
+  </div>
+
+  <div class="r-overlay" id="rOverlay"></div>
+
+  <script src="js/resident-home.js"></script>
+  <script src="js/resident-requests.js"></script>
+
+</body>
+</html>
