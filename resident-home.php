@@ -68,23 +68,23 @@ else                 $greeting = 'Good evening';
         <span class="r-nav-text">Home</span>
       </a>
 
-      <a href="resident-requests.php" class="r-nav-item" data-tooltip="My Requests">
+      <a href="resident-requests.html" class="r-nav-item" data-tooltip="My Requests">
         <i class="bi bi-file-earmark-text r-nav-icon"></i>
         <span class="r-nav-text">My Requests</span>
         <span class="r-nav-badge">2</span>
       </a>
 
-      <a href="services/resident-payment.php" class="r-nav-item" data-tooltip="Payments">
+      <a href="services/resident-payment.html" class="r-nav-item" data-tooltip="Payments">
         <i class="bi bi-cash-coin r-nav-icon"></i>
         <span class="r-nav-text">Payments</span>
       </a>
 
-      <a href="services/appointments.php" class="r-nav-item" data-tooltip="Appointments">
+      <a href="services/appointments.html" class="r-nav-item" data-tooltip="Appointments">
         <i class="bi bi-calendar-check r-nav-icon"></i>
         <span class="r-nav-text">Appointments</span>
       </a>
 
-      <a href="resident-notifications.php" class="r-nav-item" data-tooltip="Notifications">
+      <a href="resident-notifications.html" class="r-nav-item" data-tooltip="Notifications">
         <i class="bi bi-bell r-nav-icon"></i>
         <span class="r-nav-text">Notifications</span>
         <span class="r-nav-badge">5</span>
@@ -93,7 +93,7 @@ else                 $greeting = 'Good evening';
       <div class="r-nav-divider"></div>
       <div class="r-nav-label">Account</div>
 
-      <a href="resident-profile.php" class="r-nav-item" data-tooltip="My Profile">
+      <a href="resident-profile.html" class="r-nav-item" data-tooltip="My Profile">
         <i class="bi bi-person-circle r-nav-icon"></i>
         <span class="r-nav-text">My Profile</span>
       </a>
@@ -230,7 +230,7 @@ else                 $greeting = 'Good evening';
 
           <div class="services-grid">
 
-            <a href="services/barangay-clearance.php" class="svc-card">
+            <a href="services/barangay-clearance.html" class="svc-card">
               <div class="svc-icon" style="background:#e8f3fc; color:#1a7fd4;">
                 <i class="bi bi-file-earmark-text-fill"></i>
               </div>
@@ -245,7 +245,7 @@ else                 $greeting = 'Good evening';
               <i class="bi bi-arrow-right svc-arrow"></i>
             </a>
 
-            <a href="services/cedula.php" class="svc-card">
+            <a href="services/cedula.html" class="svc-card">
               <div class="svc-icon" style="background:#e6f7ef; color:#1a9e5f;">
                 <i class="bi bi-card-heading"></i>
               </div>
@@ -275,7 +275,7 @@ else                 $greeting = 'Good evening';
               <i class="bi bi-arrow-right svc-arrow"></i>
             </a>
 
-            <a href="services/health-cert.php" class="svc-card">
+            <a href="services/health-cert.html" class="svc-card">
               <div class="svc-icon" style="background:#fde8e8; color:#dc2626;">
                 <i class="bi bi-heart-pulse-fill"></i>
               </div>
@@ -290,7 +290,7 @@ else                 $greeting = 'Good evening';
               <i class="bi bi-arrow-right svc-arrow"></i>
             </a>
 
-            <a href="services/indigency.php" class="svc-card">
+            <a href="services/indigency.html" class="svc-card">
               <div class="svc-icon" style="background:#f0e8ff; color:#7c3aed;">
                 <i class="bi bi-people-fill"></i>
               </div>
@@ -305,7 +305,7 @@ else                 $greeting = 'Good evening';
               <i class="bi bi-arrow-right svc-arrow"></i>
             </a>
 
-            <a href="services/rpt-tax.php" class="svc-card">
+            <a href="services/rpt-tax.html" class="svc-card">
               <div class="svc-icon" style="background:#e8f5e8; color:#16a34a;">
                 <i class="bi bi-cash-coin"></i>
               </div>
@@ -320,7 +320,7 @@ else                 $greeting = 'Good evening';
               <i class="bi bi-arrow-right svc-arrow"></i>
             </a>
 
-            <a href="services/scholarship.php" class="svc-card">
+            <a href="services/scholarship.html" class="svc-card">
               <div class="svc-icon" style="background:#e8f3fc; color:#0369a1;">
                 <i class="bi bi-mortarboard-fill"></i>
               </div>
@@ -335,7 +335,7 @@ else                 $greeting = 'Good evening';
               <i class="bi bi-arrow-right svc-arrow"></i>
             </a>
 
-            <a href="services/appointments.php" class="svc-card">
+            <a href="services/appointments.html" class="svc-card">
               <div class="svc-icon" style="background:#fef3c7; color:#b45309;">
                 <i class="bi bi-calendar-heart-fill"></i>
               </div>
