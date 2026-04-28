@@ -13,7 +13,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     if ($password !== $confirm) {
         $_SESSION['error'] = "Passwords do not match";
-        header('Location: signup.php');
+        header('Location: resident-signup.php');
         exit();
     }
 
@@ -22,7 +22,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     if ($stmt-> rowCount() > 0) {
          $_SESSION['error'] = "Email already exists";
-        header('Location: signup.php');
+        header('Location: resident-signup.php');
         exit();
     }
 

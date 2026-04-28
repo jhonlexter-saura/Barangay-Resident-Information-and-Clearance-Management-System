@@ -1,3 +1,9 @@
+<?php
+
+session_start();
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -158,6 +164,16 @@
         </div>
 
         <div class="login-card-body">
+          <?php if (isset($_SESSION['error'])): ?>
+            <div class="alert alert-danger" role="alert">
+              <?=$_SESSION['error']; unset($_SESSION['error']);  ?>
+            </div>
+          <?php endif; ?>
+          <?php if(isset($_SESSION['success'])): ?>
+            <div class="alert alert-success" role="alert">
+              <?=$_SESSION['success']; unset($_SESSION['success']);  ?>
+            </div>
+            <?php endif; ?>
           <form action="resident-home.html" method="post">
 
             <!-- Email -->
@@ -212,7 +228,7 @@
 
           <!-- Register -->
           <div class="register-prompt">
-            New resident? <a href="resident-signup.html">Create a free account</a>
+            New resident? <a href="resident-signup.php">Create a free account</a>
           </div>
 
         </div>

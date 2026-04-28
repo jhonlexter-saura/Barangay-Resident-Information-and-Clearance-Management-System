@@ -1,3 +1,9 @@
+<?php 
+
+session_start();
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -242,7 +248,7 @@
 
           <!-- Sign in link -->
           <div class="signin-prompt">
-            Already registered? <a href="resident-portal.html">Sign in to your account</a>
+            Already registered? <a href="resident-portal.php">Sign in to your account</a>
           </div>
 
         </div>
