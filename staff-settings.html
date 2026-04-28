@@ -22,34 +22,46 @@
       </div>
       <div class="sidebar-brand-text">
         <span class="sidebar-brand-name">LGU eGov</span>
-        <span class="sidebar-brand-sub">Staff Portal</span>
+        <span class="sidebar-brand-sub">Municipal Portal</span>
       </div>
       <button class="sidebar-collapse-btn" id="sidebarCollapseBtn" aria-label="Collapse sidebar">
         <i class="bi bi-layout-sidebar-reverse"></i>
       </button>
     </div>
     <nav class="sidebar-nav">
+
       <div class="nav-section-label">Main</div>
+
       <a href="dashboard.html" class="nav-item" data-tooltip="Dashboard">
         <i class="bi bi-grid-fill nav-icon"></i>
         <span class="nav-label">Dashboard</span>
       </a>
+
       <a href="staff-requests.html" class="nav-item" data-tooltip="Requests">
         <i class="bi bi-file-earmark-text nav-icon"></i>
         <span class="nav-label">Requests</span>
+        <span class="nav-badge">12</span>
       </a>
+
       <a href="staff-notifications.html" class="nav-item" data-tooltip="Notifications">
         <i class="bi bi-bell nav-icon"></i>
         <span class="nav-label">Notifications</span>
+        <span class="nav-badge">2</span>
       </a>
+
+      <div class="nav-divider"></div>
+      <div class="nav-section-label">Operations</div>
+
       <a href="staff-settings.html" class="nav-item active" data-tooltip="Settings">
         <i class="bi bi-gear nav-icon"></i>
         <span class="nav-label">Settings</span>
       </a>
-      <a href="staff-help.html" class="nav-item" data-tooltip="Help">
+
+      <a href="staff-help.html" class="nav-item" data-tooltip="Help & Support">
         <i class="bi bi-question-circle nav-icon"></i>
         <span class="nav-label">Help & Support</span>
       </a>
+
     </nav>
     <div class="sidebar-footer">
       <div class="sidebar-user">
@@ -105,6 +117,9 @@
           <p class="page-subtitle">Manage your staff profile, notifications, and security preferences.</p>
         </div>
         <div class="content-header-right">
+          <button class="btn-outline-nav">
+            <i class="bi bi-download"></i> Export
+          </button>
           <button class="btn-primary-nav"><i class="bi bi-save"></i> Save Changes</button>
         </div>
       </div>
