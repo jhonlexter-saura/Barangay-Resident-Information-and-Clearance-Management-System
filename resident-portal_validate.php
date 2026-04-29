@@ -1,30 +1,42 @@
 <?php
 
 session_start();
+require 'config.php';
 
-require 'bricms_db.php';
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $email = $_POST['email'];
-    $password = $_POST['password'];
+    $email    = trim($_POST['email']    ?? '');
+    $password =      $_POST['password'] ?? '';
 
-    $stmt = $pdo->prepare("SELECT * FROM users WHERE username = ?");
+    if (!$email || !$password) {
+        $_SESSION['error'] = 'Please enter your email and password.';
+        header('Location: resident-portal.php');
+        exit();
+    }
+
+    $stmt = $pdo->prepare("SELECT * FROM residents WHERE email = ?");
     $stmt->execute([$email]);
-
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if($user && password_verify($password, $email['password'])) {
-        
-        $_SESSION["loggedin"] = true;
-        $_SESSION["id"] = $user["id"];
-        $_SESSION["email"] = $user["email"];
-         $_SESSION["name"]      = $user['firstname'] . ' ' . $user['lastname'];
+    if ($user && password_verify($password, $user['password'])) {
 
-        header('Location: admin/dashboard.php');
+        session_regenerate_id(true); // prevent session fixation
+
+        $_SESSION['loggedin']  = true;
+        $_SESSION['user_id']   = $user['id'];
+        $_SESSION['email']     = $user['email'];
+        $_SESSION['firstname'] = $user['firstname'];
+
+        header('Location: resident-home.php');
         exit();
+
     } else {
-        $_SESSION['error'] = "Invalid Email and Password";
-        header('Location: login.php');
+        $_SESSION['error'] = 'Incorrect email or password. Please try again.';
+        header('Location: resident-portal.php');
         exit();
     }
 }
+
+// Not a POST — send back to login
+header('Location: resident-portal.php');
+exit();

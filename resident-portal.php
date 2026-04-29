@@ -2,8 +2,13 @@
 
 session_start();
 
-?>
+// Already logged in? Skip the login page entirely
+if (!empty($_SESSION['loggedin'])) {
+    header('Location: resident-home.php');
+    exit();
+}
 
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -33,7 +38,7 @@ session_start();
       <a href="#" class="nav-link-item">Services</a>
       <a href="#" class="nav-link-item">Track Request</a>
       <a href="#" class="nav-link-item">Contact Us</a>
-      <a href="#" class="nav-link-item register">Create Account</a>
+      <a href="resident-signup.php" class="nav-link-item register">Create Account</a>
     </div>
   </nav>
 
@@ -61,7 +66,6 @@ session_start();
       <!-- Left: services -->
       <div class="services-panel">
 
-        <!-- Announcement -->
         <div class="announce-card">
           <i class="bi bi-megaphone-fill announce-icon"></i>
           <div class="announce-text">
@@ -142,8 +146,7 @@ session_start();
 
         </div>
 
-        <!-- Help strip -->
-        <div style="background: var(--white); border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.1rem; display: flex; align-items: center; gap: 12px;">
+        <div style="background:var(--white); border:1px solid var(--border); border-radius:12px; padding:1rem 1.1rem; display:flex; align-items:center; gap:12px;">
           <div style="width:36px; height:36px; border-radius:8px; background:var(--sky-light); color:var(--sky); display:grid; place-items:center; flex-shrink:0; font-size:1rem;">
             <i class="bi bi-headset"></i>
           </div>
@@ -164,24 +167,37 @@ session_start();
         </div>
 
         <div class="login-card-body">
-          <?php if (isset($_SESSION['error'])): ?>
-            <div class="alert alert-danger" role="alert">
-              <?=$_SESSION['error']; unset($_SESSION['error']);  ?>
+
+          <?php if (!empty($_SESSION['error'])): ?>
+            <div class="alert alert-danger d-flex align-items-center gap-2" role="alert">
+              <i class="bi bi-exclamation-triangle-fill"></i>
+              <?= htmlspecialchars($_SESSION['error']); unset($_SESSION['error']); ?>
             </div>
           <?php endif; ?>
-          <?php if(isset($_SESSION['success'])): ?>
-            <div class="alert alert-success" role="alert">
-              <?=$_SESSION['success']; unset($_SESSION['success']);  ?>
+
+          <?php if (!empty($_SESSION['success'])): ?>
+            <div class="alert alert-success d-flex align-items-center gap-2" role="alert">
+              <i class="bi bi-check-circle-fill"></i>
+              <?= htmlspecialchars($_SESSION['success']); unset($_SESSION['success']); ?>
             </div>
-            <?php endif; ?>
-          <form action="resident-home.html" method="post">
+          <?php endif; ?>
+
+          <form action="resident-portal_validate.php" method="post">
 
             <!-- Email -->
             <div class="mb-3">
               <label for="email" class="form-label">
                 <i class="bi bi-envelope-fill"></i> Email Address
               </label>
-              <input type="email" id="email" class="form-control" placeholder="you@email.com" required>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                class="form-control"
+                placeholder="you@email.com"
+                required
+                autocomplete="email"
+              >
               <span class="form-text">The email you used when registering</span>
             </div>
 
@@ -191,8 +207,17 @@ session_start();
                 <i class="bi bi-lock-fill"></i> Password
               </label>
               <div class="input-with-icon">
-                <input type="password" id="password" class="form-control" placeholder="••••••••" required style="padding-right:2.5rem;">
-                <button type="button" class="input-end-icon" onclick="togglePw()">
+                <input
+                  type="password"
+                  id="password"
+                  name="password"
+                  class="form-control"
+                  placeholder="••••••••"
+                  required
+                  autocomplete="current-password"
+                  style="padding-right:2.5rem;"
+                >
+                <button type="button" class="input-end-icon" aria-label="Show password">
                   <i class="bi bi-eye" id="eyeIcon"></i>
                 </button>
               </div>
@@ -201,7 +226,7 @@ session_start();
             <!-- Extras -->
             <div class="form-extras">
               <div class="form-check d-flex align-items-center">
-                <input type="checkbox" class="form-check-input" id="remember">
+                <input type="checkbox" class="form-check-input" id="remember" name="remember">
                 <label class="form-check-label" for="remember">Stay signed in</label>
               </div>
               <a href="#" class="forgot-link">Forgot password?</a>
@@ -218,7 +243,6 @@ session_start();
               <span>or sign in with</span>
             </div>
 
-            <!-- PhilSys ID button -->
             <button type="button" class="btn-philsys">
               <div class="philsys-dot"></div>
               Philippine National ID (PhilSys)
@@ -226,7 +250,6 @@ session_start();
 
           </form>
 
-          <!-- Register -->
           <div class="register-prompt">
             New resident? <a href="resident-signup.php">Create a free account</a>
           </div>

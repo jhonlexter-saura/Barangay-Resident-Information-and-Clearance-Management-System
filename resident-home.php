@@ -1,3 +1,38 @@
+<?php
+session_start();
+require 'config.php';
+
+// ── Auth guard: redirect to login if not signed in ──────────────────────────
+if (empty($_SESSION['user_id'])) {
+    header('Location: resident-portal.php');
+    exit();
+}
+
+// ── Fetch fresh user row from DB ─────────────────────────────────────────────
+$stmt = $pdo->prepare("SELECT * FROM residents WHERE id = ?");
+$stmt->execute([$_SESSION['user_id']]);
+$user = $stmt->fetch();
+
+if (!$user) {
+    // User no longer exists — destroy session and redirect
+    session_destroy();
+    header('Location: resident-portal.php');
+    exit();
+}
+
+// ── Convenience variables ────────────────────────────────────────────────────
+$firstname   = htmlspecialchars($user['firstname']);
+$lastname    = htmlspecialchars($user['lastname']);
+$fullName    = $firstname . ' ' . $lastname;
+$initials    = strtoupper(substr($user['firstname'], 0, 1) . substr($user['lastname'], 0, 1));
+$residentId  = htmlspecialchars($user['resident_id'] ?? 'RES-?????');
+
+// Time-based greeting
+$hour = (int) date('G');
+if ($hour < 12)      $greeting = 'Good morning';
+elseif ($hour < 17)  $greeting = 'Good afternoon';
+else                 $greeting = 'Good evening';
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -28,28 +63,28 @@
 
       <div class="r-nav-label">Menu</div>
 
-      <a href="resident-home.html" class="r-nav-item active" data-tooltip="Home">
+      <a href="resident-home.php" class="r-nav-item active" data-tooltip="Home">
         <i class="bi bi-house-fill r-nav-icon"></i>
         <span class="r-nav-text">Home</span>
       </a>
 
-      <a href="resident-requests.html" class="r-nav-item" data-tooltip="My Requests">
+      <a href="resident-requests.php" class="r-nav-item" data-tooltip="My Requests">
         <i class="bi bi-file-earmark-text r-nav-icon"></i>
         <span class="r-nav-text">My Requests</span>
         <span class="r-nav-badge">2</span>
       </a>
 
-      <a href="services/resident-payment.html" class="r-nav-item" data-tooltip="Payments">
+      <a href="services/resident-payment.php" class="r-nav-item" data-tooltip="Payments">
         <i class="bi bi-cash-coin r-nav-icon"></i>
         <span class="r-nav-text">Payments</span>
       </a>
 
-      <a href="services/appointments.html" class="r-nav-item" data-tooltip="Appointments">
+      <a href="services/appointments.php" class="r-nav-item" data-tooltip="Appointments">
         <i class="bi bi-calendar-check r-nav-icon"></i>
         <span class="r-nav-text">Appointments</span>
       </a>
 
-      <a href="resident-notifications.html" class="r-nav-item" data-tooltip="Notifications">
+      <a href="resident-notifications.php" class="r-nav-item" data-tooltip="Notifications">
         <i class="bi bi-bell r-nav-icon"></i>
         <span class="r-nav-text">Notifications</span>
         <span class="r-nav-badge">5</span>
@@ -58,7 +93,7 @@
       <div class="r-nav-divider"></div>
       <div class="r-nav-label">Account</div>
 
-      <a href="resident-profile.html" class="r-nav-item" data-tooltip="My Profile">
+      <a href="resident-profile.php" class="r-nav-item" data-tooltip="My Profile">
         <i class="bi bi-person-circle r-nav-icon"></i>
         <span class="r-nav-text">My Profile</span>
       </a>
@@ -77,12 +112,12 @@
 
     <div class="r-sidebar-footer">
       <div class="r-user-row">
-        <div class="r-user-avatar">JD</div>
+        <div class="r-user-avatar"><?= $initials ?></div>
         <div class="r-user-info">
-          <span class="r-user-name">Juan Dela Cruz</span>
-          <span class="r-user-sub">Resident ID: RES-00412</span>
+          <span class="r-user-name"><?= $fullName ?></span>
+          <span class="r-user-sub">Resident ID: <?= $residentId ?></span>
         </div>
-        <a href="resident-portal.php" class="r-logout-btn" title="Sign out">
+        <a href="resident-logout.php" class="r-logout-btn" title="Sign out">
           <i class="bi bi-box-arrow-right"></i>
         </a>
       </div>
@@ -110,9 +145,9 @@
           <i class="bi bi-bell"></i>
           <span class="r-notif-dot"></span>
         </button>
-        <a href="resident-profile.html" class="r-profile-chip">
-          <div class="r-chip-avatar">JD</div>
-          <span class="r-chip-name">Juan</span>
+        <a href="resident-profile.php" class="r-profile-chip">
+          <div class="r-chip-avatar"><?= $initials ?></div>
+          <span class="r-chip-name"><?= $firstname ?></span>
           <i class="bi bi-chevron-down"></i>
         </a>
       </div>
@@ -124,13 +159,13 @@
       <!-- Welcome banner -->
       <div class="welcome-banner">
         <div class="welcome-text">
-          <div class="welcome-greeting">Good morning, <span>Juan!</span> 👋</div>
+          <div class="welcome-greeting"><?= $greeting ?>, <span><?= $firstname ?>!</span> 👋</div>
           <div class="welcome-sub">Here's what's available for you today.</div>
         </div>
         <div class="welcome-meta">
           <div class="welcome-id">
             <i class="bi bi-person-badge"></i>
-            Resident ID: <strong>RES-00412</strong>
+            Resident ID: <strong><?= $residentId ?></strong>
           </div>
           <div class="welcome-date" id="welcomeDate"></div>
         </div>
@@ -195,7 +230,7 @@
 
           <div class="services-grid">
 
-            <a href="services/barangay-clearance.html" class="svc-card">
+            <a href="services/barangay-clearance.php" class="svc-card">
               <div class="svc-icon" style="background:#e8f3fc; color:#1a7fd4;">
                 <i class="bi bi-file-earmark-text-fill"></i>
               </div>
@@ -210,7 +245,7 @@
               <i class="bi bi-arrow-right svc-arrow"></i>
             </a>
 
-            <a href="services/cedula.html" class="svc-card">
+            <a href="services/cedula.php" class="svc-card">
               <div class="svc-icon" style="background:#e6f7ef; color:#1a9e5f;">
                 <i class="bi bi-card-heading"></i>
               </div>
@@ -225,7 +260,7 @@
               <i class="bi bi-arrow-right svc-arrow"></i>
             </a>
 
-            <a href="services/business-permit.html" class="svc-card">
+            <a href="services/business-permit.php" class="svc-card">
               <div class="svc-icon" style="background:#fef3c7; color:#d97706;">
                 <i class="bi bi-house-fill"></i>
               </div>
@@ -240,7 +275,7 @@
               <i class="bi bi-arrow-right svc-arrow"></i>
             </a>
 
-            <a href="services/health-cert.html" class="svc-card">
+            <a href="services/health-cert.php" class="svc-card">
               <div class="svc-icon" style="background:#fde8e8; color:#dc2626;">
                 <i class="bi bi-heart-pulse-fill"></i>
               </div>
@@ -255,7 +290,7 @@
               <i class="bi bi-arrow-right svc-arrow"></i>
             </a>
 
-            <a href="services/indigency.html" class="svc-card">
+            <a href="services/indigency.php" class="svc-card">
               <div class="svc-icon" style="background:#f0e8ff; color:#7c3aed;">
                 <i class="bi bi-people-fill"></i>
               </div>
@@ -270,7 +305,7 @@
               <i class="bi bi-arrow-right svc-arrow"></i>
             </a>
 
-            <a href="services/rpt-tax.html" class="svc-card">
+            <a href="services/rpt-tax.php" class="svc-card">
               <div class="svc-icon" style="background:#e8f5e8; color:#16a34a;">
                 <i class="bi bi-cash-coin"></i>
               </div>
@@ -285,7 +320,7 @@
               <i class="bi bi-arrow-right svc-arrow"></i>
             </a>
 
-            <a href="services/scholarship.html" class="svc-card">
+            <a href="services/scholarship.php" class="svc-card">
               <div class="svc-icon" style="background:#e8f3fc; color:#0369a1;">
                 <i class="bi bi-mortarboard-fill"></i>
               </div>
@@ -300,7 +335,7 @@
               <i class="bi bi-arrow-right svc-arrow"></i>
             </a>
 
-            <a href="services/appointments.html" class="svc-card">
+            <a href="services/appointments.php" class="svc-card">
               <div class="svc-icon" style="background:#fef3c7; color:#b45309;">
                 <i class="bi bi-calendar-heart-fill"></i>
               </div>
@@ -327,7 +362,7 @@
               <div class="r-card-title">
                 <i class="bi bi-clock-history"></i> My Recent Requests
               </div>
-              <a href="#" class="r-card-link">View all</a>
+              <a href="resident-requests.php" class="r-card-link">View all</a>
             </div>
             <div class="r-card-body">
               <div class="request-list">

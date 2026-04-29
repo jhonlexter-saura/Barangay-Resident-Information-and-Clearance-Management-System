@@ -1,3 +1,143 @@
+<?php
+session_start();
+require 'config.php';
+
+// ── Auth guard ───────────────────────────────────────────────────────────────
+if (empty($_SESSION['user_id'])) {
+    header('Location: resident-portal.php');
+    exit();
+}
+
+// ── Handle AJAX: save profile ────────────────────────────────────────────────
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
+
+    header('Content-Type: application/json');
+
+    if ($_POST['action'] === 'save_profile') {
+
+        $fields = [
+            'firstname'         => trim($_POST['firstname']         ?? ''),
+            'lastname'          => trim($_POST['lastname']          ?? ''),
+            'middle_name'       => trim($_POST['middle_name']       ?? ''),
+            'suffix'            => trim($_POST['suffix']            ?? ''),
+            'dob'               => $_POST['dob']                    ?? null,
+            'sex'               => $_POST['sex']                    ?? null,
+            'civil_status'      => $_POST['civil_status']           ?? null,
+            'nationality'       => trim($_POST['nationality']       ?? 'Filipino'),
+            'mobile'            => trim($_POST['mobile']            ?? ''),
+            'emergency_contact' => trim($_POST['emergency_contact'] ?? ''),
+            'street'            => trim($_POST['street']            ?? ''),
+            'barangay'          => trim($_POST['barangay']          ?? ''),
+            'municipality'      => trim($_POST['municipality']      ?? ''),
+            'province'          => trim($_POST['province']          ?? ''),
+            'zip_code'          => trim($_POST['zip_code']          ?? ''),
+        ];
+
+        if (empty($fields['firstname']) || empty($fields['lastname'])) {
+            echo json_encode(['success' => false, 'message' => 'First and last name are required.']);
+            exit();
+        }
+
+        $stmt = $pdo->prepare("
+            UPDATE residents SET
+                firstname = ?, lastname = ?, middle_name = ?, suffix = ?,
+                dob = ?, sex = ?, civil_status = ?, nationality = ?,
+                mobile = ?, emergency_contact = ?,
+                street = ?, barangay = ?, municipality = ?, province = ?, zip_code = ?
+            WHERE id = ?
+        ");
+
+        $ok = $stmt->execute([
+            $fields['firstname'], $fields['lastname'],
+            $fields['middle_name'] ?: null, $fields['suffix'] ?: null,
+            $fields['dob'] ?: null, $fields['sex'] ?: null,
+            $fields['civil_status'] ?: null, $fields['nationality'],
+            $fields['mobile'] ?: null, $fields['emergency_contact'] ?: null,
+            $fields['street'] ?: null, $fields['barangay'] ?: null,
+            $fields['municipality'] ?: null, $fields['province'] ?: null,
+            $fields['zip_code'] ?: null,
+            $_SESSION['user_id']
+        ]);
+
+        if ($ok) {
+            // Update session name in case firstname changed
+            $_SESSION['firstname'] = $fields['firstname'];
+            echo json_encode(['success' => true, 'message' => 'Profile updated successfully!']);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Database error. Please try again.']);
+        }
+        exit();
+    }
+
+    if ($_POST['action'] === 'change_password') {
+
+        $current = $_POST['current_password'] ?? '';
+        $newPw   = $_POST['new_password']     ?? '';
+        $confirm = $_POST['confirm_password'] ?? '';
+
+        if (!$current || !$newPw || !$confirm) {
+            echo json_encode(['success' => false, 'message' => 'All password fields are required.']);
+            exit();
+        }
+
+        if (strlen($newPw) < 8) {
+            echo json_encode(['success' => false, 'message' => 'New password must be at least 8 characters.']);
+            exit();
+        }
+
+        if ($newPw !== $confirm) {
+            echo json_encode(['success' => false, 'message' => 'New passwords do not match.']);
+            exit();
+        }
+
+        // Fetch current hash
+        $stmt = $pdo->prepare("SELECT password FROM users WHERE id = ?");
+        $stmt->execute([$_SESSION['user_id']]);
+        $row = $stmt->fetch();
+
+        if (!$row || !password_verify($current, $row['password'])) {
+            echo json_encode(['success' => false, 'message' => 'Current password is incorrect.']);
+            exit();
+        }
+
+        $newHash = password_hash($newPw, PASSWORD_DEFAULT);
+        $stmt = $pdo->prepare("UPDATE users SET password = ? WHERE id = ?");
+        $ok = $stmt->execute([$newHash, $_SESSION['user_id']]);
+
+        echo json_encode([
+            'success' => $ok,
+            'message' => $ok ? 'Password updated successfully!' : 'Database error. Please try again.'
+        ]);
+        exit();
+    }
+
+    echo json_encode(['success' => false, 'message' => 'Unknown action.']);
+    exit();
+}
+
+// ── Fetch user for page render ────────────────────────────────────────────────
+$stmt = $pdo->prepare("SELECT * FROM residents WHERE id = ?");
+$stmt->execute([$_SESSION['user_id']]);
+$user = $stmt->fetch();
+
+if (!$user) {
+    session_destroy();
+    header('Location: resident-portal.php');
+    exit();
+}
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+function h($v) { return htmlspecialchars($v ?? '', ENT_QUOTES); }
+function val($v) { return 'value="' . h($v) . '"'; }
+function sel($field, $option) {
+    return $field === $option ? 'selected' : '';
+}
+
+$initials   = strtoupper(substr($user['firstname'], 0, 1) . substr($user['lastname'], 0, 1));
+$fullName   = h($user['firstname']) . ' ' . h($user['lastname']);
+$firstname  = h($user['firstname']);
+$residentId = h($user['resident_id'] ?? 'RES-?????');
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -14,7 +154,7 @@
 
 <body>
 
-  <!-- ── Sidebar (same as home) ── -->
+  <!-- ── Sidebar ── -->
   <aside class="r-sidebar" id="rSidebar">
 
     <div class="r-sidebar-brand">
@@ -29,28 +169,28 @@
 
       <div class="r-nav-label">Menu</div>
 
-      <a href="resident-home.html" class="r-nav-item" data-tooltip="Home">
+      <a href="resident-home.php" class="r-nav-item" data-tooltip="Home">
         <i class="bi bi-house-fill r-nav-icon"></i>
         <span class="r-nav-text">Home</span>
       </a>
 
-      <a href="resident-requests.html" class="r-nav-item" data-tooltip="My Requests">
+      <a href="resident-requests.php" class="r-nav-item" data-tooltip="My Requests">
         <i class="bi bi-file-earmark-text r-nav-icon"></i>
         <span class="r-nav-text">My Requests</span>
         <span class="r-nav-badge">2</span>
       </a>
 
-      <a href="services/resident-payment.html" class="r-nav-item" data-tooltip="Payments">
+      <a href="services/resident-payment.php" class="r-nav-item" data-tooltip="Payments">
         <i class="bi bi-cash-coin r-nav-icon"></i>
         <span class="r-nav-text">Payments</span>
       </a>
 
-      <a href="services/appointments.html" class="r-nav-item" data-tooltip="Appointments">
+      <a href="services/appointments.php" class="r-nav-item" data-tooltip="Appointments">
         <i class="bi bi-calendar-check r-nav-icon"></i>
         <span class="r-nav-text">Appointments</span>
       </a>
 
-      <a href="resident-notifications.html" class="r-nav-item" data-tooltip="Notifications">
+      <a href="resident-notifications.php" class="r-nav-item" data-tooltip="Notifications">
         <i class="bi bi-bell r-nav-icon"></i>
         <span class="r-nav-text">Notifications</span>
         <span class="r-nav-badge">5</span>
@@ -59,7 +199,7 @@
       <div class="r-nav-divider"></div>
       <div class="r-nav-label">Account</div>
 
-      <a href="resident-profile.html" class="r-nav-item active" data-tooltip="My Profile">
+      <a href="resident-profile.php" class="r-nav-item active" data-tooltip="My Profile">
         <i class="bi bi-person-circle r-nav-icon"></i>
         <span class="r-nav-text">My Profile</span>
       </a>
@@ -78,12 +218,12 @@
 
     <div class="r-sidebar-footer">
       <div class="r-user-row">
-        <div class="r-user-avatar">JD</div>
+        <div class="r-user-avatar"><?= $initials ?></div>
         <div class="r-user-info">
-          <span class="r-user-name">Juan Dela Cruz</span>
-          <span class="r-user-sub">Resident ID: RES-00412</span>
+          <span class="r-user-name"><?= $fullName ?></span>
+          <span class="r-user-sub">Resident ID: <?= $residentId ?></span>
         </div>
-        <a href="resident-portal.php" class="r-logout-btn" title="Sign out">
+        <a href="resident-logout.php" class="r-logout-btn" title="Sign out">
           <i class="bi bi-box-arrow-right"></i>
         </a>
       </div>
@@ -102,7 +242,7 @@
         </button>
         <div class="r-topbar-brand">
           <div class="r-tb-logo"><i class="bi bi-buildings-fill"></i></div>
-          <a href="resident-home.html"><span class="r-tb-name">MySerbisyo</span></a>
+          <a href="resident-home.php"><span class="r-tb-name">MySerbisyo</span></a>
         </div>
       </div>
       <div class="r-topbar-right">
@@ -110,9 +250,9 @@
           <i class="bi bi-bell"></i>
           <span class="r-notif-dot"></span>
         </button>
-        <a href="resident-profile.html" class="r-profile-chip">
-          <div class="r-chip-avatar">JD</div>
-          <span class="r-chip-name">Juan</span>
+        <a href="resident-profile.php" class="r-profile-chip">
+          <div class="r-chip-avatar"><?= $initials ?></div>
+          <span class="r-chip-name"><?= $firstname ?></span>
           <i class="bi bi-chevron-down"></i>
         </a>
       </div>
@@ -137,24 +277,23 @@
         <!-- ── Left: profile card ── -->
         <div class="prof-left">
 
-          <!-- Avatar card -->
           <div class="avatar-card">
             <div class="avatar-wrap">
-              <div class="avatar-circle" id="avatarCircle">JD</div>
+              <div class="avatar-circle" id="avatarCircle"><?= $initials ?></div>
               <button class="avatar-edit-btn" title="Change photo">
                 <i class="bi bi-camera-fill"></i>
               </button>
             </div>
-            <div class="avatar-name" id="avatarName">Juan Dela Cruz</div>
+            <div class="avatar-name" id="avatarName"><?= $fullName ?></div>
             <div class="avatar-id">
-              <i class="bi bi-person-badge"></i> RES-00412
+              <i class="bi bi-person-badge"></i> <?= $residentId ?>
             </div>
             <div class="avatar-badge">
-              <i class="bi bi-patch-check-fill"></i> Verified Resident
+              <i class="bi bi-patch-check-fill"></i>
+              <?= $user['is_verified'] ? 'Verified Resident' : 'Pending Verification' ?>
             </div>
           </div>
 
-          <!-- Quick links -->
           <div class="prof-quick-links">
             <a href="#personal" class="pql-item active" data-section="personal">
               <i class="bi bi-person-fill"></i> Personal Info
@@ -192,49 +331,58 @@
               <div class="prof-field-row">
                 <div class="prof-field">
                   <label class="prof-label">First Name</label>
-                  <input type="text" class="prof-input" value="Juan" id="firstName" disabled>
+                  <input type="text" class="prof-input" id="firstName" name="firstname"
+                         <?= val($user['firstname']) ?> disabled>
                 </div>
                 <div class="prof-field">
                   <label class="prof-label">Last Name</label>
-                  <input type="text" class="prof-input" value="Dela Cruz" id="lastName" disabled>
+                  <input type="text" class="prof-input" id="lastName" name="lastname"
+                         <?= val($user['lastname']) ?> disabled>
                 </div>
               </div>
               <div class="prof-field-row">
                 <div class="prof-field">
                   <label class="prof-label">Middle Name</label>
-                  <input type="text" class="prof-input" value="Santos" id="middleName" disabled>
+                  <input type="text" class="prof-input" id="middleName" name="middle_name"
+                         <?= val($user['middle_name']) ?> disabled>
                 </div>
                 <div class="prof-field">
                   <label class="prof-label">Suffix</label>
-                  <input type="text" class="prof-input" value="Jr." id="suffix" disabled>
+                  <input type="text" class="prof-input" id="suffix" name="suffix"
+                         <?= val($user['suffix']) ?> disabled>
                 </div>
               </div>
               <div class="prof-field-row">
                 <div class="prof-field">
                   <label class="prof-label">Date of Birth</label>
-                  <input type="date" class="prof-input" value="1990-06-15" id="dob" disabled>
+                  <input type="date" class="prof-input" id="dob" name="dob"
+                         <?= val($user['dob']) ?> disabled>
                 </div>
                 <div class="prof-field">
                   <label class="prof-label">Sex</label>
-                  <select class="prof-input" id="sex" disabled>
-                    <option value="male" selected>Male</option>
-                    <option value="female">Female</option>
+                  <select class="prof-input" id="sex" name="sex" disabled>
+                    <option value="">— select —</option>
+                    <option value="male"   <?= sel($user['sex'], 'male')   ?>>Male</option>
+                    <option value="female" <?= sel($user['sex'], 'female') ?>>Female</option>
+                    <option value="other"  <?= sel($user['sex'], 'other')  ?>>Other</option>
                   </select>
                 </div>
               </div>
               <div class="prof-field-row">
                 <div class="prof-field">
                   <label class="prof-label">Civil Status</label>
-                  <select class="prof-input" id="civil" disabled>
-                    <option value="single" selected>Single</option>
-                    <option value="married">Married</option>
-                    <option value="widowed">Widowed</option>
-                    <option value="separated">Separated</option>
+                  <select class="prof-input" id="civil" name="civil_status" disabled>
+                    <option value="">— select —</option>
+                    <option value="single"    <?= sel($user['civil_status'], 'single')    ?>>Single</option>
+                    <option value="married"   <?= sel($user['civil_status'], 'married')   ?>>Married</option>
+                    <option value="widowed"   <?= sel($user['civil_status'], 'widowed')   ?>>Widowed</option>
+                    <option value="separated" <?= sel($user['civil_status'], 'separated') ?>>Separated</option>
                   </select>
                 </div>
                 <div class="prof-field">
                   <label class="prof-label">Nationality</label>
-                  <input type="text" class="prof-input" value="Filipino" id="nationality" disabled>
+                  <input type="text" class="prof-input" id="nationality" name="nationality"
+                         <?= val($user['nationality'] ?? 'Filipino') ?> disabled>
                 </div>
               </div>
             </div>
@@ -255,18 +403,21 @@
                 <div class="prof-field">
                   <label class="prof-label">Email Address</label>
                   <div class="prof-input-wrap">
-                    <input type="email" class="prof-input" value="juan.delacruz@email.com" id="email" disabled>
+                    <input type="email" class="prof-input" id="email" name="email"
+                           <?= val($user['email']) ?> disabled>
                     <span class="prof-verified"><i class="bi bi-patch-check-fill"></i> Verified</span>
                   </div>
                 </div>
                 <div class="prof-field">
                   <label class="prof-label">Mobile Number</label>
-                  <input type="tel" class="prof-input" value="+63 912 345 6789" id="mobile" disabled>
+                  <input type="tel" class="prof-input" id="mobile" name="mobile"
+                         <?= val($user['mobile']) ?> disabled>
                 </div>
               </div>
               <div class="prof-field">
                 <label class="prof-label">Emergency Contact</label>
-                <input type="text" class="prof-input" value="Maria Dela Cruz — +63 917 654 3210" id="emergency" disabled>
+                <input type="text" class="prof-input" id="emergency" name="emergency_contact"
+                       <?= val($user['emergency_contact']) ?> disabled>
               </div>
             </div>
           </div>
@@ -284,26 +435,31 @@
             <div class="prof-section-body">
               <div class="prof-field">
                 <label class="prof-label">Street / House No.</label>
-                <input type="text" class="prof-input" value="123 Rizal Street" id="street" disabled>
+                <input type="text" class="prof-input" id="street" name="street"
+                       <?= val($user['street']) ?> disabled>
               </div>
               <div class="prof-field-row">
                 <div class="prof-field">
                   <label class="prof-label">Barangay</label>
-                  <input type="text" class="prof-input" value="Barangay San Isidro" id="barangay" disabled>
+                  <input type="text" class="prof-input" id="barangay" name="barangay"
+                         <?= val($user['barangay']) ?> disabled>
                 </div>
                 <div class="prof-field">
                   <label class="prof-label">Municipality / City</label>
-                  <input type="text" class="prof-input" value="[Municipality]" id="municipality" disabled>
+                  <input type="text" class="prof-input" id="municipality" name="municipality"
+                         <?= val($user['municipality']) ?> disabled>
                 </div>
               </div>
               <div class="prof-field-row">
                 <div class="prof-field">
                   <label class="prof-label">Province</label>
-                  <input type="text" class="prof-input" value="Davao del Sur" id="province" disabled>
+                  <input type="text" class="prof-input" id="province" name="province"
+                         <?= val($user['province']) ?> disabled>
                 </div>
                 <div class="prof-field">
                   <label class="prof-label">ZIP Code</label>
-                  <input type="text" class="prof-input" value="8000" id="zip" disabled>
+                  <input type="text" class="prof-input" id="zip" name="zip_code"
+                         <?= val($user['zip_code']) ?> disabled>
                 </div>
               </div>
             </div>
@@ -320,14 +476,11 @@
               <div class="security-item">
                 <div class="sec-info">
                   <div class="sec-label">Password</div>
-                  <div class="sec-sub">Last changed 3 months ago</div>
+                  <div class="sec-sub">Update your account password</div>
                 </div>
-                <button class="sec-action-btn" onclick="showChangePassword()">
-                  Change Password
-                </button>
+                <button class="sec-action-btn" onclick="showChangePassword()">Change Password</button>
               </div>
 
-              <!-- Change password form (hidden by default) -->
               <div class="change-pw-form" id="changePwForm" style="display:none;">
                 <div class="prof-field">
                   <label class="prof-label">Current Password</label>
@@ -360,7 +513,7 @@
                   <div class="sec-label">Active Sessions</div>
                   <div class="sec-sub">1 device currently signed in</div>
                 </div>
-                <button class="sec-action-btn danger">Sign Out All</button>
+                <a href="resident-logout.php" class="sec-action-btn danger">Sign Out All</a>
               </div>
             </div>
           </div>
