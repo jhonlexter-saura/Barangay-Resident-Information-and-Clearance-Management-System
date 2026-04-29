@@ -5,83 +5,81 @@
 // ============================================
 
 document.addEventListener('DOMContentLoaded', () => {
-  
-  // ── Element references ──
-  const form = document.getElementById('signupForm');
+
+  // ── Element references ──────────────────────────────────────────────────
+  const form           = document.getElementById('signupForm');
   const firstnameInput = document.getElementById('firstname');
-  const lastnameInput = document.getElementById('lastname');
-  const emailInput = document.getElementById('email');
-  const passwordInput = document.getElementById('password');
-  const confirmInput = document.getElementById('confirmPassword');
-  const termsCheckbox = document.getElementById('terms');
-  
-  const strengthFill = document.getElementById('strengthFill');
-  const strengthLabel = document.getElementById('strengthLabel');
+  const lastnameInput  = document.getElementById('lastname');
+  const emailInput     = document.getElementById('email');
+  const passwordInput  = document.getElementById('password');
+  const confirmInput   = document.getElementById('confirmPassword');
+  const termsCheckbox  = document.getElementById('terms');
+
+  const strengthFill   = document.getElementById('strengthFill');
+  const strengthLabel  = document.getElementById('strengthLabel');
   const matchIndicator = document.getElementById('matchIndicator');
-  
-  // ── Show/hide password toggles ──
+
+  // ── Show/hide password toggles ──────────────────────────────────────────
   function makeToggle(btnId, inputEl, iconId) {
-    const btn = document.getElementById(btnId);
+    const btn  = document.getElementById(btnId);
     const icon = document.getElementById(iconId);
     btn?.addEventListener('click', () => {
       const isHidden = inputEl.type === 'password';
-      inputEl.type = isHidden ? 'text' : 'password';
+      inputEl.type   = isHidden ? 'text' : 'password';
       icon.className = isHidden ? 'bi bi-eye-slash' : 'bi bi-eye';
       btn.setAttribute('aria-label', isHidden ? 'Hide password' : 'Show password');
     });
   }
-  
+
   makeToggle('togglePassword', passwordInput, 'pwEyeIcon');
-  makeToggle('toggleConfirm', confirmInput, 'confirmEyeIcon');
-  
-  // ── Password strength meter ──
+  makeToggle('toggleConfirm',  confirmInput,  'confirmEyeIcon');
+
+  // ── Password strength meter ─────────────────────────────────────────────
   function getStrength(pw) {
     let score = 0;
-    if (pw.length >= 8) score++;
-    if (pw.length >= 12) score++;
-    if (/[A-Z]/.test(pw)) score++;
-    if (/[0-9]/.test(pw)) score++;
+    if (pw.length >= 8)           score++;
+    if (pw.length >= 12)          score++;
+    if (/[A-Z]/.test(pw))         score++;
+    if (/[0-9]/.test(pw))         score++;
     if (/[^A-Za-z0-9]/.test(pw)) score++;
     return score;
   }
-  
+
   const strengthLevels = [
-    { min: 0, cls: '', label: 'Enter a password' },
-    { min: 1, cls: 'weak', label: 'Weak' },
-    { min: 2, cls: 'fair', label: 'Fair' },
-    { min: 4, cls: 'good', label: 'Good' },
+    { min: 0, cls: '',       label: 'Enter a password' },
+    { min: 1, cls: 'weak',   label: 'Weak'   },
+    { min: 2, cls: 'fair',   label: 'Fair'   },
+    { min: 4, cls: 'good',   label: 'Good'   },
     { min: 5, cls: 'strong', label: 'Strong' },
   ];
-  
+
   passwordInput?.addEventListener('input', () => {
-    const pw = passwordInput.value;
+    const pw    = passwordInput.value;
     const score = pw.length === 0 ? 0 : getStrength(pw);
-    
-    // Pick level
+
     let level = strengthLevels[0];
     for (const l of strengthLevels) {
       if (score >= l.min) level = l;
     }
-    
-    strengthFill.className = `strength-fill ${level.cls}`;
+
+    strengthFill.className  = `strength-fill ${level.cls}`;
     strengthLabel.className = `strength-label ${level.cls}`;
     strengthLabel.textContent = level.label;
-    
-    // Also re-check match if confirm has a value
+
     if (confirmInput.value) checkMatch();
   });
-  
-  // ── Password match check ──
+
+  // ── Password match indicator ────────────────────────────────────────────
   function checkMatch() {
-    const pw = passwordInput.value;
+    const pw  = passwordInput.value;
     const cpw = confirmInput.value;
-    
+
     if (!cpw) {
-      matchIndicator.className = 'match-indicator';
+      matchIndicator.className   = 'match-indicator';
       matchIndicator.textContent = '';
       return;
     }
-    
+
     if (pw === cpw) {
       matchIndicator.className = 'match-indicator match';
       matchIndicator.innerHTML = '<i class="bi bi-check-circle-fill"></i> Passwords match';
@@ -95,49 +93,47 @@ document.addEventListener('DOMContentLoaded', () => {
       confirmInput.classList.remove('is-valid');
     }
   }
-  
+
   confirmInput?.addEventListener('input', checkMatch);
-  
-  // ── Field helpers ──
+
+  // ── Field error helpers ─────────────────────────────────────────────────
   function showError(fieldId, message) {
     const el = document.getElementById(`${fieldId}-error`);
     if (!el) return;
     el.innerHTML = `<i class="bi bi-exclamation-circle-fill"></i> ${message}`;
     el.classList.add('visible');
   }
-  
+
   function clearError(fieldId) {
     const el = document.getElementById(`${fieldId}-error`);
     if (!el) return;
     el.textContent = '';
     el.classList.remove('visible');
   }
-  
+
   function markValid(input) {
     input.classList.add('is-valid');
     input.classList.remove('is-invalid');
   }
-  
+
   function markInvalid(input) {
     input.classList.add('is-invalid');
     input.classList.remove('is-valid');
   }
-  
-  // Clear errors on input
+
+  // Clear errors as the user types
   [firstnameInput, lastnameInput, emailInput, passwordInput].forEach(input => {
-    const id = input?.id;
     input?.addEventListener('input', () => {
-      clearError(id);
+      clearError(input.id);
       input.classList.remove('is-invalid');
     });
   });
-  
-  // ── Form submission & validation ──
+
+  // ── Form submission ─────────────────────────────────────────────────────
   form?.addEventListener('submit', (e) => {
-    e.preventDefault();
-    
+
     let valid = true;
-    
+
     // First name
     if (!firstnameInput.value.trim()) {
       showError('firstname', 'First name is required');
@@ -147,7 +143,7 @@ document.addEventListener('DOMContentLoaded', () => {
       clearError('firstname');
       markValid(firstnameInput);
     }
-    
+
     // Last name
     if (!lastnameInput.value.trim()) {
       showError('lastname', 'Last name is required');
@@ -157,7 +153,7 @@ document.addEventListener('DOMContentLoaded', () => {
       clearError('lastname');
       markValid(lastnameInput);
     }
-    
+
     // Email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailInput.value.trim()) {
@@ -172,7 +168,7 @@ document.addEventListener('DOMContentLoaded', () => {
       clearError('email');
       markValid(emailInput);
     }
-    
+
     // Password
     if (!passwordInput.value) {
       showError('password', 'Password is required');
@@ -186,7 +182,7 @@ document.addEventListener('DOMContentLoaded', () => {
       clearError('password');
       markValid(passwordInput);
     }
-    
+
     // Confirm password
     if (!confirmInput.value) {
       showError('confirm', 'Please confirm your password');
@@ -200,7 +196,7 @@ document.addEventListener('DOMContentLoaded', () => {
       clearError('confirm');
       markValid(confirmInput);
     }
-    
+
     // Terms
     if (!termsCheckbox.checked) {
       showError('terms', 'You must agree to the Terms of Service');
@@ -208,23 +204,19 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
       clearError('terms');
     }
-    
-    if (!valid) return;
-    
-    // ── All valid — simulate submission ──
+
+    // ── If any client-side check failed, stop here (don't submit) ──
+    if (!valid) {
+      e.preventDefault();
+      return;
+    }
+
+    // ── All valid — show loading state and let PHP handle the rest ──
     const btn = document.getElementById('submitBtn');
-    btn.disabled = true;
-    btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Creating account…';
-    
-    // TODO: Replace with actual API call
-    setTimeout(() => {
-      btn.innerHTML = '<i class="bi bi-check-circle-fill"></i> Account Created!';
-      btn.style.background = 'linear-gradient(135deg, #1a9e5f, #147a48)';
-      // Redirect to login after short delay
-      setTimeout(() => {
-        window.location.href = 'resident-portal.html';
-      }, 1500);
-    }, 1800);
+    btn.disabled    = true;
+    btn.innerHTML   = '<i class="bi bi-hourglass-split"></i> Creating account…';
+
+    // Form submits normally to resident-signup_validate.php
   });
-  
+
 });

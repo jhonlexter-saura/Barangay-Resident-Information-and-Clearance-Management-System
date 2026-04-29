@@ -1,16 +1,20 @@
 <?php
 
-$servername = "localhost";
+$host     = "localhost";
+$dbname   = "bricms_db";
 $username = "root";
 $password = "";
-$dbname = "bricms_db";
 
-$conn = new mysqli($servername, $username, $password, $dbname);
-
-if ($conn->connect_error) {
-    die("connection Failed". $conn->connect_error);
-}else{
-    echo ("connection Success");
+try {
+    $pdo = new PDO(
+        "mysql:host=$host;dbname=$dbname;charset=utf8mb4",
+        $username,
+        $password,
+        [
+            PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+        ]
+    );
+} catch (PDOException $e) {
+    die("Connection failed: " . $e->getMessage());
 }
-
-?>

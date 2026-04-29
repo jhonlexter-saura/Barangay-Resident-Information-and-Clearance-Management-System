@@ -122,8 +122,15 @@ session_start();
           <div class="signup-welcome-sub">Fill in your details to get started — it's free</div>
         </div>
 
+        <?php if (!empty($_SESSION['error'])): ?>
+          <div class="alert alert-danger d-flex align-items-center gap-2 mb-3" role="alert">
+          <i class="bi bi-exclamation-triangle-fill"></i>
+        <?= htmlspecialchars($_SESSION['error']) ?>
+          </div>
+        <?php unset($_SESSION['error']); ?>
+        <?php endif; ?>
         <div class="signup-card-body">
-          <form id="signupForm" action="resident-signup_validate.php" method="post" novalidate>
+          <form id="signupForm" action="resident-signup_validate.php" method="POST" novalidate>
 
             <!-- Name row -->
             <div class="field-row">
