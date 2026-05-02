@@ -298,12 +298,12 @@ $residentId = h($user['resident_id'] ?? 'RES-?????');
         <span class="r-nav-text">My Profile</span>
       </a>
 
-      <a href="#" class="r-nav-item" data-tooltip="Settings">
+      <a href="resident-settings.php" class="r-nav-item" data-tooltip="Settings">
         <i class="bi bi-gear r-nav-icon"></i>
         <span class="r-nav-text">Settings</span>
       </a>
 
-      <a href="#" class="r-nav-item" data-tooltip="Help">
+      <a href="resident-helpsupport.php" class="r-nav-item" data-tooltip="Help">
         <i class="bi bi-question-circle r-nav-icon"></i>
         <span class="r-nav-text">Help & Support</span>
       </a>

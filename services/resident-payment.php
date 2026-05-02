@@ -1,9 +1,13 @@
+<?php
+$active_nav = 'payments';
+include 'resident-sidebar.php';
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>MySerbisyo — Payments & Cart</title>
+  <title>MySerbisyo — Payments &amp; Cart</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
@@ -13,62 +17,7 @@
 </head>
 <body>
 
-  <!-- Sidebar -->
-  <aside class="r-sidebar" id="rSidebar">
-    <div class="r-sidebar-brand">
-      <div class="r-brand-logo"><i class="bi bi-buildings-fill"></i></div>
-      <div class="r-brand-text">
-        <span class="r-brand-name">MySerbisyo</span>
-        <span class="r-brand-sub">Resident Portal</span>
-      </div>
-    </div>
-    <nav class="r-sidebar-nav">
-      <div class="r-nav-label">Menu</div>
-      <a href="../resident-home.php" class="r-nav-item" data-tooltip="Home">
-        <i class="bi bi-house-fill r-nav-icon"></i>
-        <span class="r-nav-text">Home</span>
-      </a>
-      <a href="../resident-requests.html" class="r-nav-item" data-tooltip="My Requests">
-        <i class="bi bi-file-earmark-text r-nav-icon"></i>
-        <span class="r-nav-text">My Requests</span>
-      </a>
-      <a href="resident-payment.html" class="r-nav-item active" data-tooltip="Payments">
-        <i class="bi bi-cash-coin r-nav-icon"></i>
-        <span class="r-nav-text">Payments</span>
-      </a>
-      <a href="appointments.html" class="r-nav-item" data-tooltip="Appointments">
-        <i class="bi bi-calendar-check r-nav-icon"></i>
-        <span class="r-nav-text">Appointments</span>
-      </a>
-      <a href="#" class="r-nav-item" data-tooltip="Notifications">
-        <i class="bi bi-bell r-nav-icon"></i>
-        <span class="r-nav-text">Notifications</span>
-        <span class="r-nav-badge">5</span>
-      </a>
-      <div class="r-nav-divider"></div>
-      <div class="r-nav-label">Account</div>
-      <a href="../resident-profile.php" class="r-nav-item" data-tooltip="My Profile">
-        <i class="bi bi-person-circle r-nav-icon"></i>
-        <span class="r-nav-text">My Profile</span>
-      </a>
-      <a href="../resident-settings.php" class="r-nav-item" data-tooltip="Settings">
-        <i class="bi bi-gear r-nav-icon"></i>
-        <span class="r-nav-text">Settings</span>
-      </a>
-    </nav>
-    <div class="r-sidebar-footer">
-      <div class="r-user-row">
-        <div class="r-user-avatar">JD</div>
-        <div class="r-user-info">
-          <span class="r-user-name">Juan Dela Cruz</span>
-          <span class="r-user-sub">Resident ID: RES-00412</span>
-        </div>
-        <a href="../resident-portal.php" class="r-logout-btn" title="Sign out">
-          <i class="bi bi-box-arrow-right"></i>
-        </a>
-      </div>
-    </div>
-  </aside>
+  <?php include 'resident-sidebar.php'; ?>
 
   <!-- Main -->
   <div class="r-main" id="rMain">
@@ -83,7 +32,7 @@
       </div>
       <div class="r-topbar-right">
         <button class="r-topbar-btn"><i class="bi bi-bell"></i><span class="r-notif-dot"></span></button>
-        <a href="../resident-profile.html" class="r-profile-chip">
+        <a href="../resident-profile.php" class="r-profile-chip">
           <div class="r-chip-avatar">JD</div>
           <span class="r-chip-name">Juan</span>
           <i class="bi bi-chevron-down"></i>
@@ -94,14 +43,14 @@
     <main class="r-content">
 
       <!-- Back link -->
-      <a href="../resident-home.html" class="svc-back-link" style="display:inline-flex; align-items:center; gap:5px; font-size:0.78rem; font-weight:600; color:var(--text-muted); text-decoration:none; margin-bottom:0.85rem; transition:color 0.15s;">
+      <a href="../resident-home.php" class="svc-back-link" style="display:inline-flex; align-items:center; gap:5px; font-size:0.78rem; font-weight:600; color:var(--text-muted); text-decoration:none; margin-bottom:0.85rem; transition:color 0.15s;">
         <i class="bi bi-arrow-left"></i> Back to Services
       </a>
 
       <!-- Hero -->
       <div class="svc-page-hero">
-        <div class="svc-hero-eyebrow"><i class="bi bi-cart-fill"></i> Review & Submit</div>
-        <div class="svc-hero-title">Payments & Cart</div>
+        <div class="svc-hero-eyebrow"><i class="bi bi-cart-fill"></i> Review &amp; Submit</div>
+        <div class="svc-hero-title">Payments &amp; Cart</div>
         <div class="svc-hero-sub">Review your service requests, choose a payment method, and submit to the LGU office.</div>
       </div>
 
@@ -117,7 +66,7 @@
               <div class="pay-card-title">
                 <i class="bi bi-cart-fill"></i> Service Requests in Cart
               </div>
-              <a href="resident-home.html" style="font-size:0.75rem; font-weight:600; color:var(--sky); text-decoration:none;">
+              <a href="resident-home.php" style="font-size:0.75rem; font-weight:600; color:var(--sky); text-decoration:none;">
                 <i class="bi bi-plus-lg"></i> Add More
               </a>
             </div>
@@ -128,7 +77,7 @@
                 <div class="pay-empty-icon"><i class="bi bi-cart-x"></i></div>
                 <div class="pay-empty-title">Your cart is empty</div>
                 <div class="pay-empty-sub">Go back to Services and add the requests you need to process.</div>
-                <a href="resident-home.html" style="font-size:0.82rem; font-weight:700; color:var(--sky); text-decoration:none; display:flex; align-items:center; gap:5px;">
+                <a href="resident-home.php" style="font-size:0.82rem; font-weight:700; color:var(--sky); text-decoration:none; display:flex; align-items:center; gap:5px;">
                   <i class="bi bi-arrow-left"></i> Browse Services
                 </a>
               </div>
@@ -242,7 +191,7 @@
 
             <div class="pay-submit-note">
               <i class="bi bi-shield-check"></i>
-              Secured & encrypted — RA 10175
+              Secured &amp; encrypted — RA 10175
             </div>
 
           </div>
@@ -263,7 +212,7 @@
     <div class="pay-success-sub" id="successCount">Your service requests have been sent to the LGU office for processing. You will be notified of updates.</div>
     <div class="pay-success-ref" id="successRef">Reference No: —</div>
     <div class="pay-success-actions">
-      <a href="../resident-home.html" class="btn-success-home">
+      <a href="../resident-home.php" class="btn-success-home">
         <i class="bi bi-house-fill"></i> Go to Home
       </a>
       <a href="#" class="btn-success-track">

@@ -1,3 +1,7 @@
+<?php
+$active_nav = 'payments';
+include 'resident-sidebar.php';
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -13,66 +17,7 @@
 </head>
 <body>
 
-  <!-- Sidebar -->
-  <aside class="r-sidebar" id="rSidebar">
-    <div class="r-sidebar-brand">
-      <div class="r-brand-logo"><i class="bi bi-buildings-fill"></i></div>
-      <div class="r-brand-text">
-        <span class="r-brand-name">MySerbisyo</span>
-        <span class="r-brand-sub">Resident Portal</span>
-      </div>
-    </div>
-    
-    <nav class="r-sidebar-nav">
-      <div class="r-nav-label">Menu</div>
-      <a href="../resident-home.php" class="r-nav-item" data-tooltip="Home">
-        <i class="bi bi-house-fill r-nav-icon"></i>
-        <span class="r-nav-text">Home</span>
-      </a>
-      <a href="#" class="r-nav-item" data-tooltip="My Requests">
-        <i class="bi bi-file-earmark-text r-nav-icon"></i>
-        <span class="r-nav-text">My Requests</span>
-        <span class="r-nav-badge">2</span>
-      </a>
-      <a href="resident-payment.html" class="r-nav-item" data-tooltip="Payments">
-        <i class="bi bi-cash-coin r-nav-icon"></i>
-        <span class="r-nav-text">Payments</span>
-        <span class="r-nav-badge" id="cartNavBadge" style="display:none;"></span>
-      </a>
-      <a href="appointments.html" class="r-nav-item" data-tooltip="Appointments">
-        <i class="bi bi-calendar-check r-nav-icon"></i>
-        <span class="r-nav-text">Appointments</span>
-      </a>
-      <a href="#" class="r-nav-item" data-tooltip="Notifications">
-        <i class="bi bi-bell r-nav-icon"></i>
-        <span class="r-nav-text">Notifications</span>
-        <span class="r-nav-badge">5</span>
-      </a>
-      <div class="r-nav-divider"></div>
-      <div class="r-nav-label">Account</div>
-      <a href="../resident-profile.php" class="r-nav-item" data-tooltip="My Profile">
-        <i class="bi bi-person-circle r-nav-icon"></i>
-        <span class="r-nav-text">My Profile</span>
-      </a>
-      <a href="../resident-settings.php" class="r-nav-item" data-tooltip="Settings">
-        <i class="bi bi-gear r-nav-icon"></i>
-        <span class="r-nav-text">Settings</span>
-      </a>
-    </nav>
-
-    <div class="r-sidebar-footer">
-      <div class="r-user-row">
-        <div class="r-user-avatar">JD</div>
-        <div class="r-user-info">
-          <span class="r-user-name">Juan Dela Cruz</span>
-          <span class="r-user-sub">Resident ID: RES-00412</span>
-        </div>
-        <a href="../resident-portal.php" class="r-logout-btn" title="Sign out">
-          <i class="bi bi-box-arrow-right"></i>
-        </a>
-      </div>
-    </div>
-  </aside>
+  <?php include 'resident-sidebar.php'; ?>
 
   <!-- Main -->
   <div class="r-main" id="rMain">
@@ -85,12 +30,12 @@
         </div>
       </div>
       <div class="r-topbar-right">
-        <a href="resident-payment.html" class="r-topbar-btn" style="position:relative;" title="View cart">
+        <a href="resident-payment.php" class="r-topbar-btn" style="position:relative;" title="View cart">
           <i class="bi bi-cart3"></i>
           <span class="r-notif-dot" id="cartDot" style="display:none;"></span>
         </a>
         <button class="r-topbar-btn"><i class="bi bi-bell"></i><span class="r-notif-dot"></span></button>
-        <a href="../resident-profile.html" class="r-profile-chip">
+        <a href="../resident-profile.php" class="r-profile-chip">
           <div class="r-chip-avatar">JD</div>
           <span class="r-chip-name">Juan</span>
           <i class="bi bi-chevron-down"></i>
@@ -101,7 +46,7 @@
     <main class="r-content">
 
       <!-- Back link -->
-      <a href="../resident-home.html" class="svc-back-link" style="display:inline-flex; align-items:center; gap:5px; font-size:0.78rem; font-weight:600; color:var(--text-muted); text-decoration:none; margin-bottom:0.85rem; transition:color 0.15s;">
+      <a href="../resident-home.php" class="svc-back-link" style="display:inline-flex; align-items:center; gap:5px; font-size:0.78rem; font-weight:600; color:var(--text-muted); text-decoration:none; margin-bottom:0.85rem; transition:color 0.15s;">
         <i class="bi bi-arrow-left"></i> Back to Services
       </a>
 
@@ -119,23 +64,23 @@
 
       <!-- Steps -->
       <div class="svc-steps">
-  <div class="svc-step active" id="step-indicator-0">
-    <div class="step-num">1</div>
-    <span class="step-label">Personal Info</span>
-  </div>
-  <div class="svc-step " id="step-indicator-1">
-    <div class="step-num">2</div>
-    <span class="step-label">Employment Details</span>
-  </div>
-  <div class="svc-step " id="step-indicator-2">
-    <div class="step-num">3</div>
-    <span class="step-label">Upload Docs</span>
-  </div>
-  <div class="svc-step " id="step-indicator-3">
-    <div class="step-num">4</div>
-    <span class="step-label">Review & Cart</span>
-  </div>
-</div>
+        <div class="svc-step active" id="step-indicator-0">
+          <div class="step-num">1</div>
+          <span class="step-label">Personal Info</span>
+        </div>
+        <div class="svc-step" id="step-indicator-1">
+          <div class="step-num">2</div>
+          <span class="step-label">Employment Details</span>
+        </div>
+        <div class="svc-step" id="step-indicator-2">
+          <div class="step-num">3</div>
+          <span class="step-label">Upload Docs</span>
+        </div>
+        <div class="svc-step" id="step-indicator-3">
+          <div class="step-num">4</div>
+          <span class="step-label">Review &amp; Cart</span>
+        </div>
+      </div>
 
       <!-- Layout -->
       <div class="svc-layout">
@@ -156,7 +101,10 @@
 
               <!-- Personal information (auto-filled) -->
               <div class="svc-field-section">
-                <div class="svc-field-section-label"><i class="bi bi-person-fill"></i> Your Information <span style="font-size:0.6rem; color:var(--green); font-weight:600; text-transform:none; letter-spacing:0; background:var(--green-light); padding:2px 6px; border-radius:4px; margin-left:4px;">Auto-filled from profile</span></div>
+                <div class="svc-field-section-label">
+                  <i class="bi bi-person-fill"></i> Your Information
+                  <span style="font-size:0.6rem; color:var(--green); font-weight:600; text-transform:none; letter-spacing:0; background:var(--green-light); padding:2px 6px; border-radius:4px; margin-left:4px;">Auto-filled from profile</span>
+                </div>
                 <div class="svc-field-row">
                   <div class="svc-field">
                     <label class="svc-label">Full Name</label>
@@ -182,34 +130,33 @@
               <!-- Service-specific fields -->
               <div class="svc-field-section">
                 <div class="svc-field-section-label"><i class="bi bi-pencil-square"></i> Service Details</div>
-                
-        <div class="svc-field">
-          <label class="svc-label" for="work_nature">Nature of Work<span class="req">*</span></label>
-          <select class="svc-select" id="work_nature" name="work_nature">
-            <option value="">— Select —</option>
-            <option value="food_handler">Food Handler</option>
-            <option value="market_vendor">Market Vendor</option>
-            <option value="health_worker">Health Worker</option>
-            <option value="teacher">Teacher</option>
-            <option value="government_employee">Government Employee</option>
-            <option value="others">Others</option>
-          </select>
-          <span class="svc-error-msg" id="work_nature-err"><i class="bi bi-exclamation-circle"></i> This field is required</span>
-        </div>
 
-        <div class="svc-field">
-          <label class="svc-label" for="employer_hc">Employer / Establishment<span class="req">*</span></label>
-          <input type="text" class="svc-input" id="employer_hc" name="employer_hc" placeholder="e.g. Jollibee Manolo Fortich">
-          <span class="svc-error-msg" id="employer_hc-err"><i class="bi bi-exclamation-circle"></i> This field is required</span>
-        </div>
+                <div class="svc-field">
+                  <label class="svc-label" for="work_nature">Nature of Work<span class="req">*</span></label>
+                  <select class="svc-select" id="work_nature" name="work_nature">
+                    <option value="">— Select —</option>
+                    <option value="food_handler">Food Handler</option>
+                    <option value="market_vendor">Market Vendor</option>
+                    <option value="health_worker">Health Worker</option>
+                    <option value="teacher">Teacher</option>
+                    <option value="government_employee">Government Employee</option>
+                    <option value="others">Others</option>
+                  </select>
+                  <span class="svc-error-msg" id="work_nature-err"><i class="bi bi-exclamation-circle"></i> This field is required</span>
+                </div>
 
-        <div class="svc-field">
-          <label class="svc-label" for="med_date">Date of Medical Exam<span class="req">*</span></label>
-          <input type="date" class="svc-input" id="med_date" name="med_date" placeholder="">
-          <span class="svc-error-msg" id="med_date-err"><i class="bi bi-exclamation-circle"></i> This field is required</span>
-        </div>
-                
-                
+                <div class="svc-field">
+                  <label class="svc-label" for="employer_hc">Employer / Establishment<span class="req">*</span></label>
+                  <input type="text" class="svc-input" id="employer_hc" name="employer_hc" placeholder="e.g. Jollibee Manolo Fortich">
+                  <span class="svc-error-msg" id="employer_hc-err"><i class="bi bi-exclamation-circle"></i> This field is required</span>
+                </div>
+
+                <div class="svc-field">
+                  <label class="svc-label" for="med_date">Date of Medical Exam<span class="req">*</span></label>
+                  <input type="date" class="svc-input" id="med_date" name="med_date">
+                  <span class="svc-error-msg" id="med_date-err"><i class="bi bi-exclamation-circle"></i> This field is required</span>
+                </div>
+
               </div>
 
               <!-- Document uploads -->
@@ -218,7 +165,7 @@
                 <div class="svc-file-upload" id="fileDropZone">
                   <input type="file" id="fileInput" multiple accept=".jpg,.jpeg,.png,.pdf">
                   <div class="upload-icon"><i class="bi bi-cloud-arrow-up-fill"></i></div>
-                  <div class="upload-text">Click to upload or drag & drop files here</div>
+                  <div class="upload-text">Click to upload or drag &amp; drop files here</div>
                   <div class="upload-sub">Accepted: JPG, PNG, PDF &mdash; Max 5MB per file</div>
                   <div class="upload-preview" id="uploadPreview"></div>
                 </div>
@@ -260,7 +207,7 @@
           <div class="svc-info-card">
             <div class="svc-info-title"><i class="bi bi-clipboard-check"></i> Requirements</div>
             <div class="req-checklist">
-                            <div class="req-item"><i class="bi bi-check-circle-fill"></i> Valid government-issued ID</div>
+              <div class="req-item"><i class="bi bi-check-circle-fill"></i> Valid government-issued ID</div>
               <div class="req-item"><i class="bi bi-check-circle-fill"></i> Recent 2x2 ID photo (white background)</div>
               <div class="req-item"><i class="bi bi-check-circle-fill"></i> Medical examination results from RHU</div>
               <div class="req-item"><i class="bi bi-check-circle-fill"></i> Fecalysis and CBC results (for food handlers)</div>
@@ -279,12 +226,13 @@
               <span class="svc-cart-fee-label">Service Fee</span>
               <span class="svc-cart-fee-value" id="displayFee">₱100.00</span>
             </div>
-            <button class="btn-add-cart" id="addCartBtn" onclick="addToCart('Health Certificate', '₱100.00', 'bi-heart-pulse-fill', '#fde8e8', '#dc2626')">
+            <button class="btn-add-cart" id="addCartBtn"
+              onclick="addToCart('Health Certificate', '₱100.00', 'bi-heart-pulse-fill', '#fde8e8', '#dc2626')">
               <i class="bi bi-cart-plus-fill"></i> Add to Cart
             </button>
             <div class="svc-cart-note">
               <i class="bi bi-cart3"></i>
-              View cart in <a href="resident-payment.html">Payments</a>
+              View cart in <a href="resident-payment.php">Payments</a>
             </div>
           </div>
 
@@ -297,7 +245,7 @@
   <div class="r-overlay" id="rOverlay"></div>
 
   <!-- Floating cart button -->
-  <a href="resident-payment.html" class="cart-float" id="cartFloat" style="display:none;">
+  <a href="resident-payment.php" class="cart-float" id="cartFloat" style="display:none;">
     <i class="bi bi-cart-fill"></i>
     <span id="cartFloatLabel">View Cart</span>
     <span class="cart-float-count" id="cartFloatCount">0</span>
