@@ -2,11 +2,11 @@
 -- Barangay Management System - MySQL Schema
 -- ============================================================
 
-CREATE DATABASE IF NOT EXISTS barangay_db
+CREATE DATABASE IF NOT EXISTS bricms_db
   CHARACTER SET utf8mb4
   COLLATE utf8mb4_unicode_ci;
 
-USE barangay_db;
+USE bricms_db;
 
 -- ============================================================
 -- 1. RESIDENT
@@ -17,15 +17,18 @@ CREATE TABLE resident (
   middle_name      VARCHAR(80)         NULL,
   last_name        VARCHAR(80)     NOT NULL,
   suffix           VARCHAR(10)         NULL COMMENT 'Jr., Sr., II, III …',
-  birth_date       DATE            NOT NULL,
+  birth_date       DATE                NULL,
   birth_place      VARCHAR(150)        NULL,
-  gender           ENUM('Male','Female','Non-binary') NOT NULL,
-  civil_status     ENUM('Single','Married','Widowed','Separated','Annulled','Common-Law') NOT NULL,
+  gender           ENUM('Male','Female','Non-binary') NULL,
+  civil_status     ENUM('Single','Married','Widowed','Separated','Annulled','Common-Law') NULL,
   citizenship      ENUM('Filipino','Foreigner') NOT NULL DEFAULT 'Filipino',
   occupation       VARCHAR(100)        NULL,
   voter_status     ENUM('Registered','Not Registered') NOT NULL DEFAULT 'Not Registered',
   mobile_number    VARCHAR(15)         NULL,
-  email            VARCHAR(150)        NULL,
+  emergency_contact VARCHAR(150)       NULL,
+  email            VARCHAR(150)        NULL UNIQUE,
+  password         VARCHAR(255)        NULL COMMENT 'bcrypt hash',
+  is_verified      TINYINT(1)      NOT NULL DEFAULT 0,
   national_id      VARCHAR(50)         NULL UNIQUE,
   sss_number       VARCHAR(20)         NULL UNIQUE,
   gsis_number      VARCHAR(20)         NULL UNIQUE,
@@ -46,6 +49,10 @@ CREATE TABLE household (
   house_number      VARCHAR(30)       NULL,
   street            VARCHAR(150)      NULL,
   sitio_purok       VARCHAR(100)      NULL,
+  barangay          VARCHAR(100)      NULL,
+  municipality      VARCHAR(100)      NULL,
+  province          VARCHAR(100)      NULL,
+  zip_code          VARCHAR(10)       NULL,
   tenure_status     ENUM('Owner','Renter','Informal Settler','Caretaker') NOT NULL,
   total_members     SMALLINT UNSIGNED NOT NULL DEFAULT 1,
   created_at        TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
