@@ -40,7 +40,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     // ── Check for existing email ─────────────────────────────────────────────
 
-    $stmt = $pdo->prepare("SELECT id FROM residents WHERE email = ?");
+    $stmt = $pdo->prepare("SELECT resident_id FROM resident WHERE email = ?");
     $stmt->execute([$email]);
 
     if ($stmt->rowCount() > 0) {
@@ -54,7 +54,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
     $stmt = $pdo->prepare(
-        "INSERT INTO residents (firstname, lastname, email, password) VALUES (?, ?, ?, ?)"
+        "INSERT INTO resident (first_name, last_name, email, password) VALUES (?, ?, ?, ?)"
     );
 
     if ($stmt->execute([$firstname, $lastname, $email, $hashedPassword])) {

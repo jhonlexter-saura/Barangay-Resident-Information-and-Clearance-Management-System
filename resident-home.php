@@ -9,7 +9,7 @@ if (empty($_SESSION['user_id'])) {
 }
 
 // ── Fetch fresh user row from DB ─────────────────────────────────────────────
-$stmt = $pdo->prepare("SELECT * FROM residents WHERE id = ?");
+$stmt = $pdo->prepare("SELECT * FROM resident WHERE resident_id = ?");
 $stmt->execute([$_SESSION['user_id']]);
 $user = $stmt->fetch();
 
@@ -21,10 +21,10 @@ if (!$user) {
 }
 
 // ── Convenience variables ────────────────────────────────────────────────────
-$firstname   = htmlspecialchars($user['firstname']);
-$lastname    = htmlspecialchars($user['lastname']);
+$firstname   = htmlspecialchars($user['first_name']);
+$lastname    = htmlspecialchars($user['last_name']);
 $fullName    = $firstname . ' ' . $lastname;
-$initials    = strtoupper(substr($user['firstname'], 0, 1) . substr($user['lastname'], 0, 1));
+$initials    = strtoupper(substr($user['first_name'], 0, 1) . substr($user['last_name'], 0, 1));
 $residentId  = htmlspecialchars($user['resident_id'] ?? 'RES-?????');
 
 // Time-based greeting
@@ -93,7 +93,7 @@ else                 $greeting = 'Good evening';
       <div class="r-nav-divider"></div>
       <div class="r-nav-label">Account</div>
 
-      <a href="resident-profile.html" class="r-nav-item" data-tooltip="My Profile">
+      <a href="resident-profile.php" class="r-nav-item" data-tooltip="My Profile">
         <i class="bi bi-person-circle r-nav-icon"></i>
         <span class="r-nav-text">My Profile</span>
       </a>

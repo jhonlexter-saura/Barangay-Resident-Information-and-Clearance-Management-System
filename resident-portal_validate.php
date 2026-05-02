@@ -14,7 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit();
     }
 
-    $stmt = $pdo->prepare("SELECT * FROM residents WHERE email = ?");
+    $stmt = $pdo->prepare("SELECT * FROM resident WHERE email = ?");
     $stmt->execute([$email]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -23,9 +23,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         session_regenerate_id(true); // prevent session fixation
 
         $_SESSION['loggedin']  = true;
-        $_SESSION['user_id']   = $user['id'];
+        $_SESSION['user_id']   = $user['resident_id'];
         $_SESSION['email']     = $user['email'];
-        $_SESSION['firstname'] = $user['firstname'];
+        $_SESSION['firstname'] = $user['first_name'];
 
         header('Location: resident-home.php');
         exit();
