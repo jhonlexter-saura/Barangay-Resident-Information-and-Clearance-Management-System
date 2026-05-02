@@ -1,4 +1,3 @@
-```html
 <?php
 session_start();
 require 'config.php';
@@ -8,14 +7,14 @@ if (empty($_SESSION['user_id'])) {
     exit();
 }
 
-$stmt = $pdo->prepare("SELECT * FROM residents WHERE id = ?");
+$stmt = $pdo->prepare("SELECT * FROM resident WHERE resident_id = ?");
 $stmt->execute([$_SESSION['user_id']]);
 $user = $stmt->fetch();
 
-$firstname   = htmlspecialchars($user['firstname']);
-$lastname    = htmlspecialchars($user['lastname']);
+$firstname   = htmlspecialchars($user['first_name']);
+$lastname    = htmlspecialchars($user['last_name']);
 $fullName    = $firstname . ' ' . $lastname;
-$initials    = strtoupper(substr($user['firstname'], 0, 1) . substr($user['lastname'], 0, 1));
+$initials    = strtoupper(substr($user['first_name'], 0, 1) . substr($user['last_name'], 0, 1));
 $residentId  = htmlspecialchars($user['resident_id'] ?? 'RES-?????');
 ?>
 <!DOCTYPE html>
@@ -56,15 +55,76 @@ $residentId  = htmlspecialchars($user['resident_id'] ?? 'RES-?????');
   <aside class="r-sidebar" id="rSidebar">
     <!-- Brand & Nav same as Settings -->
     <div class="r-sidebar-brand">
-      <div class="r-brand-logo"><i class="bi bi-buildings-fill"></i></div>
-      <div class="r-brand-text"><span class="r-brand-name">MySerbisyo</span></div>
+  <div class="r-brand-logo"><i class="bi bi-buildings-fill"></i></div>
+  <div class="r-brand-text">
+    <span class="r-brand-name">KALASUNGAY</span>
+    <span class="r-brand-sub">Resident Portal</span>
+  </div>
+</div>
+
+<nav class="r-sidebar-nav">
+
+  <div class="r-nav-label">Menu</div>
+
+  <a href="resident-home.php" class="r-nav-item" data-tooltip="Home">
+    <i class="bi bi-house-fill r-nav-icon"></i>
+    <span class="r-nav-text">Home</span>
+  </a>
+
+  <a href="resident-requests.html" class="r-nav-item" data-tooltip="My Requests">
+    <i class="bi bi-file-earmark-text r-nav-icon"></i>
+    <span class="r-nav-text">My Requests</span>
+    <span class="r-nav-badge">2</span>
+  </a>
+
+  <a href="services/resident-payment.html" class="r-nav-item" data-tooltip="Payments">
+    <i class="bi bi-cash-coin r-nav-icon"></i>
+    <span class="r-nav-text">Payments</span>
+  </a>
+
+  <a href="services/appointments.html" class="r-nav-item" data-tooltip="Appointments">
+    <i class="bi bi-calendar-check r-nav-icon"></i>
+    <span class="r-nav-text">Appointments</span>
+  </a>
+
+  <a href="resident-notifications.html" class="r-nav-item" data-tooltip="Notifications">
+    <i class="bi bi-bell r-nav-icon"></i>
+    <span class="r-nav-text">Notifications</span>
+    <span class="r-nav-badge">5</span>
+  </a>
+
+  <div class="r-nav-divider"></div>
+  <div class="r-nav-label">Account</div>
+
+  <a href="resident-profile.php" class="r-nav-item" data-tooltip="My Profile">
+    <i class="bi bi-person-circle r-nav-icon"></i>
+    <span class="r-nav-text">My Profile</span>
+  </a>
+
+  <a href="resident-settings.php" class="r-nav-item" data-tooltip="Settings">
+    <i class="bi bi-gear r-nav-icon"></i>
+    <span class="r-nav-text">Settings</span>
+  </a>
+
+  <a href="#" class="r-nav-item active" data-tooltip="Help">
+    <i class="bi bi-question-circle r-nav-icon"></i>
+    <span class="r-nav-text">Help & Support</span>
+  </a>
+
+</nav>
+
+<div class="r-sidebar-footer">
+  <div class="r-user-row">
+    <div class="r-user-avatar"><?= $initials ?></div>
+    <div class="r-user-info">
+      <span class="r-user-name"><?= $fullName ?></span>
+      <span class="r-user-sub">Resident ID: <?= $residentId ?></span>
     </div>
-    <nav class="r-sidebar-nav">
-      <a href="resident-home.php" class="r-nav-item"><i class="bi bi-house-fill r-nav-icon"></i><span class="r-nav-text">Home</span></a>
-      <a href="resident-requests.php" class="r-nav-item"><i class="bi bi-file-earmark-text r-nav-icon"></i><span class="r-nav-text">My Requests</span></a>
-      <a href="resident-settings.php" class="r-nav-item"><i class="bi bi-gear r-nav-icon"></i><span class="r-nav-text">Settings</span></a>
-      <a href="#" class="r-nav-item active"><i class="bi bi-question-circle r-nav-icon"></i><span class="r-nav-text">Help & Support</span></a>
-    </nav>
+    <a href="resident-logout.php" class="r-logout-btn" title="Sign out">
+      <i class="bi bi-box-arrow-right"></i>
+    </a>
+  </div>
+</div>
   </aside>
 
   <div class="r-main" id="rMain">
