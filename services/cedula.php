@@ -16,9 +16,6 @@ include 'resident-sidebar.php';
   <link href="../css/services.css" rel="stylesheet">
 </head>
 <body>
-
-  <?php include 'resident-sidebar.php'; ?>
-
   <!-- Main -->
   <div class="r-main" id="rMain">
     <header class="r-topbar">

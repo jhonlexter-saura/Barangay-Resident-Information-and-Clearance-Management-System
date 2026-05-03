@@ -60,6 +60,11 @@
       <div class="nav-divider"></div>
       <div class="nav-section-label">Operations</div>
 
+      <a href="staff-manage.php" class="nav-item" data-tooltip="Officials">
+        <i class="bi bi-person-badge nav-icon"></i>
+        <span class="nav-label">Officials</span>
+      </a>
+
       <a href="staff-settings.html" class="nav-item" data-tooltip="Settings">
         <i class="bi bi-gear nav-icon"></i>
         <span class="nav-label">Settings</span>

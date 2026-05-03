@@ -1,3 +1,15 @@
+<?php
+
+session_start();
+
+// Already logged in? Skip the login page entirely
+if (!empty($_SESSION['loggedin'])) {
+    header('Location: resident-dashboard.php');
+    exit();
+}
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -23,7 +35,7 @@
       </div>
       <span>Republic of the Philippines &nbsp;·&nbsp; Local Government Information System</span>
     </div>
-    <div class="gov-banner-right">AUTHORIZED PERSONNEL ONLY</div>
+    <div class="gov-banner-right"><a href="staff-create.php">AUTHORIZED PERSONNEL ONLY</a></div>
   </div>
 
   <!-- Main content -->
@@ -86,13 +98,25 @@
         <div class="form-eyebrow">Staff Portal</div>
         <div class="form-heading">Sign In</div>
         <div class="form-sub">Enter your official credentials to access the system</div>
+        <?php if (!empty($_SESSION['error'])): ?>
+            <div class="alert alert-danger d-flex align-items-center gap-2" role="alert">
+              <i class="bi bi-exclamation-triangle-fill"></i>
+              <?= htmlspecialchars($_SESSION['error']); unset($_SESSION['error']); ?>
+            </div>
+          <?php endif; ?>
 
+          <?php if (!empty($_SESSION['success'])): ?>
+            <div class="alert alert-success d-flex align-items-center gap-2" role="alert">
+              <i class="bi bi-check-circle-fill"></i>
+              <?= htmlspecialchars($_SESSION['success']); unset($_SESSION['success']); ?>
+            </div>
+          <?php endif; ?>
         <form action="staff-portal_validate.php" method="post">
           <!-- Employee ID / Email -->
           <div class="mb-3">
-            <label for="email" class="form-label">Employee Email</label>
+            <label for="txt" class="form-label">Employee Username</label>
             <div class="input-wrapper">
-              <input type="email" id="email" class="form-control" placeholder="firstname.lastname@lgu.gov.ph" required>
+              <input type="text" id="txt" class="form-control"  name="username" required>
               <i class="bi bi-person input-icon"></i>
             </div>
             <span class="form-text">Use your official government email address</span>
@@ -102,7 +126,7 @@
           <div class="mb-4">
             <label for="password" class="form-label">Password</label>
             <div class="input-wrapper">
-              <input type="password" id="password" class="form-control" placeholder="••••••••••" required>
+              <input type="password" id="password" class="form-control" placeholder="••••••••••" name="hashed_password" required>
               <i class="bi bi-lock input-icon"></i>
               <button type="button" class="toggle-pw" onclick="togglePassword()">
                 <i class="bi bi-eye" id="eyeIcon"></i>

@@ -1,7 +1,20 @@
 <?php
 $active_nav = 'payments';
 include 'resident-sidebar.php';
+
+$uploadBase = realpath(__DIR__ . '/../../files');
+if (!$uploadBase) {
+    mkdir(__DIR__ . '/../../files', 0755, true);
+    $uploadBase = realpath(__DIR__ . '/../../files');
+}
+
+// Add this to debug
+if (!$uploadBase) {
+    echo json_encode(['success' => false, 'message' => 'Upload directory could not be created.']);
+    return;
+}
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -16,9 +29,6 @@ include 'resident-sidebar.php';
   <link href="../css/services.css" rel="stylesheet">
 </head>
 <body>
-
-  <?php include 'resident-sidebar.php'; ?>
-
   <!-- Main -->
   <div class="r-main" id="rMain">
 
