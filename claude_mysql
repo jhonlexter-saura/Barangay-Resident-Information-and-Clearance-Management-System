@@ -12,30 +12,30 @@ USE bricms_db;
 -- 1. RESIDENT
 -- ============================================================
 CREATE TABLE resident (
-  resident_id      INT UNSIGNED    NOT NULL AUTO_INCREMENT,
-  first_name       VARCHAR(80)     NOT NULL,
-  middle_name      VARCHAR(80)         NULL,
-  last_name        VARCHAR(80)     NOT NULL,
-  suffix           VARCHAR(10)         NULL COMMENT 'Jr., Sr., II, III …',
-  birth_date       DATE                NULL,
-  birth_place      VARCHAR(150)        NULL,
-  gender           ENUM('Male','Female','Non-binary') NULL,
-  civil_status     ENUM('Single','Married','Widowed','Separated','Annulled','Common-Law') NULL,
-  citizenship      ENUM('Filipino','Foreigner') NOT NULL DEFAULT 'Filipino',
-  occupation       VARCHAR(100)        NULL,
-  voter_status     ENUM('Registered','Not Registered') NOT NULL DEFAULT 'Not Registered',
-  mobile_number    VARCHAR(15)         NULL,
-  emergency_contact VARCHAR(150)       NULL,
-  email            VARCHAR(150)        NULL UNIQUE,
-  password         VARCHAR(255)        NULL COMMENT 'bcrypt hash',
-  is_verified      TINYINT(1)      NOT NULL DEFAULT 0,
-  national_id      VARCHAR(50)         NULL UNIQUE,
-  sss_number       VARCHAR(20)         NULL UNIQUE,
-  gsis_number      VARCHAR(20)         NULL UNIQUE,
-  created_at       TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at       TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  resident_id       INT UNSIGNED    NOT NULL AUTO_INCREMENT,
+  first_name        VARCHAR(80)     NOT NULL,
+  middle_name       VARCHAR(80)         NULL,
+  last_name         VARCHAR(80)     NOT NULL,
+  suffix            VARCHAR(10)         NULL COMMENT 'Jr., Sr., II, III …',
+  birth_date        DATE                NULL,
+  birth_place       VARCHAR(150)        NULL,
+  gender            ENUM('Male','Female','Non-binary') NULL,
+  civil_status      ENUM('Single','Married','Widowed','Separated','Annulled','Common-Law') NULL,
+  citizenship       ENUM('Filipino','Foreigner') NOT NULL DEFAULT 'Filipino',
+  occupation        VARCHAR(100)        NULL,
+  voter_status      ENUM('Registered','Not Registered') NOT NULL DEFAULT 'Not Registered',
+  mobile_number     VARCHAR(15)         NULL,
+  emergency_contact VARCHAR(150)        NULL,
+  email             VARCHAR(150)        NULL UNIQUE,
+  password          VARCHAR(255)        NULL COMMENT 'bcrypt hash',
+  is_verified       TINYINT(1)      NOT NULL DEFAULT 0,
+  national_id       VARCHAR(50)         NULL UNIQUE,
+  sss_number        VARCHAR(20)         NULL UNIQUE,
+  gsis_number       VARCHAR(20)         NULL UNIQUE,
+  created_at        TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at        TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (resident_id),
-  INDEX idx_resident_name (last_name, first_name),
+  INDEX idx_resident_name      (last_name, first_name),
   INDEX idx_resident_birth_date (birth_date)
 ) ENGINE=InnoDB COMMENT='Core personal information of every barangay resident.';
 
@@ -53,7 +53,7 @@ CREATE TABLE household (
   municipality      VARCHAR(100)      NULL,
   province          VARCHAR(100)      NULL,
   zip_code          VARCHAR(10)       NULL,
-  tenure_status     ENUM('Owner','Renter','Informal Settler','Caretaker') NOT NULL,
+  tenure_status     ENUM('Owner','Renter','Informal Settler','Caretaker') NOT NULL DEFAULT 'Owner',
   total_members     SMALLINT UNSIGNED NOT NULL DEFAULT 1,
   created_at        TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at        TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -126,6 +126,11 @@ CREATE TABLE service_request (
                     'Business Permit',
                     'Barangay ID',
                     'First-Time Job Seeker',
+                    'Health Certificate',
+                    'Real Property Tax',
+                    'Scholarship Application',
+                    'Cedula / Community Tax Certificate',
+                    'Book an Appointment',
                     'Other'
                   ) NOT NULL,
   purpose         VARCHAR(200)      NULL COMMENT 'Employment, Schooling, Travel, etc.',
@@ -153,14 +158,51 @@ CREATE TABLE service_request (
     FOREIGN KEY (processed_by)
     REFERENCES barangay_official (user_id)
     ON UPDATE CASCADE ON DELETE SET NULL,
-  INDEX idx_request_resident    (resident_id),
-  INDEX idx_request_status      (status),
-  INDEX idx_request_date        (date_requested)
+  INDEX idx_request_resident (resident_id),
+  INDEX idx_request_status   (status),
+  INDEX idx_request_date     (date_requested)
 ) ENGINE=InnoDB COMMENT='Document/service requests submitted by residents.';
 
 
 -- ============================================================
--- 6. PAYMENT
+-- 6. SERVICE REQUEST DETAIL
+-- ============================================================
+CREATE TABLE service_request_detail (
+  detail_id    INT UNSIGNED  NOT NULL AUTO_INCREMENT,
+  request_id   INT UNSIGNED  NOT NULL,
+  field_key    VARCHAR(100)  NOT NULL,
+  field_value  TEXT              NULL,
+  PRIMARY KEY (detail_id),
+  CONSTRAINT fk_detail_request
+    FOREIGN KEY (request_id)
+    REFERENCES service_request (request_id)
+    ON UPDATE CASCADE ON DELETE CASCADE,
+  INDEX idx_detail_request (request_id)
+) ENGINE=InnoDB COMMENT='Extra form fields submitted per service request.';
+
+
+-- ============================================================
+-- 7. SERVICE REQUEST FILE
+-- ============================================================
+CREATE TABLE service_request_file (
+  file_id        INT UNSIGNED  NOT NULL AUTO_INCREMENT,
+  request_id     INT UNSIGNED  NOT NULL,
+  original_name  VARCHAR(255)  NOT NULL,
+  stored_name    VARCHAR(255)  NOT NULL COMMENT 'Relative path on disk',
+  file_size      INT UNSIGNED      NULL COMMENT 'Bytes',
+  mime_type      VARCHAR(100)      NULL,
+  uploaded_at    TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (file_id),
+  CONSTRAINT fk_file_request
+    FOREIGN KEY (request_id)
+    REFERENCES service_request (request_id)
+    ON UPDATE CASCADE ON DELETE CASCADE,
+  INDEX idx_file_request (request_id)
+) ENGINE=InnoDB COMMENT='Uploaded files attached to service requests.';
+
+
+-- ============================================================
+-- 8. PAYMENT
 -- ============================================================
 CREATE TABLE payment (
   payment_id       INT UNSIGNED    NOT NULL AUTO_INCREMENT,
@@ -195,8 +237,8 @@ CREATE TABLE payment (
     FOREIGN KEY (processed_by)
     REFERENCES barangay_official (user_id)
     ON UPDATE CASCADE ON DELETE SET NULL,
-  INDEX idx_payment_request    (request_id),
-  INDEX idx_payment_resident   (resident_id),
-  INDEX idx_payment_status     (payment_status),
-  INDEX idx_payment_date       (payment_date)
+  INDEX idx_payment_request  (request_id),
+  INDEX idx_payment_resident (resident_id),
+  INDEX idx_payment_status   (payment_status),
+  INDEX idx_payment_date     (payment_date)
 ) ENGINE=InnoDB COMMENT='Payment records linked to document/service requests.';
