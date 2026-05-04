@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LGU eGov — Process Request</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="../css/shared.css" rel="stylesheet">
+  <link href="../css/dashboard.css" rel="stylesheet">
+</head>
+<body>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-logo">
+        <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="18" cy="18" r="16" fill="none" stroke="rgba(201,168,76,0.6)" stroke-width="1.5"/>
+          <circle cx="18" cy="18" r="11" fill="rgba(201,168,76,0.1)"/>
+          <polygon points="18,7 19.8,13 26,13 21,16.8 23,23 18,19.5 13,23 15,16.8 10,13 16.2,13" fill="rgba(201,168,76,0.9)"/>
+        </svg>
+      </div>
+      <div class="sidebar-brand-text">
+        <span class="sidebar-brand-name">LGU eGov</span>
+        <span class="sidebar-brand-sub">Staff Portal</span>
+      </div>
+      <button class="sidebar-collapse-btn" id="sidebarCollapseBtn" aria-label="Collapse sidebar">
+        <i class="bi bi-layout-sidebar-reverse"></i>
+      </button>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Main</div>
+      <a href="dashboard.php" class="nav-item" data-tooltip="Dashboard">
+        <i class="bi bi-grid-fill nav-icon"></i>
+        <span class="nav-label">Dashboard</span>
+      </a>
+      <a href="staff-requests.php" class="nav-item active" data-tooltip="Requests">
+        <i class="bi bi-file-earmark-text nav-icon"></i>
+        <span class="nav-label">Requests</span>
+      </a>
+      <a href="staff-notifications.php" class="nav-item" data-tooltip="Notifications">
+        <i class="bi bi-bell nav-icon"></i>
+        <span class="nav-label">Notifications</span>
+      </a>
+      <a href="staff-settings.php" class="nav-item" data-tooltip="Settings">
+        <i class="bi bi-gear nav-icon"></i>
+        <span class="nav-label">Settings</span>
+      </a>
+      <a href="staff-help.php" class="nav-item" data-tooltip="Help">
+        <i class="bi bi-question-circle nav-icon"></i>
+        <span class="nav-label">Help & Support</span>
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="user-avatar">AC</div>
+        <div class="user-info">
+          <span class="user-name">Ana Cruz</span>
+          <span class="user-role">Records Officer</span>
+        </div>
+        <button class="user-logout" title="Sign out">
+          <i class="bi bi-box-arrow-right"></i>
+        </button>
+      </div>
+    </div>
+  </aside>
+  <div class="main-area" id="mainArea">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="topbar-menu-btn" id="mobileMenuBtn" aria-label="Open menu">
+          <i class="bi bi-list"></i>
+        </button>
+        <nav class="breadcrumb-nav" aria-label="Breadcrumb">
+          <span class="breadcrumb-item">
+            <i class="bi bi-file-earmark-text"></i> Process Request
+          </span>
+        </nav>
+      </div>
+      <div class="topbar-center">
+        <div class="topbar-search">
+          <i class="bi bi-search search-icon"></i>
+          <input type="text" class="search-input" placeholder="Search request details…">
+          <kbd class="search-kbd">⌘K</kbd>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <button class="topbar-btn notif-btn" aria-label="Notifications">
+          <i class="bi bi-bell"></i>
+          <span class="notif-count">3</span>
+        </button>
+        <div class="topbar-profile">
+          <div class="profile-avatar">AC</div>
+          <div class="profile-info">
+            <span class="profile-name">Ana Cruz</span>
+            <span class="profile-dept">Records Section</span>
+          </div>
+          <i class="bi bi-chevron-down profile-chevron"></i>
+        </div>
+      </div>
+    </header>
+    <main class="page-content">
+      <div class="content-header">
+        <div class="content-header-left">
+          <h1 class="page-title">Process Request</h1>
+          <p class="page-subtitle">Review the resident's request details before approving or declining.</p>
+        </div>
+        <div class="content-header-right">
+          <a href="staff-requests.php" class="btn-outline-nav"><i class="bi bi-arrow-left"></i> Back to Requests</a>
+        </div>
+      </div>
+      <div class="dashboard-grid">
+        <div class="dash-card dash-card-wide">
+          <div class="dash-card-header">
+            <div class="dash-card-title"><i class="bi bi-person-lines-fill"></i> Request Overview</div>
+            <div class="dash-card-actions">
+              <span class="badge bg-warning text-dark">Pending</span>
+            </div>
+          </div>
+          <div class="dash-card-body">
+            <div class="row g-4">
+              <div class="col-lg-8">
+                <div class="mb-4">
+                  <div class="h5">Resident</div>
+                  <p class="mb-1">Marites Santos</p>
+                  <p class="text-muted">Brgy. Poblacion, 3rd District</p>
+                </div>
+                <div class="mb-4">
+                  <div class="h5">Request Details</div>
+                  <p><strong>Type:</strong> Barangay Clearance</p>
+                  <p><strong>Date Filed:</strong> April 26, 2026</p>
+                  <p><strong>Priority:</strong> High</p>
+                  <p><strong>Description:</strong> Requested clearance for employment application with complete supporting documents attached.</p>
+                </div>
+                <div class="mb-4">
+                  <div class="h5">Attachments</div>
+                  <ul class="list-group">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">Valid ID copy <span class="badge bg-secondary">View</span></li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">Proof of residency <span class="badge bg-secondary">View</span></li>
+                  </ul>
+                </div>
+              </div>
+              <div class="col-lg-4">
+                <div class="info-panel p-4 rounded-3 border">
+                  <div class="mb-3">
+                    <div class="h6">Contact</div>
+                    <p class="mb-1">+63 912 345 6789</p>
+                    <p class="text-muted mb-0">marites.santos@example.ph</p>
+                  </div>
+                  <div class="mb-3">
+                    <div class="h6">Assigned Officer</div>
+                    <p class="mb-1">Officer: Carlo Lim</p>
+                    <p class="text-muted mb-0">Records Unit</p>
+                  </div>
+                  <div>
+                    <div class="h6">Processing Notes</div>
+                    <p class="text-muted">Check ID authenticity and confirm barangay residency before approval.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="dash-card">
+          <div class="dash-card-header">
+            <div class="dash-card-title"><i class="bi bi-tools"></i> Process Actions</div>
+          </div>
+          <div class="dash-card-body">
+            <div class="d-flex flex-column gap-3">
+              <button class="btn btn-success btn-lg">Approve Request</button>
+              <button class="btn btn-danger btn-lg">Decline Request</button>
+              <button class="btn btn-outline-secondary btn-lg">Request More Documents</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="dashboard-grid">
+        <div class="dash-card dash-card-wide">
+          <div class="dash-card-header">
+            <div class="dash-card-title"><i class="bi bi-chat-left-text"></i> Recent Notes</div>
+          </div>
+          <div class="dash-card-body">
+            <div class="timeline">
+              <div class="timeline-item">
+                <div class="timeline-dot bg-warning"></div>
+                <div>
+                  <strong>Apr 26, 2026</strong>
+                  <p class="mb-0 text-muted">Request received and queued for initial review.</p>
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-dot bg-info"></div>
+                <div>
+                  <strong>Apr 26, 2026</strong>
+                  <p class="mb-0 text-muted">Assigned to Records Officer for validation.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+  <script src="../js/dashboard.js"></script>
+</body>
+</html>
+
+

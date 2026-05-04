@@ -34,7 +34,7 @@ include 'resident-sidebar.php';
           <span class="r-notif-dot" id="cartDot" style="display:none;"></span>
         </a>
         <button class="r-topbar-btn"><i class="bi bi-bell"></i><span class="r-notif-dot"></span></button>
-        <a href="../resident-profile.php" class="r-profile-chip">
+        <a href="../resident/resident-profile.php" class="r-profile-chip">
           <div class="r-chip-avatar">JD</div>
           <span class="r-chip-name">Juan</span>
           <i class="bi bi-chevron-down"></i>
@@ -45,7 +45,7 @@ include 'resident-sidebar.php';
     <main class="r-content">
 
       <!-- Back link -->
-      <a href="../resident-home.php" class="svc-back-link" style="display:inline-flex; align-items:center; gap:5px; font-size:0.78rem; font-weight:600; color:var(--text-muted); text-decoration:none; margin-bottom:0.85rem; transition:color 0.15s;">
+      <a href="../resident/resident-home.php" class="svc-back-link" style="display:inline-flex; align-items:center; gap:5px; font-size:0.78rem; font-weight:600; color:var(--text-muted); text-decoration:none; margin-bottom:0.85rem; transition:color 0.15s;">
         <i class="bi bi-arrow-left"></i> Back to Services
       </a>
 

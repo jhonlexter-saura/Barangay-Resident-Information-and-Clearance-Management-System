@@ -44,7 +44,7 @@ if (!$uploadBase) {
       </div>
       <div class="r-topbar-right">
         <button class="r-topbar-btn"><i class="bi bi-bell"></i><span class="r-notif-dot"></span></button>
-        <a href="../resident-profile.php" class="r-profile-chip">
+        <a href="../resident/resident-profile.php" class="r-profile-chip">
           <div class="r-chip-avatar"></div>
           <span class="r-chip-name"></span>
           <i class="bi bi-chevron-down"></i>
@@ -55,7 +55,7 @@ if (!$uploadBase) {
     <main class="r-content">
 
       <!-- Back link -->
-      <a href="../resident-home.php" class="svc-back-link" style="display:inline-flex; align-items:center; gap:5px; font-size:0.78rem; font-weight:600; color:var(--text-muted); text-decoration:none; margin-bottom:0.85rem; transition:color 0.15s;">
+      <a href="../resident/resident-home.php" class="svc-back-link" style="display:inline-flex; align-items:center; gap:5px; font-size:0.78rem; font-weight:600; color:var(--text-muted); text-decoration:none; margin-bottom:0.85rem; transition:color 0.15s;">
         <i class="bi bi-arrow-left"></i> Back to Services
       </a>
 
@@ -78,7 +78,7 @@ if (!$uploadBase) {
               <div class="pay-card-title">
                 <i class="bi bi-cart-fill"></i> Service Requests in Cart
               </div>
-              <a href="../resident-home.php" style="font-size:0.75rem; font-weight:600; color:var(--sky); text-decoration:none;">
+              <a href="../resident/resident-home.php" style="font-size:0.75rem; font-weight:600; color:var(--sky); text-decoration:none;">
                 <i class="bi bi-plus-lg"></i> Add More
               </a>
             </div>
@@ -89,7 +89,7 @@ if (!$uploadBase) {
                 <div class="pay-empty-icon"><i class="bi bi-cart-x"></i></div>
                 <div class="pay-empty-title">Your cart is empty</div>
                 <div class="pay-empty-sub">Go back to Services and add the requests you need to process.</div>
-                <a href="resident-home.php" style="font-size:0.82rem; font-weight:700; color:var(--sky); text-decoration:none; display:flex; align-items:center; gap:5px;">
+                <a href="../resident/resident-home.php" style="font-size:0.82rem; font-weight:700; color:var(--sky); text-decoration:none; display:flex; align-items:center; gap:5px;">
                   <i class="bi bi-arrow-left"></i> Browse Services
                 </a>
               </div>
@@ -224,7 +224,7 @@ if (!$uploadBase) {
     <div class="pay-success-sub" id="successCount">Your service requests have been sent to the LGU office for processing. You will be notified of updates.</div>
     <div class="pay-success-ref" id="successRef">Reference No: —</div>
     <div class="pay-success-actions">
-      <a href="../resident-home.php" class="btn-success-home">
+      <a href="../resident/resident-home.php" class="btn-success-home">
         <i class="bi bi-house-fill"></i> Go to Home
       </a>
       <a href="#" class="btn-success-track">

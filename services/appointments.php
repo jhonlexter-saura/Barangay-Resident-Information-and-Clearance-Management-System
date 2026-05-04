@@ -52,14 +52,14 @@ include 'resident-sidebar.php';
           <span class="r-notif-dot" id="cartDot" style="display:none;"></span>
         </a>
 
-        <a href="../resident-notifications.php" class="r-topbar-btn" style="position:relative;" title="Notifications">
+        <a href="../resident/resident-notifications.php" class="r-topbar-btn" style="position:relative;" title="Notifications">
           <i class="bi bi-bell"></i>
           <?php if ($unread_notifs > 0): ?>
             <span class="r-notif-dot"></span>
           <?php endif; ?>
         </a>
 
-        <a href="../resident-profile.php" class="r-profile-chip">
+        <a href="../resident/resident-profile.php" class="r-profile-chip">
           <div class="r-chip-avatar" id="topbarAvatar">??</div>
           <span class="r-chip-name" id="topbarName">...</span>
           <i class="bi bi-chevron-down"></i>
@@ -70,7 +70,7 @@ include 'resident-sidebar.php';
     <main class="r-content">
 
       <!-- Back link -->
-      <a href="../resident-home.php" class="svc-back-link" style="display:inline-flex; align-items:center; gap:5px; font-size:0.78rem; font-weight:600; color:var(--text-muted); text-decoration:none; margin-bottom:0.85rem; transition:color 0.15s;">
+      <a href="../resident/resident-home.php" class="svc-back-link" style="display:inline-flex; align-items:center; gap:5px; font-size:0.78rem; font-weight:600; color:var(--text-muted); text-decoration:none; margin-bottom:0.85rem; transition:color 0.15s;">
         <i class="bi bi-arrow-left"></i> Back to Services
       </a>
 
