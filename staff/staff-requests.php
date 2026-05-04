@@ -1,9 +1,82 @@
+<?php
+require '../config.php';
+require '../aut.php';
+
+$user = null;
+if (!empty($_SESSION['user_id'])) {
+    $stmt = $pdo->prepare(
+        "SELECT bo.*, r.first_name, r.last_name
+         FROM barangay_official bo
+         JOIN resident r ON bo.resident_id = r.resident_id
+         WHERE bo.user_id = ?"
+    );
+    $stmt->execute([$_SESSION['user_id']]);
+    $user = $stmt->fetch();
+}
+
+function initials($first, $last) {
+    return strtoupper(substr($first, 0, 1) . substr($last, 0, 1));
+}
+
+$pendingRequests = (int) $pdo->query("SELECT COUNT(*) FROM service_request WHERE status = 'Pending'")->fetchColumn();
+$completedTodayStmt = $pdo->prepare("SELECT COUNT(*) FROM service_request WHERE status = 'Released' AND DATE(date_issued) = ?");
+$completedTodayStmt->execute([date('Y-m-d')]);
+$completedToday = (int) $completedTodayStmt->fetchColumn();
+$registeredResidents = (int) $pdo->query("SELECT COUNT(*) FROM resident")->fetchColumn();
+$awaitingApproval = (int) $pdo->query("SELECT COUNT(*) FROM service_request WHERE status IN ('Pending','Processing')")->fetchColumn();
+$unreadNotifs = (int) $pdo->query("SELECT COUNT(*) FROM notification WHERE is_read = 0")->fetchColumn();
+
+$activeRequestsStmt = $pdo->query(
+    "SELECT sr.request_id, sr.document_type, sr.status, sr.date_requested, r.first_name, r.last_name
+     FROM service_request sr
+     JOIN resident r ON sr.resident_id = r.resident_id
+     ORDER BY sr.date_requested DESC, sr.request_id DESC
+     LIMIT 20"
+);
+$activeRequests = $activeRequestsStmt->fetchAll(PDO::FETCH_ASSOC);
+
+$breakdownStmt = $pdo->query("SELECT document_type, COUNT(*) AS total FROM service_request GROUP BY document_type ORDER BY total DESC");
+$documentBreakdown = $breakdownStmt->fetchAll(PDO::FETCH_ASSOC);
+
+$recentResidentsStmt = $pdo->query(
+    "SELECT sr.request_id, sr.document_type, sr.status, sr.date_requested, r.first_name, r.last_name
+     FROM service_request sr
+     JOIN resident r ON sr.resident_id = r.resident_id
+     ORDER BY sr.date_requested DESC, sr.request_id DESC
+     LIMIT 3"
+);
+$recentResidents = $recentResidentsStmt->fetchAll(PDO::FETCH_ASSOC);
+
+function requestPriorityLabel($status) {
+    return match($status) {
+        'Pending'         => 'High',
+        'Processing'      => 'Normal',
+        'Ready for Pickup'=> 'High',
+        'Released'        => 'Low',
+        'Denied'          => 'Low',
+        'Cancelled'       => 'Low',
+        default           => 'Normal',
+    };
+}
+
+function requestStatusClass($status) {
+    return match($status) {
+        'Pending'         => 'warning',
+        'Processing'      => 'info',
+        'Ready for Pickup'=> 'success',
+        'Released'        => 'success',
+        'Denied'          => 'danger',
+        'Cancelled'       => 'secondary',
+        default           => 'secondary',
+    };
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>LGU eGov — Staff Requests</title>
+  <title>KALASUNGAY — Staff Requests</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
@@ -21,8 +94,8 @@
         </svg>
       </div>
       <div class="sidebar-brand-text">
-        <span class="sidebar-brand-name">LGU eGov</span>
-        <span class="sidebar-brand-sub">Municipal Portal</span>
+        <span class="sidebar-brand-name">KALASUNGAY</span>
+        <span class="sidebar-brand-sub">Staff Portal</span>
       </div>
       <button class="sidebar-collapse-btn" id="sidebarCollapseBtn" aria-label="Collapse sidebar">
         <i class="bi bi-layout-sidebar-reverse"></i>
@@ -32,7 +105,7 @@
 
       <div class="nav-section-label">Main</div>
 
-      <a href="dashboard.php" class="nav-item" data-tooltip="Dashboard">
+      <a href="staff-dashboard.php" class="nav-item" data-tooltip="Dashboard">
         <i class="bi bi-grid-fill nav-icon"></i>
         <span class="nav-label">Dashboard</span>
       </a>
@@ -40,13 +113,13 @@
       <a href="staff-requests.php" class="nav-item active" data-tooltip="Requests">
         <i class="bi bi-file-earmark-text nav-icon"></i>
         <span class="nav-label">Requests</span>
-        <span class="nav-badge">12</span>
+        <span class="nav-badge"><?= number_format($pendingRequests) ?></span>
       </a>
 
       <a href="staff-notifications.php" class="nav-item" data-tooltip="Notifications">
         <i class="bi bi-bell nav-icon"></i>
         <span class="nav-label">Notifications</span>
-        <span class="nav-badge">2</span>
+        <span class="nav-badge"><?= number_format($unreadNotifs) ?></span>
       </a>
 
       <div class="nav-divider"></div>
@@ -65,12 +138,12 @@
     </nav>
     <div class="sidebar-footer">
       <div class="sidebar-user">
-        <div class="user-avatar">AC</div>
+        <div class="user-avatar"><?= htmlspecialchars(initials($user['first_name'] ?? 'S', $user['last_name'] ?? 'T')) ?></div>
         <div class="user-info">
-          <span class="user-name">Ana Cruz</span>
-          <span class="user-role">Records Officer</span>
+          <span class="user-name"><?= htmlspecialchars(trim(($user['first_name'] ?? 'Staff') . ' ' . ($user['last_name'] ?? 'User'))) ?></span>
+          <span class="user-role"><?= htmlspecialchars($user['role_position'] ?? 'Administrator') ?></span>
         </div>
-        <button class="user-logout" title="Sign out">
+        <button class="user-logout" title="Sign out" onclick="location.href='staff-logout.php'">
           <i class="bi bi-box-arrow-right"></i>
         </button>
       </div>
@@ -96,15 +169,15 @@
         </div>
       </div>
       <div class="topbar-right">
-        <button class="topbar-btn notif-btn" aria-label="Notifications">
+        <button class="topbar-btn notif-btn" aria-label="Notifications" onclick="location.href='staff-notifications.php'">
           <i class="bi bi-bell"></i>
-          <span class="notif-count">5</span>
+          <span class="notif-count"><?= number_format($unreadNotifs) ?></span>
         </button>
         <div class="topbar-profile">
-          <div class="profile-avatar">AC</div>
+          <div class="profile-avatar"><?= htmlspecialchars(initials($user['first_name'] ?? 'S', $user['last_name'] ?? 'T')) ?></div>
           <div class="profile-info">
-            <span class="profile-name">Ana Cruz</span>
-            <span class="profile-dept">Records Section</span>
+            <span class="profile-name"><?= htmlspecialchars(trim(($user['first_name'] ?? 'Staff') . ' ' . ($user['last_name'] ?? 'User'))) ?></span>
+            <span class="profile-dept"><?= htmlspecialchars($user['role_position'] ?? 'Administrator') ?></span>
           </div>
           <i class="bi bi-chevron-down profile-chevron"></i>
         </div>
@@ -131,22 +204,22 @@
       <div class="stats-grid">
         <div class="stat-card">
           <div class="stat-icon" style="background:#e8f3fc; color:#1a7fd4;"><i class="bi bi-hourglass-split"></i></div>
-          <div class="stat-body"><span class="stat-value">14</span><span class="stat-label">Pending Requests</span></div>
+          <div class="stat-body"><span class="stat-value"><?= number_format($pendingRequests) ?></span><span class="stat-label">Pending Requests</span></div>
           <div class="stat-trend warning"><i class="bi bi-arrow-down-short"></i> 3%</div>
         </div>
         <div class="stat-card">
           <div class="stat-icon" style="background:#e6f7ef; color:#1a9e5f;"><i class="bi bi-check-circle-fill"></i></div>
-          <div class="stat-body"><span class="stat-value">38</span><span class="stat-label">Completed Today</span></div>
+          <div class="stat-body"><span class="stat-value"><?= number_format($completedToday) ?></span><span class="stat-label">Completed Today</span></div>
           <div class="stat-trend up"><i class="bi bi-arrow-up-short"></i> 14%</div>
         </div>
         <div class="stat-card">
           <div class="stat-icon" style="background:#fef3c7; color:#d97706;"><i class="bi bi-people-fill"></i></div>
-          <div class="stat-body"><span class="stat-value">9,120</span><span class="stat-label">Registered Residents</span></div>
+          <div class="stat-body"><span class="stat-value"><?= number_format($registeredResidents) ?></span><span class="stat-label">Registered Residents</span></div>
           <div class="stat-trend neutral"><i class="bi bi-dash"></i> 0%</div>
         </div>
         <div class="stat-card">
           <div class="stat-icon" style="background:#f0e8ff; color:#7c3aed;"><i class="bi bi-calendar-check-fill"></i></div>
-          <div class="stat-body"><span class="stat-value">4</span><span class="stat-label">Awaiting Approval</span></div>
+          <div class="stat-body"><span class="stat-value"><?= number_format($awaitingApproval) ?></span><span class="stat-label">Awaiting Approval</span></div>
           <div class="stat-trend up"><i class="bi bi-arrow-up-short"></i> 18%</div>
         </div>
       </div>
@@ -168,38 +241,27 @@
               </tr>
             </thead>
             <tbody>
+            <?php if (!empty($activeRequests)): ?>
+              <?php foreach ($activeRequests as $req):
+                $residentName = htmlspecialchars(trim($req['first_name'] . ' ' . $req['last_name']));
+                $priority = requestPriorityLabel($req['status']);
+                $statusClass = requestStatusClass($req['status']);
+                $actionText = in_array($req['status'], ['Released', 'Denied', 'Cancelled'], true) ? 'View' : 'Process';
+              ?>
               <tr>
-                <td>Marites Santos</td>
-                <td>Barangay Clearance</td>
-                <td>Apr 26, 2026</td>
-                <td>High</td>
-                <td><span class="badge bg-warning text-dark">Pending</span></td>
-                <td><a href="staff-process-request.php" class="btn btn-outline-primary btn-sm">Process</a></td>
+                <td><?= $residentName ?></td>
+                <td><?= htmlspecialchars($req['document_type']) ?></td>
+                <td><?= htmlspecialchars(date('M j, Y', strtotime($req['date_requested']))) ?></td>
+                <td><?= htmlspecialchars($priority) ?></td>
+                <td><span class="badge bg-<?= $statusClass ?> <?= $statusClass === 'info' ? 'text-dark' : '' ?>"><?= htmlspecialchars($req['status']) ?></span></td>
+                <td><a href="staff-process-request.php?request_id=<?= urlencode($req['request_id']) ?>" class="btn btn-outline-primary btn-sm"><?= $actionText ?></a></td>
               </tr>
+              <?php endforeach; ?>
+            <?php else: ?>
               <tr>
-                <td>Jonathan Reyes</td>
-                <td>Health Certificate</td>
-                <td>Apr 26, 2026</td>
-                <td>Normal</td>
-                <td><span class="badge bg-info text-dark">In Review</span></td>
-                <td><a href="staff-process-request.php" class="btn btn-outline-primary btn-sm">Process</a></td>
+                <td colspan="6" class="text-center">No active requests found.</td>
               </tr>
-              <tr>
-                <td>Rosa Villanueva</td>
-                <td>Indigency Clearance</td>
-                <td>Apr 25, 2026</td>
-                <td>Medium</td>
-                <td><span class="badge bg-danger">Urgent</span></td>
-                <td><a href="staff-process-request.php" class="btn btn-outline-primary btn-sm">Process</a></td>
-              </tr>
-              <tr>
-                <td>Carlos Mendoza</td>
-                <td>Cedula</td>
-                <td>Apr 24, 2026</td>
-                <td>Normal</td>
-                <td><span class="badge bg-success">Completed</span></td>
-                <td><a href="staff-process-request.php" class="btn btn-outline-primary btn-sm">View</a></td>
-              </tr>
+            <?php endif; ?>
             </tbody>
           </table>
         </div>
@@ -211,10 +273,16 @@
           </div>
           <div class="dash-card-body">
             <ul class="list-unstyled">
-              <li class="d-flex justify-content-between align-items-center py-2 border-bottom"><span>Barangay Clearance</span><strong>6</strong></li>
-              <li class="d-flex justify-content-between align-items-center py-2 border-bottom"><span>Health Certificate</span><strong>3</strong></li>
-              <li class="d-flex justify-content-between align-items-center py-2 border-bottom"><span>Business Permit</span><strong>2</strong></li>
-              <li class="d-flex justify-content-between align-items-center py-2"><span>Indigency</span><strong>3</strong></li>
+              <?php if (!empty($documentBreakdown)): ?>
+                <?php foreach ($documentBreakdown as $break): ?>
+                  <li class="d-flex justify-content-between align-items-center py-2<?= $break === end($documentBreakdown) ? '' : ' border-bottom' ?>">
+                    <span><?= htmlspecialchars($break['document_type']) ?></span>
+                    <strong><?= number_format($break['total']) ?></strong>
+                  </li>
+                <?php endforeach; ?>
+              <?php else: ?>
+                <li class="py-2">No request breakdown available.</li>
+              <?php endif; ?>
             </ul>
           </div>
         </div>
@@ -224,27 +292,21 @@
           </div>
           <div class="dash-card-body">
             <div class="recent-list">
-              <div class="recent-item">
-                <div>
-                  <div class="recent-title">Diwa Herrera</div>
-                  <div class="recent-meta">04/26 • Barangay Clearance</div>
+              <?php if (!empty($recentResidents)): ?>
+                <?php foreach ($recentResidents as $resident):
+                  $statusClass = requestStatusClass($resident['status']);
+                ?>
+                <div class="recent-item">
+                  <div>
+                    <div class="recent-title"><?= htmlspecialchars(trim($resident['first_name'] . ' ' . $resident['last_name'])) ?></div>
+                    <div class="recent-meta"><?= htmlspecialchars(date('m/d', strtotime($resident['date_requested']))) ?> • <?= htmlspecialchars($resident['document_type']) ?></div>
+                  </div>
+                  <span class="badge bg-<?= $statusClass ?> <?= $statusClass === 'info' ? 'text-dark' : '' ?>"><?= htmlspecialchars($resident['status']) ?></span>
                 </div>
-                <span class="badge bg-success">Active</span>
-              </div>
-              <div class="recent-item">
-                <div>
-                  <div class="recent-title">Myra Lopez</div>
-                  <div class="recent-meta">04/26 • Health Certificate</div>
-                </div>
-                <span class="badge bg-info text-dark">Review</span>
-              </div>
-              <div class="recent-item">
-                <div>
-                  <div class="recent-title">Antonio Diaz</div>
-                  <div class="recent-meta">04/25 • Indigency</div>
-                </div>
-                <span class="badge bg-warning text-dark">Pending</span>
-              </div>
+                <?php endforeach; ?>
+              <?php else: ?>
+                <div class="recent-item">No recent residents found.</div>
+              <?php endif; ?>
             </div>
           </div>
         </div>

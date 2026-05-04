@@ -71,7 +71,7 @@ function initials($first, $last) {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>LGU eGov — Dashboard</title>
+  <title>KALASUNGAY — Dashboard</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
@@ -95,8 +95,8 @@ function initials($first, $last) {
         </svg>
       </div>
       <div class="sidebar-brand-text">
-        <span class="sidebar-brand-name">LGU eGov</span>
-        <span class="sidebar-brand-sub">Municipal Portal</span>
+        <span class="sidebar-brand-name">KALASUNGAY</span>
+        <span class="sidebar-brand-sub">Staff Portal</span>
       </div>
       <button class="sidebar-collapse-btn" id="sidebarCollapseBtn" aria-label="Collapse sidebar">
         <i class="bi bi-layout-sidebar-reverse"></i>
@@ -153,9 +153,9 @@ function initials($first, $last) {
         <span class="user-name"><?= htmlspecialchars(trim(($user['first_name'] ?? 'Staff') . ' ' . ($user['last_name'] ?? 'User'))) ?></span>
         <span class="user-role"><?= htmlspecialchars($user['role_position'] ?? 'Administrator') ?></span>
       </div>
-      <button class="user-logout" title="Sign out">
+      <a href="staff-logout.php" class="user-logout" title="Sign out">
         <i class="bi bi-box-arrow-right"></i>
-      </button>
+      </a>
     </div>
 
   </aside>

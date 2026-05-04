@@ -214,7 +214,7 @@ require '../res-sidebar.php';
 
           <div class="services-grid">
 
-            <a href="services/barangay-clearance.php" class="svc-card">
+            <a href="../services/barangay-clearance.php" class="svc-card">
               <div class="svc-icon" style="background:#e8f3fc; color:#1a7fd4;">
                 <i class="bi bi-file-earmark-text-fill"></i>
               </div>
@@ -229,7 +229,7 @@ require '../res-sidebar.php';
               <i class="bi bi-arrow-right svc-arrow"></i>
             </a>
 
-            <a href="services/cedula.php" class="svc-card">
+            <a href="../services/cedula.php" class="svc-card">
               <div class="svc-icon" style="background:#e6f7ef; color:#1a9e5f;">
                 <i class="bi bi-card-heading"></i>
               </div>
@@ -244,7 +244,7 @@ require '../res-sidebar.php';
               <i class="bi bi-arrow-right svc-arrow"></i>
             </a>
 
-            <a href="services/business-permit.php" class="svc-card">
+            <a href="../services/business-permit.php" class="svc-card">
               <div class="svc-icon" style="background:#fef3c7; color:#d97706;">
                 <i class="bi bi-house-fill"></i>
               </div>
@@ -259,7 +259,7 @@ require '../res-sidebar.php';
               <i class="bi bi-arrow-right svc-arrow"></i>
             </a>
 
-            <a href="services/health-cert.php" class="svc-card">
+            <a href="../services/health-cert.php" class="svc-card">
               <div class="svc-icon" style="background:#fde8e8; color:#dc2626;">
                 <i class="bi bi-heart-pulse-fill"></i>
               </div>
@@ -274,7 +274,7 @@ require '../res-sidebar.php';
               <i class="bi bi-arrow-right svc-arrow"></i>
             </a>
 
-            <a href="services/indigency.php" class="svc-card">
+            <a href="../services/indigency.php" class="svc-card">
               <div class="svc-icon" style="background:#f0e8ff; color:#7c3aed;">
                 <i class="bi bi-people-fill"></i>
               </div>
@@ -289,7 +289,7 @@ require '../res-sidebar.php';
               <i class="bi bi-arrow-right svc-arrow"></i>
             </a>
 
-            <a href="services/rpt-tax.php" class="svc-card">
+            <a href="../services/rpt-tax.php" class="svc-card">
               <div class="svc-icon" style="background:#e8f5e8; color:#16a34a;">
                 <i class="bi bi-cash-coin"></i>
               </div>
@@ -304,7 +304,7 @@ require '../res-sidebar.php';
               <i class="bi bi-arrow-right svc-arrow"></i>
             </a>
 
-            <a href="services/scholarship.php" class="svc-card">
+            <a href="../services/scholarship.php" class="svc-card">
               <div class="svc-icon" style="background:#e8f3fc; color:#0369a1;">
                 <i class="bi bi-mortarboard-fill"></i>
               </div>
@@ -319,7 +319,7 @@ require '../res-sidebar.php';
               <i class="bi bi-arrow-right svc-arrow"></i>
             </a>
 
-            <a href="services/appointments.php" class="svc-card">
+            <a href="../services/appointments.php" class="svc-card">
               <div class="svc-icon" style="background:#fef3c7; color:#b45309;">
                 <i class="bi bi-calendar-heart-fill"></i>
               </div>

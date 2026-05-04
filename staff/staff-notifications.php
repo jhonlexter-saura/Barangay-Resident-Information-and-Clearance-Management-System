@@ -1,9 +1,56 @@
+<?php
+require '../config.php';
+require '../aut.php';
+
+$user = null;
+if (!empty($_SESSION['user_id'])) {
+    $stmt = $pdo->prepare(
+        "SELECT bo.*, r.first_name, r.last_name
+         FROM barangay_official bo
+         JOIN resident r ON bo.resident_id = r.resident_id
+         WHERE bo.user_id = ?"
+    );
+    $stmt->execute([$_SESSION['user_id']]);
+    $user = $stmt->fetch();
+}
+
+function initials($first, $last) {
+    return strtoupper(substr($first, 0, 1) . substr($last, 0, 1));
+}
+
+$stmt = $pdo->query("SELECT COUNT(*) FROM notification WHERE is_read = 0");
+$unreadNotifs = (int) $stmt->fetchColumn();
+
+$stmt = $pdo->query("SELECT COUNT(*) FROM service_request WHERE status IN ('Pending','Processing','Ready for Pickup')");
+$pendingRequests = (int) $stmt->fetchColumn();
+
+$stmt = $pdo->query("SELECT * FROM notification ORDER BY created_at DESC");
+$notifications = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+function notifIcon($type) {
+    return match($type) {
+        'request'      => ['bi-file-earmark-check-fill', '#e8f3fc', '#1a7fd4'],
+        'announcement' => ['bi-megaphone-fill',           '#e6f7ef', '#1a9e5f'],
+        'payment'      => ['bi-cash-coin',                '#fde8e8', '#dc2626'],
+        'system'       => ['bi-gear-fill',                '#f1f5f9', '#64748b'],
+        default        => ['bi-bell-fill',                '#e8f3fc', '#1a7fd4'],
+    };
+}
+
+function timeAgo($datetime) {
+    $diff = time() - strtotime($datetime);
+    if ($diff < 3600)  return round($diff / 60) . ' minutes ago';
+    if ($diff < 86400) return round($diff / 3600) . ' hours ago';
+    if ($diff < 604800) return round($diff / 86400) . ' days ago';
+    return date('M j, Y', strtotime($datetime));
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>LGU eGov — Staff Notifications</title>
+  <title>KALASUNGAY — Staff Notifications</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
@@ -21,8 +68,8 @@
         </svg>
       </div>
       <div class="sidebar-brand-text">
-        <span class="sidebar-brand-name">LGU eGov</span>
-        <span class="sidebar-brand-sub">Municipal Portal</span>
+        <span class="sidebar-brand-name">KALASUNGAY</span>
+        <span class="sidebar-brand-sub">Staff Portal</span>
       </div>
       <button class="sidebar-collapse-btn" id="sidebarCollapseBtn" aria-label="Collapse sidebar">
         <i class="bi bi-layout-sidebar-reverse"></i>
@@ -32,7 +79,7 @@
 
       <div class="nav-section-label">Main</div>
 
-      <a href="dashboard.php" class="nav-item" data-tooltip="Dashboard">
+      <a href="staff-dashboard.php" class="nav-item" data-tooltip="Dashboard">
         <i class="bi bi-grid-fill nav-icon"></i>
         <span class="nav-label">Dashboard</span>
       </a>
@@ -40,13 +87,13 @@
       <a href="staff-requests.php" class="nav-item" data-tooltip="Requests">
         <i class="bi bi-file-earmark-text nav-icon"></i>
         <span class="nav-label">Requests</span>
-        <span class="nav-badge">12</span>
+        <span class="nav-badge"><?= number_format($pendingRequests) ?></span>
       </a>
 
       <a href="staff-notifications.php" class="nav-item active" data-tooltip="Notifications">
         <i class="bi bi-bell nav-icon"></i>
         <span class="nav-label">Notifications</span>
-        <span class="nav-badge">2</span>
+        <span class="nav-badge"><?= number_format($unreadNotifs) ?></span>
       </a>
 
       <div class="nav-divider"></div>
@@ -65,12 +112,12 @@
     </nav>
     <div class="sidebar-footer">
       <div class="sidebar-user">
-        <div class="user-avatar">AC</div>
+        <div class="user-avatar"><?= htmlspecialchars(initials($user['first_name'] ?? 'S', $user['last_name'] ?? 'T')) ?></div>
         <div class="user-info">
-          <span class="user-name">Ana Cruz</span>
-          <span class="user-role">Records Officer</span>
+          <span class="user-name"><?= htmlspecialchars(trim(($user['first_name'] ?? 'Staff') . ' ' . ($user['last_name'] ?? 'User'))) ?></span>
+          <span class="user-role"><?= htmlspecialchars($user['role_position'] ?? 'Administrator') ?></span>
         </div>
-        <button class="user-logout" title="Sign out">
+        <button class="user-logout" title="Sign out" onclick="location.href='staff-logout.php'">
           <i class="bi bi-box-arrow-right"></i>
         </button>
       </div>
@@ -98,13 +145,13 @@
       <div class="topbar-right">
         <button class="topbar-btn notif-btn" aria-label="Notifications">
           <i class="bi bi-bell"></i>
-          <span class="notif-count">8</span>
+          <span class="notif-count"><?= number_format($unreadNotifs) ?></span>
         </button>
         <div class="topbar-profile">
-          <div class="profile-avatar">AC</div>
+          <div class="profile-avatar"><?= htmlspecialchars(initials($user['first_name'] ?? 'S', $user['last_name'] ?? 'T')) ?></div>
           <div class="profile-info">
-            <span class="profile-name">Ana Cruz</span>
-            <span class="profile-dept">Records Section</span>
+            <span class="profile-name"><?= htmlspecialchars(trim(($user['first_name'] ?? 'Staff') . ' ' . ($user['last_name'] ?? 'User'))) ?></span>
+            <span class="profile-dept"><?= htmlspecialchars($user['role_position'] ?? 'Administrator') ?></span>
           </div>
           <i class="bi bi-chevron-down profile-chevron"></i>
         </div>

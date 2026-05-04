@@ -82,7 +82,7 @@ if (!function_exists('nav_active')) {
       <?php endif; ?>
     </a>
 
-    <a href="services/resident-payment.php"
+    <a href="../services/resident-payment.php"
        class="r-nav-item<?= nav_active('payments') ?>"
        data-tooltip="Payments">
       <i class="bi bi-cash-coin r-nav-icon"></i>
@@ -94,7 +94,7 @@ if (!function_exists('nav_active')) {
       <?php endif; ?>
     </a>
 
-    <a href="services/appointments.php"
+    <a href="../services/appointments.php"
        class="r-nav-item<?= nav_active('appointments') ?>"
        data-tooltip="Appointments">
       <i class="bi bi-calendar-check r-nav-icon"></i>

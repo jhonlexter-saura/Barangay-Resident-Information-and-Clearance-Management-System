@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>LGU eGov — Process Request</title>
+  <title>KALASUNGAY — Process Request</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
@@ -21,7 +21,7 @@
         </svg>
       </div>
       <div class="sidebar-brand-text">
-        <span class="sidebar-brand-name">LGU eGov</span>
+        <span class="sidebar-brand-name">KALASUNGAY</span>
         <span class="sidebar-brand-sub">Staff Portal</span>
       </div>
       <button class="sidebar-collapse-btn" id="sidebarCollapseBtn" aria-label="Collapse sidebar">
@@ -30,7 +30,7 @@
     </div>
     <nav class="sidebar-nav">
       <div class="nav-section-label">Main</div>
-      <a href="dashboard.php" class="nav-item" data-tooltip="Dashboard">
+      <a href="staff-dashboard.php" class="nav-item" data-tooltip="Dashboard">
         <i class="bi bi-grid-fill nav-icon"></i>
         <span class="nav-label">Dashboard</span>
       </a>

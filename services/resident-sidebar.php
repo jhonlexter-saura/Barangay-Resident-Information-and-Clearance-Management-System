@@ -135,7 +135,7 @@ if (!function_exists('nav_active')) {
         <span class="r-user-name">Juan Dela Cruz</span>
         <span class="r-user-sub">Resident ID: RES-00412</span>
       </div>
-      <a href="../resident/resident-portal.php" class="r-logout-btn" title="Sign out">
+      <a href="../resident/resident-logout.php" class="r-logout-btn" title="Sign out">
         <i class="bi bi-box-arrow-right"></i>
       </a>
     </div>

@@ -4,7 +4,7 @@ session_start();
 
 // Already logged in? Skip the login page entirely
 if (!empty($_SESSION['loggedin'])) {
-    header('Location: resident-dashboard.php');
+    header('Location: staff-dashboard.php');
     exit();
 }
 
@@ -35,7 +35,7 @@ if (!empty($_SESSION['loggedin'])) {
       </div>
       <span>Republic of the Philippines &nbsp;·&nbsp; Local Government Information System</span>
     </div>
-    <div class="gov-banner-right"><a href="staff-create.php">AUTHORIZED PERSONNEL ONLY</a></div>
+    <div class="gov-banner-right"><a href="#" onclick="return false;">AUTHORIZED PERSONNEL ONLY</a></div>
   </div>
 
   <!-- Main content -->
