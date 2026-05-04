@@ -59,9 +59,9 @@ include 'resident-sidebar.php';
           <?php endif; ?>
         </a>
 
-        <a href="../resident-profile.php" class="r-profile-chip">
-          <div class="r-chip-avatar" id="topbarAvatar">??</div>
-          <span class="r-chip-name" id="topbarName">...</span>
+        <a href="resident-profile.php" class="r-profile-chip">
+          <div class="r-chip-avatar"><?= $initials ?></div>
+          <span class="r-chip-name"><?= $firstname ?></span>
           <i class="bi bi-chevron-down"></i>
         </a>
       </div>

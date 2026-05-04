@@ -1,5 +1,6 @@
 -- ============================================================
 -- Barangay Management System - MySQL Schema
+-- KALASUNGAY / BRICMS
 -- ============================================================
 
 CREATE DATABASE IF NOT EXISTS bricms_db
@@ -264,3 +265,42 @@ CREATE TABLE notification (
   INDEX idx_notif_resident (resident_id),
   INDEX idx_notif_read     (is_read)
 ) ENGINE=InnoDB COMMENT='Notifications per resident.';
+
+
+-- ============================================================
+-- INITIAL DATA — System Administrator
+-- Password for both accounts: admin123
+-- Hash: password_hash('admin123', PASSWORD_DEFAULT)
+-- ============================================================
+
+-- Step 1: Insert the resident record
+INSERT INTO resident (
+  first_name, last_name, email, citizenship,
+  is_verified, password
+) VALUES (
+  'System',
+  'Administrator',
+  'admin@kalasungay.gov.ph',
+  'Filipino',
+  1,
+  -- bcrypt hash of 'admin123'
+  '$2y$12$eImiTXuWVxfM37uY4JANjQ==uye/G7EbEBtE6W38p0MKJRHuFpBiO'
+);
+
+-- Step 2: Insert the barangay official linked to that resident
+INSERT INTO barangay_official (
+  resident_id,
+  role_position,
+  access_level,
+  username,
+  hashed_password,
+  is_active
+) VALUES (
+  LAST_INSERT_ID(),
+  'Admin',
+  'Admin',
+  'admin',
+  -- bcrypt hash of 'admin123'
+  '$2y$12$eImiTXuWVxfM37uY4JANjQ==uye/G7EbEBtE6W38p0MKJRHuFpBiO',
+  1
+);

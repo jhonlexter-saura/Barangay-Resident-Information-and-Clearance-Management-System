@@ -45,8 +45,8 @@ if (!$uploadBase) {
       <div class="r-topbar-right">
         <button class="r-topbar-btn"><i class="bi bi-bell"></i><span class="r-notif-dot"></span></button>
         <a href="../resident-profile.php" class="r-profile-chip">
-          <div class="r-chip-avatar">JD</div>
-          <span class="r-chip-name">Juan</span>
+          <div class="r-chip-avatar"></div>
+          <span class="r-chip-name"></span>
           <i class="bi bi-chevron-down"></i>
         </a>
       </div>
@@ -78,7 +78,7 @@ if (!$uploadBase) {
               <div class="pay-card-title">
                 <i class="bi bi-cart-fill"></i> Service Requests in Cart
               </div>
-              <a href="resident-home.php" style="font-size:0.75rem; font-weight:600; color:var(--sky); text-decoration:none;">
+              <a href="../resident-home.php" style="font-size:0.75rem; font-weight:600; color:var(--sky); text-decoration:none;">
                 <i class="bi bi-plus-lg"></i> Add More
               </a>
             </div>

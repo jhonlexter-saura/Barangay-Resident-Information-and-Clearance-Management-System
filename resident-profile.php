@@ -2,7 +2,7 @@
 session_start();
 require 'config.php';
 require 'aut.php';
-require 'res-sidebar.php';
+
 
 // ── Auth guard ───────────────────────────────────────────────────────────────
 if (empty($_SESSION['user_id'])) {
@@ -236,6 +236,8 @@ $initials   = strtoupper(substr($user['first_name'], 0, 1) . substr($user['last_
 $fullName   = h($user['first_name']) . ' ' . h($user['last_name']);
 $firstname  = h($user['first_name']); 
 $residentId = h($user['resident_id'] ?? 'RES-?????');
+
+require 'res-sidebar.php';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -252,7 +254,7 @@ $residentId = h($user['resident_id'] ?? 'RES-?????');
 </head>
 
 <body>
-  
+
   <!-- ── Main area ── -->
   <div class="r-main" id="rMain">
 
@@ -268,10 +270,12 @@ $residentId = h($user['resident_id'] ?? 'RES-?????');
         </div>
       </div>
       <div class="r-topbar-right">
-        <button class="r-topbar-btn" aria-label="Notifications">
+        <a href="resident-notifications.php">
+          <button class="r-topbar-btn" aria-label="Notifications">
           <i class="bi bi-bell"></i>
           <span class="r-notif-dot"></span>
         </button>
+        </a>
         <a href="resident-profile.php" class="r-profile-chip">
           <div class="r-chip-avatar"><?= $initials ?></div>
           <span class="r-chip-name"><?= $firstname ?></span>

@@ -157,6 +157,150 @@ function statusIcon($docType) {
   <link href="css/shared.css" rel="stylesheet">
   <link href="css/resident-home.css" rel="stylesheet">
   <link href="css/resident-requests.css" rel="stylesheet">
+  <style>
+  /* ── Modal detail layout ── */
+  .rq-detail-section {
+    margin-bottom: 1.25rem;
+  }
+  .rq-detail-label {
+    font-size: .68rem;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: .6rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .rq-detail-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border-light, #e5e7eb);
+  }
+  .rq-detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: .5rem .85rem;
+  }
+  .rq-detail-row {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .rq-detail-key {
+    font-size: .68rem;
+    color: var(--text-muted);
+    font-weight: 600;
+  }
+  .rq-detail-val {
+    font-size: .82rem;
+    color: var(--text-dark, #111);
+    font-weight: 500;
+  }
+
+  /* ── File list ── */
+  .rq-file-list {
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+  }
+  .rq-file-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: .6rem .85rem;
+    background: var(--gray-50, #f9fafb);
+    border: 1px solid var(--border-light, #e5e7eb);
+    border-radius: 8px;
+  }
+  .rq-file-icon {
+    width: 34px; height: 34px;
+    border-radius: 7px;
+    background: #e8f3fc;
+    color: #1a7fd4;
+    display: grid; place-items: center;
+    font-size: .95rem;
+    flex-shrink: 0;
+  }
+  .rq-file-icon.pdf  { background: #fde8e8; color: #dc2626; }
+  .rq-file-icon.img  { background: #e6f7ef; color: #1a9e5f; }
+  .rq-file-name {
+    font-size: .8rem;
+    font-weight: 600;
+    color: var(--text-dark, #111);
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .rq-file-size {
+    font-size: .68rem;
+    color: var(--text-muted);
+    font-family: 'DM Mono', monospace;
+    flex-shrink: 0;
+  }
+  .rq-file-remove {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: .8rem;
+    padding: 3px 6px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: color .15s, background .15s;
+    flex-shrink: 0;
+  }
+  .rq-file-remove:hover {
+    color: #dc2626;
+    background: #fde8e8;
+  }
+
+  /* ── No files ── */
+  .rq-no-files {
+    text-align: center;
+    padding: 1rem;
+    font-size: .78rem;
+    color: var(--text-muted);
+    border: 1px dashed var(--border-light, #e5e7eb);
+    border-radius: 8px;
+  }
+
+  /* ── Modal loading ── */
+  .rq-modal-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2.5rem;
+    gap: 10px;
+    color: var(--text-muted);
+    font-size: .83rem;
+  }
+  .rq-spinner {
+    width: 18px; height: 18px;
+    border: 2px solid var(--border-light, #e5e7eb);
+    border-top-color: #1a7fd4;
+    border-radius: 50%;
+    animation: spin .7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── Status badge inside modal ── */
+  .rq-modal-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: .72rem;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 99px;
+  }
+  .rq-modal-status.pending    { background:#fef3c7; color:#92400e; }
+  .rq-modal-status.processing { background:#e8f3fc; color:#1a7fd4; }
+  .rq-modal-status.approved   { background:#e6f7ef; color:#166534; }
+  .rq-modal-status.rejected   { background:#fde8e8; color:#991b1b; }
+</style>
 </head>
 <body>
 
@@ -170,10 +314,12 @@ function statusIcon($docType) {
         </div>
       </div>
       <div class="r-topbar-right">
-        <a href="resident-notifications.php" class="r-topbar-btn" title="Notifications">
+        <a href="resident-notifications.php" class="r-topbar-btn" title="Notifications" style="position:relative;">
           <i class="bi bi-bell"></i>
-          <span class="r-notif-dot"></span>
-        </a>
+          <?php if ($unread_notifs > 0): ?>
+            <span class="r-notif-dot"></span>
+          <?php endif; ?>
+        </a>>
         <a href="resident-profile.php" class="r-profile-chip">
           <div class="r-chip-avatar"><?= $initials ?></div>
           <span class="r-chip-name"><?= $firstname ?></span>
@@ -325,20 +471,265 @@ function statusIcon($docType) {
   </div>
 
   <!-- Request detail modal -->
-  <div class="rq-modal-backdrop" id="rqModalBackdrop">
-    <div class="rq-modal" id="rqModal">
-      <div class="rq-modal-header">
-        <div class="rq-modal-title" id="rqModalTitle">Request Details</div>
-        <button class="rq-modal-close" onclick="closeModal()"><i class="bi bi-x-lg"></i></button>
+  <div class="rq-modal-backdrop" id="rqModalBackdrop" onclick="handleBackdropClick(event)">
+      <div class="rq-modal" id="rqModal">
+
+        <div class="rq-modal-header">
+          <div class="rq-modal-title" id="rqModalTitle">Request Details</div>
+          <button class="rq-modal-close" onclick="closeModal()">
+            <i class="bi bi-x-lg"></i>
+          </button>
+        </div>
+
+        <div class="rq-modal-body" id="rqModalBody">
+          <!-- Populated by JS -->
+        </div>
+
       </div>
-      <div class="rq-modal-body" id="rqModalBody"></div>
     </div>
-  </div>
 
   <div class="r-overlay" id="rOverlay"></div>
 
   <script src="js/resident-home.js"></script>
   <script src="js/resident-requests.js"></script>
+
+<script>
+// ── View request modal ────────────────────────────────────────────────────────
+function viewRequest(requestId) {
+  const backdrop = document.getElementById('rqModalBackdrop');
+  const body     = document.getElementById('rqModalBody');
+  const title    = document.getElementById('rqModalTitle');
+
+  // Show modal with loading state
+  backdrop.classList.add('show');
+  document.body.style.overflow = 'hidden';
+  title.textContent = 'Request Details';
+  body.innerHTML = `
+    <div class="rq-modal-loading">
+      <div class="rq-spinner"></div> Loading request details…
+    </div>
+  `;
+
+  // Fetch from server
+  const fd = new FormData();
+  fd.append('action', 'get_request');
+  fd.append('request_id', requestId);
+
+  fetch('resident-requests.php', { method: 'POST', body: fd })
+    .then(r => r.json())
+    .then(data => {
+      if (!data.success) {
+        body.innerHTML = `<div class="rq-modal-loading" style="color:#dc2626;">
+          <i class="bi bi-exclamation-circle"></i> ${data.message}
+        </div>`;
+        return;
+      }
+      renderModal(data.request);
+    })
+    .catch(() => {
+      body.innerHTML = `<div class="rq-modal-loading" style="color:#dc2626;">
+        <i class="bi bi-exclamation-circle"></i> Network error. Please try again.
+      </div>`;
+    });
+}
+
+// ── Render modal content ──────────────────────────────────────────────────────
+function renderModal(req) {
+  const title = document.getElementById('rqModalTitle');
+  const body  = document.getElementById('rqModalBody');
+
+  title.textContent = req.document_type;
+
+  // Status badge class
+  const statusMap = {
+    'Pending': 'pending', 'Processing': 'processing',
+    'Ready for Pickup': 'approved', 'Released': 'approved',
+    'Denied': 'rejected', 'Cancelled': 'rejected'
+  };
+  const badgeCls = statusMap[req.status] ?? 'pending';
+
+  // Fee display
+  const fee = req.amount
+    ? '₱' + parseFloat(req.amount).toLocaleString('en-PH', {minimumFractionDigits: 2})
+    : (req.payment_status === 'Exempted' ? 'Free' : 'Varies');
+
+  // Extra detail fields (from service_request_detail)
+  let detailRows = '';
+  if (req.details && Object.keys(req.details).length > 0) {
+    detailRows = Object.entries(req.details).map(([k, v]) => `
+      <div class="rq-detail-row">
+        <span class="rq-detail-key">${formatKey(k)}</span>
+        <span class="rq-detail-val">${v || '—'}</span>
+      </div>
+    `).join('');
+  }
+
+  // Files (from service_request_file)
+  let filesHtml = '';
+  if (req.files && req.files.length > 0) {
+    filesHtml = req.files.map((f, idx) => {
+      const ext     = f.original_name.split('.').pop().toLowerCase();
+      const isImg   = ['jpg','jpeg','png','gif','webp'].includes(ext);
+      const isPdf   = ext === 'pdf';
+      const iconCls = isPdf ? 'pdf' : (isImg ? 'img' : '');
+      const icon    = isPdf ? 'bi-file-earmark-pdf-fill'
+                    : isImg ? 'bi-file-earmark-image-fill'
+                    :         'bi-file-earmark-fill';
+      const size    = f.file_size ? formatBytes(f.file_size) : '';
+
+      return `
+        <div class="rq-file-item" id="rq-file-${idx}">
+          <div class="rq-file-icon ${iconCls}">
+            <i class="bi ${icon}"></i>
+          </div>
+          <span class="rq-file-name" title="${escHtml(f.original_name)}">
+            ${escHtml(f.original_name)}
+          </span>
+          <span class="rq-file-size">${size}</span>
+          <button class="rq-file-remove" onclick="removeFileFromView(${idx})"
+                  title="Remove from view">
+            <i class="bi bi-x-lg"></i>
+          </button>
+        </div>
+      `;
+    }).join('');
+  } else {
+    filesHtml = '<div class="rq-no-files"><i class="bi bi-paperclip"></i> No files attached</div>';
+  }
+
+  body.innerHTML = `
+    <!-- Status & ref -->
+    <div class="rq-detail-section">
+      <div class="rq-detail-label"><i class="bi bi-info-circle"></i> Overview</div>
+      <div class="rq-detail-grid">
+        <div class="rq-detail-row">
+          <span class="rq-detail-key">Reference No.</span>
+          <span class="rq-detail-val" style="font-family:'DM Mono',monospace;">
+            ${req.reference_no}
+          </span>
+        </div>
+        <div class="rq-detail-row">
+          <span class="rq-detail-key">Status</span>
+          <span class="rq-detail-val">
+            <span class="rq-modal-status ${badgeCls}">${req.status}</span>
+          </span>
+        </div>
+        <div class="rq-detail-row">
+          <span class="rq-detail-key">Date Filed</span>
+          <span class="rq-detail-val">${formatDate(req.date_requested)}</span>
+        </div>
+        <div class="rq-detail-row">
+          <span class="rq-detail-key">Date Issued</span>
+          <span class="rq-detail-val">${req.date_issued ? formatDate(req.date_issued) : '—'}</span>
+        </div>
+        <div class="rq-detail-row">
+          <span class="rq-detail-key">Purpose</span>
+          <span class="rq-detail-val">${req.purpose || '—'}</span>
+        </div>
+        <div class="rq-detail-row">
+          <span class="rq-detail-key">Service Fee</span>
+          <span class="rq-detail-val">${fee}</span>
+        </div>
+        ${req.payment_method ? `
+        <div class="rq-detail-row">
+          <span class="rq-detail-key">Payment Method</span>
+          <span class="rq-detail-val">${req.payment_method}</span>
+        </div>` : ''}
+        ${req.or_number ? `
+        <div class="rq-detail-row">
+          <span class="rq-detail-key">OR Number</span>
+          <span class="rq-detail-val" style="font-family:'DM Mono',monospace;">${req.or_number}</span>
+        </div>` : ''}
+      </div>
+    </div>
+
+    <!-- Extra fields (appointments, etc.) -->
+    ${detailRows ? `
+    <div class="rq-detail-section">
+      <div class="rq-detail-label"><i class="bi bi-pencil-square"></i> Request Details</div>
+      <div class="rq-detail-grid">${detailRows}</div>
+    </div>` : ''}
+
+    <!-- Remarks -->
+    ${req.remarks ? `
+    <div class="rq-detail-section">
+      <div class="rq-detail-label"><i class="bi bi-chat-left-text"></i> Remarks</div>
+      <div style="font-size:.82rem; color:var(--text-mid); background:var(--gray-50,#f9fafb);
+                  border:1px solid var(--border-light,#e5e7eb); border-radius:8px; padding:.75rem .9rem;">
+        ${escHtml(req.remarks)}
+      </div>
+    </div>` : ''}
+
+    <!-- Attached files -->
+    <div class="rq-detail-section">
+      <div class="rq-detail-label"><i class="bi bi-paperclip"></i> Attached Files</div>
+      <div class="rq-file-list" id="rqFileList">
+        ${filesHtml}
+      </div>
+    </div>
+  `;
+}
+
+// ── Remove file from VIEW only (no DB delete) ─────────────────────────────────
+function removeFileFromView(idx) {
+  const el = document.getElementById(`rq-file-${idx}`);
+  if (!el) return;
+
+  // Animate out
+  el.style.transition = 'opacity .2s, transform .2s';
+  el.style.opacity    = '0';
+  el.style.transform  = 'translateX(10px)';
+
+  setTimeout(() => {
+    el.remove();
+
+    // If no files left, show empty message
+    const list = document.getElementById('rqFileList');
+    if (list && list.children.length === 0) {
+      list.innerHTML = '<div class="rq-no-files"><i class="bi bi-paperclip"></i> No files attached</div>';
+    }
+  }, 200);
+}
+
+// ── Close modal ───────────────────────────────────────────────────────────────
+function closeModal() {
+  document.getElementById('rqModalBackdrop').classList.remove('show');
+  document.body.style.overflow = '';
+}
+
+function handleBackdropClick(e) {
+  if (e.target === document.getElementById('rqModalBackdrop')) closeModal();
+}
+
+// Close on Escape
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModal();
+});
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function formatDate(dateStr) {
+  if (!dateStr) return '—';
+  const d = new Date(dateStr);
+  return d.toLocaleDateString('en-PH', { year: 'numeric', month: 'short', day: 'numeric' });
+}
+
+function formatBytes(bytes) {
+  if (!bytes) return '';
+  if (bytes < 1024)        return bytes + ' B';
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+  return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+}
+
+function formatKey(key) {
+  return key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+}
+
+function escHtml(str) {
+  return String(str)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+</script>
 
 </body>
 </html>

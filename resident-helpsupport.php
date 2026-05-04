@@ -165,5 +165,3 @@ $residentId  = htmlspecialchars($user['resident_id'] ?? 'RES-?????');
   <script src="js/resident-home.js"></script>
 </body>
 </html>
-
-```

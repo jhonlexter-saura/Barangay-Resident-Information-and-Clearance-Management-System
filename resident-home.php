@@ -2,38 +2,91 @@
 session_start();
 require 'config.php';
 require 'aut.php';
-require 'res-sidebar.php';
 
-// ── Auth guard: redirect to login if not signed in ──────────────────────────
+// ── Auth guard ───────────────────────────────────────────────────────────────
 if (empty($_SESSION['user_id'])) {
     header('Location: resident-portal.php');
     exit();
 }
 
-// ── Fetch fresh user row from DB ─────────────────────────────────────────────
+$uid = $_SESSION['user_id'];
+
+// ── Fetch user ────────────────────────────────────────────────────────────────
 $stmt = $pdo->prepare("SELECT * FROM resident WHERE resident_id = ?");
-$stmt->execute([$_SESSION['user_id']]);
+$stmt->execute([$uid]);
 $user = $stmt->fetch();
 
 if (!$user) {
-    // User no longer exists — destroy session and redirect
     session_destroy();
     header('Location: resident-portal.php');
     exit();
 }
 
-// ── Convenience variables ────────────────────────────────────────────────────
-$firstname   = htmlspecialchars($user['first_name']);
-$lastname    = htmlspecialchars($user['last_name']);
-$fullName    = $firstname . ' ' . $lastname;
-$initials    = strtoupper(substr($user['first_name'], 0, 1) . substr($user['last_name'], 0, 1));
-$residentId  = htmlspecialchars($user['resident_id'] ?? 'RES-?????');
+// ── Stat card queries ─────────────────────────────────────────────────────────
 
-// Time-based greeting
+// Pending requests
+$stmt = $pdo->prepare("
+    SELECT COUNT(*) FROM service_request
+    WHERE resident_id = ? AND status = 'Pending'
+");
+$stmt->execute([$uid]);
+$pending_count = (int) $stmt->fetchColumn();
+
+// Completed (Released) requests
+$stmt = $pdo->prepare("
+    SELECT COUNT(*) FROM service_request
+    WHERE resident_id = ? AND status = 'Released'
+");
+$stmt->execute([$uid]);
+$completed_count = (int) $stmt->fetchColumn();
+
+// Unpaid balance — sum of pending payments
+$stmt = $pdo->prepare("
+    SELECT COALESCE(SUM(p.amount), 0)
+    FROM payment p
+    JOIN service_request sr ON sr.request_id = p.request_id
+    WHERE sr.resident_id = ? AND p.payment_status = 'Pending'
+");
+$stmt->execute([$uid]);
+$unpaid_balance = (float) $stmt->fetchColumn();
+
+// Upcoming appointments — pending 'Book an Appointment' requests
+$stmt = $pdo->prepare("
+    SELECT COUNT(*) FROM service_request sr
+    JOIN service_request_detail srd ON srd.request_id = sr.request_id
+    WHERE sr.resident_id = ?
+    AND sr.document_type = 'Book an Appointment'
+    AND sr.status IN ('Pending', 'Processing')
+    AND srd.field_key = 'appt_date'
+    AND srd.field_value >= CURDATE()
+");
+$stmt->execute([$uid]);
+$upcoming_appointments = (int) $stmt->fetchColumn();
+
+// ── Recent requests (last 3) ──────────────────────────────────────────────────
+$stmt = $pdo->prepare("
+    SELECT request_id, document_type, status, date_requested
+    FROM service_request
+    WHERE resident_id = ?
+    ORDER BY date_requested DESC, request_id DESC
+    LIMIT 3
+");
+$stmt->execute([$uid]);
+$recent_requests = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// ── Convenience variables ─────────────────────────────────────────────────────
+$firstname  = htmlspecialchars($user['first_name']);
+$lastname   = htmlspecialchars($user['last_name']);
+$fullName   = $firstname . ' ' . $lastname;
+$initials   = strtoupper(substr($user['first_name'], 0, 1) . substr($user['last_name'], 0, 1));
+$residentId = 'RES-' . str_pad($user['resident_id'], 5, '0', STR_PAD_LEFT);
+
 $hour = (int) date('G');
-if ($hour < 12)      $greeting = 'Good morning';
-elseif ($hour < 17)  $greeting = 'Good afternoon';
-else                 $greeting = 'Good evening';
+if ($hour < 12)     $greeting = 'Good morning';
+elseif ($hour < 17) $greeting = 'Good afternoon';
+else                $greeting = 'Good evening';
+
+require 'res-sidebar.php';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -67,10 +120,13 @@ else                 $greeting = 'Good evening';
       </div>
 
       <div class="r-topbar-right">
-        <button class="r-topbar-btn" aria-label="Notifications">
+        <a href="resident-notifications.php">
+          <button class="r-topbar-btn" aria-label="Notifications">
           <i class="bi bi-bell"></i>
           <span class="r-notif-dot"></span>
         </button>
+        </a>
+        
         <a href="resident-profile.php" class="r-profile-chip">
           <div class="r-chip-avatar"><?= $initials ?></div>
           <span class="r-chip-name"><?= $firstname ?></span>
@@ -105,7 +161,7 @@ else                 $greeting = 'Good evening';
             <i class="bi bi-hourglass-split"></i>
           </div>
           <div class="sc-body">
-            <span class="sc-value">2</span>
+            <span class="sc-value"><?= $pending_count ?></span>
             <span class="sc-label">Pending Requests</span>
           </div>
         </div>
@@ -115,7 +171,7 @@ else                 $greeting = 'Good evening';
             <i class="bi bi-check-circle-fill"></i>
           </div>
           <div class="sc-body">
-            <span class="sc-value">8</span>
+            <span class="sc-value"><?= $completed_count ?></span>
             <span class="sc-label">Completed</span>
           </div>
         </div>
@@ -125,7 +181,9 @@ else                 $greeting = 'Good evening';
             <i class="bi bi-receipt"></i>
           </div>
           <div class="sc-body">
-            <span class="sc-value">₱350</span>
+            <span class="sc-value">
+              <?= $unpaid_balance > 0 ? '₱' . number_format($unpaid_balance, 2) : '₱0.00' ?>
+            </span>
             <span class="sc-label">Unpaid Balance</span>
           </div>
         </div>
@@ -135,7 +193,7 @@ else                 $greeting = 'Good evening';
             <i class="bi bi-calendar-event"></i>
           </div>
           <div class="sc-body">
-            <span class="sc-value">1</span>
+            <span class="sc-value"><?= $upcoming_appointments ?></span>
             <span class="sc-label">Upcoming Appointment</span>
           </div>
         </div>
@@ -283,53 +341,53 @@ else                 $greeting = 'Good evening';
         <div class="home-right">
 
           <!-- My recent requests -->
-          <div class="r-card">
-            <div class="r-card-header">
-              <div class="r-card-title">
-                <i class="bi bi-clock-history"></i> My Recent Requests
-              </div>
-              <a href="resident-requests.php" class="r-card-link">View all</a>
-            </div>
-            <div class="r-card-body">
-              <div class="request-list">
+          <div class="r-card-body">
+            <div class="request-list">
 
+              <?php if (empty($recent_requests)): ?>
+                <div style="text-align:center; padding:1.5rem 0; font-size:0.82rem; color:var(--text-muted);">
+                  <i class="bi bi-folder2-open" style="font-size:1.5rem; display:block; margin-bottom:0.5rem;"></i>
+                  No requests yet.
+                </div>
+              <?php else: ?>
+                <?php
+                $dotColors = [
+                  'Pending'         => '#f59e0b',
+                  'Processing'      => '#1a7fd4',
+                  'Ready for Pickup'=> '#7c3aed',
+                  'Released'        => '#1a9e5f',
+                  'Denied'          => '#dc2626',
+                  'Cancelled'       => '#9ca3af',
+                ];
+                $badgeClass = [
+                  'Pending'         => 'pending',
+                  'Processing'      => 'processing',
+                  'Ready for Pickup'=> 'processing',
+                  'Released'        => 'done',
+                  'Denied'          => 'denied',
+                  'Cancelled'       => 'denied',
+                ];
+                foreach ($recent_requests as $req):
+                  $refNo  = 'REQ-' . date('Y', strtotime($req['date_requested']))
+                          . '-' . str_pad($req['request_id'], 6, '0', STR_PAD_LEFT);
+                  $dot    = $dotColors[$req['status']]  ?? '#9ca3af';
+                  $badge  = $badgeClass[$req['status']] ?? 'pending';
+                ?>
                 <div class="request-item">
                   <div class="req-left">
-                    <div class="req-dot" style="background:#f59e0b;"></div>
+                    <div class="req-dot" style="background:<?= $dot ?>;"></div>
                     <div class="req-info">
-                      <div class="req-name">Barangay Clearance</div>
-                      <div class="req-id">#2026-04-0841</div>
+                      <div class="req-name"><?= htmlspecialchars($req['document_type']) ?></div>
+                      <div class="req-id">#<?= $refNo ?></div>
                     </div>
                   </div>
-                  <span class="req-status pending">Pending</span>
+                  <span class="req-status <?= $badge ?>"><?= htmlspecialchars($req['status']) ?></span>
                 </div>
+                <?php endforeach; ?>
+              <?php endif; ?>
 
-                <div class="request-item">
-                  <div class="req-left">
-                    <div class="req-dot" style="background:#1a7fd4;"></div>
-                    <div class="req-info">
-                      <div class="req-name">Cedula / CTC</div>
-                      <div class="req-id">#2026-03-0712</div>
-                    </div>
-                  </div>
-                  <span class="req-status processing">Processing</span>
-                </div>
-
-                <div class="request-item">
-                  <div class="req-left">
-                    <div class="req-dot" style="background:#1a9e5f;"></div>
-                    <div class="req-info">
-                      <div class="req-name">Health Certificate</div>
-                      <div class="req-id">#2026-02-0589</div>
-                    </div>
-                  </div>
-                  <span class="req-status done">Completed</span>
-                </div>
-
-              </div>
             </div>
           </div>
-
           <!-- Announcements -->
           <div class="r-card">
             <div class="r-card-header">
