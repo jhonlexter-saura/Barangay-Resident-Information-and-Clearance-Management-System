@@ -71,23 +71,23 @@ $residentId  = htmlspecialchars($user['resident_id'] ?? 'RES-?????');
     <span class="r-nav-text">Home</span>
   </a>
 
-  <a href="resident-requests.html" class="r-nav-item" data-tooltip="My Requests">
+  <a href="resident-requests.php" class="r-nav-item" data-tooltip="My Requests">
     <i class="bi bi-file-earmark-text r-nav-icon"></i>
     <span class="r-nav-text">My Requests</span>
     <span class="r-nav-badge">2</span>
   </a>
 
-  <a href="services/resident-payment.html" class="r-nav-item" data-tooltip="Payments">
+  <a href="services/resident-payment.php" class="r-nav-item" data-tooltip="Payments">
     <i class="bi bi-cash-coin r-nav-icon"></i>
     <span class="r-nav-text">Payments</span>
   </a>
 
-  <a href="services/appointments.html" class="r-nav-item" data-tooltip="Appointments">
+  <a href="services/appointments.php" class="r-nav-item" data-tooltip="Appointments">
     <i class="bi bi-calendar-check r-nav-icon"></i>
     <span class="r-nav-text">Appointments</span>
   </a>
 
-  <a href="resident-notifications.html" class="r-nav-item" data-tooltip="Notifications">
+  <a href="resident-notifications.php" class="r-nav-item" data-tooltip="Notifications">
     <i class="bi bi-bell r-nav-icon"></i>
     <span class="r-nav-text">Notifications</span>
     <span class="r-nav-badge">5</span>

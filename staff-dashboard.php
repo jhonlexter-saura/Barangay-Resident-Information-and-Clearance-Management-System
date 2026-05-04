@@ -45,13 +45,13 @@
         <span class="nav-label">Dashboard</span>
       </a>
 
-      <a href="staff-requests.html" class="nav-item" data-tooltip="Requests">
+      <a href="staff-requests.php" class="nav-item" data-tooltip="Requests">
         <i class="bi bi-file-earmark-text nav-icon"></i>
         <span class="nav-label">Requests</span>
         <span class="nav-badge">12</span>
       </a>
 
-      <a href="staff-notifications.html" class="nav-item" data-tooltip="Notifications">
+      <a href="staff-notifications.php" class="nav-item" data-tooltip="Notifications">
         <i class="bi bi-bell nav-icon"></i>
         <span class="nav-label">Notifications</span>
         <span class="nav-badge">2</span>
@@ -65,12 +65,12 @@
         <span class="nav-label">Officials</span>
       </a>
 
-      <a href="staff-settings.html" class="nav-item" data-tooltip="Settings">
+      <a href="staff-settings.php" class="nav-item" data-tooltip="Settings">
         <i class="bi bi-gear nav-icon"></i>
         <span class="nav-label">Settings</span>
       </a>
 
-      <a href="staff-help.html" class="nav-item" data-tooltip="Help & Support">
+      <a href="staff-help.php" class="nav-item" data-tooltip="Help & Support">
         <i class="bi bi-question-circle nav-icon"></i>
         <span class="nav-label">Help & Support</span>
       </a>

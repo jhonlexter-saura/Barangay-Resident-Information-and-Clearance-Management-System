@@ -87,7 +87,7 @@
         </div>
       </div>
       <div class="r-topbar-right">
-        <a href="resident-notifications.html" class="r-topbar-btn" style="color:var(--sky);" title="Notifications">
+        <a href="resident-notifications.php" class="r-topbar-btn" style="color:var(--sky);" title="Notifications">
           <i class="bi bi-bell-fill"></i>
           <span class="r-notif-dot"></span>
         </a>
@@ -150,7 +150,7 @@
                 <div class="notif-text">Ref #2026-04-0841 has been received by the Barangay Office and is currently being reviewed by the staff.</div>
                 <div class="notif-meta">
                   <span class="notif-time"><i class="bi bi-clock"></i> 2 hours ago</span>
-                  <a href="resident-requests.html" class="notif-link">View Request</a>
+                  <a href="resident-requests.php" class="notif-link">View Request</a>
                 </div>
               </div>
               <div class="notif-dot-indicator"></div>
@@ -167,7 +167,7 @@
                 <div class="notif-text">Your appointment at the Civil Registrar on April 25, 2026 at 10:00 AM is pending confirmation. Please wait for an update.</div>
                 <div class="notif-meta">
                   <span class="notif-time"><i class="bi bi-clock"></i> 5 hours ago</span>
-                  <a href="resident-requests.html" class="notif-link">View Request</a>
+                  <a href="resident-requests.php" class="notif-link">View Request</a>
                 </div>
               </div>
               <div class="notif-dot-indicator"></div>
@@ -201,7 +201,7 @@
                 <div class="notif-text">Your Cedula application (Ref #2026-03-0712) is ready for pickup. Please bring ₱30.00 to the Treasurer's Office to complete your transaction.</div>
                 <div class="notif-meta">
                   <span class="notif-time"><i class="bi bi-clock"></i> 2 days ago</span>
-                  <a href="resident-requests.html" class="notif-link">View Request</a>
+                  <a href="resident-requests.php" class="notif-link">View Request</a>
                 </div>
               </div>
               <div class="notif-dot-indicator"></div>
@@ -235,7 +235,7 @@
                 <div class="notif-text">Your Health Certificate (Ref #2026-02-0589) has been approved and is ready for pickup at the Municipal Health Office. Valid until February 21, 2027.</div>
                 <div class="notif-meta">
                   <span class="notif-time"><i class="bi bi-clock"></i> Feb 21, 2026</span>
-                  <a href="resident-requests.html" class="notif-link">View & Download</a>
+                  <a href="resident-requests.php" class="notif-link">View & Download</a>
                 </div>
               </div>
               <button class="notif-dismiss" onclick="dismissNotif('n6')" title="Dismiss"><i class="bi bi-x"></i></button>
@@ -365,16 +365,16 @@
           <div class="notif-quick-card">
             <div class="notif-pref-title"><i class="bi bi-lightning-charge-fill"></i> Quick Links</div>
             <div class="notif-quick-links">
-              <a href="resident-requests.html" class="notif-quick-link">
+              <a href="resident-requests.php" class="notif-quick-link">
                 <i class="bi bi-file-earmark-text"></i> My Requests
               </a>
-              <a href="resident-payment.html" class="notif-quick-link">
+              <a href="resident-payment.php" class="notif-quick-link">
                 <i class="bi bi-cart-fill"></i> Payments
               </a>
-              <a href="resident-home.html" class="notif-quick-link">
+              <a href="resident-home.php" class="notif-quick-link">
                 <i class="bi bi-grid-fill"></i> Services
               </a>
-              <a href="resident-profile.html" class="notif-quick-link">
+              <a href="resident-profile.php" class="notif-quick-link">
                 <i class="bi bi-person-circle"></i> My Profile
               </a>
             </div>

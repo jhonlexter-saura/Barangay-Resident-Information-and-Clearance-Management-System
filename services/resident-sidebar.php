@@ -60,7 +60,7 @@ if (!function_exists('nav_active')) {
       <span class="r-nav-text">Home</span>
     </a>
 
-    <a href="../resident-requests.html"
+    <a href="../resident-requests.php"
        class="r-nav-item<?= nav_active('requests') ?>"
        data-tooltip="My Requests">
       <i class="bi bi-file-earmark-text r-nav-icon"></i>
@@ -87,7 +87,7 @@ if (!function_exists('nav_active')) {
       <span class="r-nav-text">Appointments</span>
     </a>
 
-    <a href="../resident-notifications.html"
+    <a href="../resident-notifications.php"
        class="r-nav-item<?= nav_active('notifications') ?>"
        data-tooltip="Notifications">
       <i class="bi bi-bell r-nav-icon"></i>

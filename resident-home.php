@@ -68,7 +68,7 @@ else                 $greeting = 'Good evening';
         <span class="r-nav-text">Home</span>
       </a>
 
-      <a href="resident-requests.html" class="r-nav-item" data-tooltip="My Requests">
+      <a href="resident-requests.php" class="r-nav-item" data-tooltip="My Requests">
         <i class="bi bi-file-earmark-text r-nav-icon"></i>
         <span class="r-nav-text">My Requests</span>
         <span class="r-nav-badge">2</span>
@@ -84,7 +84,7 @@ else                 $greeting = 'Good evening';
         <span class="r-nav-text">Appointments</span>
       </a>
 
-      <a href="resident-notifications.html" class="r-nav-item" data-tooltip="Notifications">
+      <a href="resident-notifications.php" class="r-nav-item" data-tooltip="Notifications">
         <i class="bi bi-bell r-nav-icon"></i>
         <span class="r-nav-text">Notifications</span>
         <span class="r-nav-badge">5</span>

@@ -21,7 +21,7 @@ session_start();
 
   <!-- ── Top nav (matches resident-portal) ── -->
   <nav class="top-nav">
-    <a href="resident-portal.html" class="nav-brand">
+    <a href="resident-portal.php" class="nav-brand">
       <div class="brand-logo"><i class="bi bi-buildings-fill"></i></div>
       <div class="brand-text">
         <span class="brand-name">MySerbisyo</span>
@@ -33,7 +33,7 @@ session_start();
       <a href="#" class="nav-link-item">Services</a>
       <a href="#" class="nav-link-item">Track Request</a>
       <a href="#" class="nav-link-item">Contact Us</a>
-      <a href="resident-portal.html" class="nav-link-item signin">Sign In</a>
+      <a href="resident-portal.php" class="nav-link-item signin">Sign In</a>
     </div>
   </nav>
 
@@ -106,7 +106,7 @@ session_start();
         <!-- Already have account -->
         <div class="already-account">
           Already have an account?
-          <a href="resident-portal.html">Sign in here</a>
+          <a href="resident-portal.php">Sign in here</a>
         </div>
 
       </div>

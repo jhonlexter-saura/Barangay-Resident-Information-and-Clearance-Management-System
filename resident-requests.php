@@ -28,27 +28,27 @@
         <i class="bi bi-house-fill r-nav-icon"></i>
         <span class="r-nav-text">Home</span>
       </a>
-      <a href="resident-requests.html" class="r-nav-item active" data-tooltip="My Requests">
+      <a href="resident-requests.php" class="r-nav-item active" data-tooltip="My Requests">
         <i class="bi bi-file-earmark-text r-nav-icon"></i>
         <span class="r-nav-text">My Requests</span>
         <span class="r-nav-badge">2</span>
       </a>
-      <a href="services/resident-payment.html" class="r-nav-item" data-tooltip="Payments">
+      <a href="services/resident-payment.php" class="r-nav-item" data-tooltip="Payments">
         <i class="bi bi-cash-coin r-nav-icon"></i>
         <span class="r-nav-text">Payments</span>
       </a>
-      <a href="services/appointments.html" class="r-nav-item" data-tooltip="Appointments">
+      <a href="services/appointments.php" class="r-nav-item" data-tooltip="Appointments">
         <i class="bi bi-calendar-check r-nav-icon"></i>
         <span class="r-nav-text">Appointments</span>
       </a>
-      <a href="resident-notifications.html" class="r-nav-item" data-tooltip="Notifications">
+      <a href="resident-notifications.php" class="r-nav-item" data-tooltip="Notifications">
         <i class="bi bi-bell r-nav-icon"></i>
         <span class="r-nav-text">Notifications</span>
         <span class="r-nav-badge">5</span>
       </a>
       <div class="r-nav-divider"></div>
       <div class="r-nav-label">Account</div>
-      <a href="resident-profile.html" class="r-nav-item" data-tooltip="My Profile">
+      <a href="resident-profile.php" class="r-nav-item" data-tooltip="My Profile">
         <i class="bi bi-person-circle r-nav-icon"></i>
         <span class="r-nav-text">My Profile</span>
       </a>
@@ -68,7 +68,7 @@
           <span class="r-user-name">Juan Dela Cruz</span>
           <span class="r-user-sub">Resident ID: RES-00412</span>
         </div>
-        <a href="resident-portal.html" class="r-logout-btn" title="Sign out">
+        <a href="resident-portal.php" class="r-logout-btn" title="Sign out">
           <i class="bi bi-box-arrow-right"></i>
         </a>
       </div>
@@ -87,11 +87,11 @@
         </div>
       </div>
       <div class="r-topbar-right">
-        <a href="resident-notifications.html" class="r-topbar-btn" title="Notifications">
+        <a href="resident-notifications.php" class="r-topbar-btn" title="Notifications">
           <i class="bi bi-bell"></i>
           <span class="r-notif-dot"></span>
         </a>
-        <a href="resident-profile.html" class="r-profile-chip">
+        <a href="resident-profile.php" class="r-profile-chip">
           <div class="r-chip-avatar">JD</div>
           <span class="r-chip-name">Juan</span>
           <i class="bi bi-chevron-down"></i>
@@ -107,7 +107,7 @@
           <h1 class="rq-page-title">My Requests</h1>
           <p class="rq-page-sub">Track and manage all your service applications</p>
         </div>
-        <a href="resident-home.html" class="rq-new-btn">
+        <a href="resident-home.php" class="rq-new-btn">
           <i class="bi bi-plus-lg"></i> New Request
         </a>
       </div>
@@ -431,7 +431,7 @@
         <div class="rq-empty-icon"><i class="bi bi-folder2-open"></i></div>
         <div class="rq-empty-title">No requests found</div>
         <div class="rq-empty-sub">Try adjusting your filters or search term.</div>
-        <a href="resident-home.html" class="rq-empty-link">
+        <a href="resident-home.php" class="rq-empty-link">
           <i class="bi bi-plus-lg"></i> Start a New Request
         </a>
       </div>
