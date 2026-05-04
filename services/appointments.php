@@ -26,7 +26,7 @@ include 'resident-sidebar.php';
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>KALASUNGAY — Book an Appointment</title>
+  <title>MySerbisyo — Book an Appointment</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
@@ -42,7 +42,7 @@ include 'resident-sidebar.php';
         <button class="r-menu-btn" id="rMenuBtn"><i class="bi bi-list"></i></button>
         <div class="r-topbar-brand">
           <div class="r-tb-logo"><i class="bi bi-buildings-fill"></i></div>
-          <span class="r-tb-name">KALASUNGAY</span>
+          <span class="r-tb-name">MySerbisyo</span>
         </div>
       </div>
       <!-- REPLACE the entire r-topbar-right div with this: -->
@@ -59,9 +59,9 @@ include 'resident-sidebar.php';
           <?php endif; ?>
         </a>
 
-        <a href="resident-profile.php" class="r-profile-chip">
-          <div class="r-chip-avatar"><?= $initials ?></div>
-          <span class="r-chip-name"><?= $firstname ?></span>
+        <a href="../resident-profile.php" class="r-profile-chip">
+          <div class="r-chip-avatar" id="topbarAvatar">??</div>
+          <span class="r-chip-name" id="topbarName">...</span>
           <i class="bi bi-chevron-down"></i>
         </a>
       </div>

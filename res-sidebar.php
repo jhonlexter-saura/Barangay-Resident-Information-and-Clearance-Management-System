@@ -131,19 +131,19 @@ if (!function_exists('nav_active')) {
 
   </nav>
 
-<!-- REPLACE the entire footer user row with: -->
-<div class="r-sidebar-footer">
-  <div class="r-user-row">
-    <div class="r-user-avatar"><?= $initials ?? 'JD' ?></div>
-    <div class="r-user-info">
-      <span class="r-user-name"><?= $fullName ?? 'Resident' ?></span>
-      <span class="r-user-sub">Resident ID: <?= $residentId ?? '—' ?></span>
+    <!-- REPLACE the entire footer user row with: -->
+    <div class="r-sidebar-footer">
+      <div class="r-user-row">
+        <div class="r-user-avatar"><?= $initials ?? 'JD' ?></div>
+        <div class="r-user-info">
+          <span class="r-user-name"><?= $fullName ?? 'Resident' ?></span>
+          <span class="r-user-sub">Resident ID: <?= $residentId ?? '—' ?></span>
+        </div>
+        <a href="resident-logout.php" class="r-logout-btn" title="Sign out">
+          <i class="bi bi-box-arrow-right"></i>
+        </a>
+      </div>
     </div>
-    <a href="resident-logout.php" class="r-logout-btn" title="Sign out">
-      <i class="bi bi-box-arrow-right"></i>
-    </a>
-  </div>
-</div>
 
 </aside>
 <!-- ===== END SIDEBAR ================================================= -->
