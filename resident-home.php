@@ -1,6 +1,7 @@
 <?php
 session_start();
 require 'config.php';
+require 'aut.php';
 
 // ── Auth guard: redirect to login if not signed in ──────────────────────────
 if (empty($_SESSION['user_id'])) {

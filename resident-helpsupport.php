@@ -1,6 +1,7 @@
 <?php
 session_start();
 require 'config.php';
+require 'aut.php';
 
 if (empty($_SESSION['user_id'])) {
     header('Location: resident-portal.php');

@@ -2,6 +2,5 @@
 session_start();
 session_unset();
 session_destroy();
-
-require 'aut.php';
+header('Location: resident-portal.php');
 exit();

@@ -7,6 +7,9 @@ if (empty($_SESSION['user_id'])) {
     header('Location: resident-portal.php');
     exit();
 }
+header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+header('Pragma: no-cache');
+header('Expires: 0');
 
 // ── Handle AJAX: save profile ────────────────────────────────────────────────
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
