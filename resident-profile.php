@@ -1,6 +1,8 @@
 <?php
 session_start();
 require 'config.php';
+require 'aut.php';
+require 'res-sidebar.php';
 
 // ── Auth guard ───────────────────────────────────────────────────────────────
 if (empty($_SESSION['user_id'])) {
@@ -240,7 +242,7 @@ $residentId = h($user['resident_id'] ?? 'RES-?????');
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>MySerbisyo — My Profile</title>
+  <title>KALASUNGAY — My Profile</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
@@ -250,84 +252,7 @@ $residentId = h($user['resident_id'] ?? 'RES-?????');
 </head>
 
 <body>
-
-  <!-- ── Sidebar ── -->
-  <aside class="r-sidebar" id="rSidebar">
-
-    <div class="r-sidebar-brand">
-      <div class="r-brand-logo"><i class="bi bi-buildings-fill"></i></div>
-      <div class="r-brand-text">
-        <span class="r-brand-name">MySerbisyo</span>
-        <span class="r-brand-sub">Resident Portal</span>
-      </div>
-    </div>
-
-    <nav class="r-sidebar-nav">
-
-      <div class="r-nav-label">Menu</div>
-
-      <a href="resident-home.php" class="r-nav-item" data-tooltip="Home">
-        <i class="bi bi-house-fill r-nav-icon"></i>
-        <span class="r-nav-text">Home</span>
-      </a>
-
-      <a href="resident-requests.php" class="r-nav-item" data-tooltip="My Requests">
-        <i class="bi bi-file-earmark-text r-nav-icon"></i>
-        <span class="r-nav-text">My Requests</span>
-        <span class="r-nav-badge">2</span>
-      </a>
-
-      <a href="services/resident-payment.php" class="r-nav-item" data-tooltip="Payments">
-        <i class="bi bi-cash-coin r-nav-icon"></i>
-        <span class="r-nav-text">Payments</span>
-      </a>
-
-      <a href="services/appointments.php" class="r-nav-item" data-tooltip="Appointments">
-        <i class="bi bi-calendar-check r-nav-icon"></i>
-        <span class="r-nav-text">Appointments</span>
-      </a>
-
-      <a href="resident-notifications.php" class="r-nav-item" data-tooltip="Notifications">
-        <i class="bi bi-bell r-nav-icon"></i>
-        <span class="r-nav-text">Notifications</span>
-        <span class="r-nav-badge">5</span>
-      </a>
-
-      <div class="r-nav-divider"></div>
-      <div class="r-nav-label">Account</div>
-
-      <a href="resident-profile.php" class="r-nav-item active" data-tooltip="My Profile">
-        <i class="bi bi-person-circle r-nav-icon"></i>
-        <span class="r-nav-text">My Profile</span>
-      </a>
-
-      <a href="resident-settings.php" class="r-nav-item" data-tooltip="Settings">
-        <i class="bi bi-gear r-nav-icon"></i>
-        <span class="r-nav-text">Settings</span>
-      </a>
-
-      <a href="resident-helpsupport.php" class="r-nav-item" data-tooltip="Help">
-        <i class="bi bi-question-circle r-nav-icon"></i>
-        <span class="r-nav-text">Help & Support</span>
-      </a>
-
-    </nav>
-
-    <div class="r-sidebar-footer">
-      <div class="r-user-row">
-        <div class="r-user-avatar"><?= $initials ?></div>
-        <div class="r-user-info">
-          <span class="r-user-name"><?= $fullName ?></span>
-          <span class="r-user-sub">Resident ID: <?= $residentId ?></span>
-        </div>
-        <a href="resident-logout.php" class="r-logout-btn" title="Sign out">
-          <i class="bi bi-box-arrow-right"></i>
-        </a>
-      </div>
-    </div>
-
-  </aside>
-
+  
   <!-- ── Main area ── -->
   <div class="r-main" id="rMain">
 
@@ -339,7 +264,7 @@ $residentId = h($user['resident_id'] ?? 'RES-?????');
         </button>
         <div class="r-topbar-brand">
           <div class="r-tb-logo"><i class="bi bi-buildings-fill"></i></div>
-          <a href="resident-home.php"><span class="r-tb-name">MySerbisyo</span></a>
+          <a href="resident-home.php"><span class="r-tb-name">KALASUNGAY</span></a>
         </div>
       </div>
       <div class="r-topbar-right">

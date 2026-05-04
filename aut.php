@@ -11,7 +11,7 @@ header('Pragma: no-cache');
 header('Expires: 0');
 
 // ── Auth guard ────────────────────────────────────────────────────────────
-if (empty($_SESSION['user_id'])) {
+if (empty($_SESSION['loggedin']) || empty($_SESSION['user_id'])) {
     header('Location: resident-portal.php');
     exit();
 }

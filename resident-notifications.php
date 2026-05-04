@@ -1,9 +1,94 @@
+<?php
+require 'aut.php';
+require 'config.php';
+require 'res-sidebar.php';
+
+// ── Handle AJAX ───────────────────────────────────────────────────────────────
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
+    header('Content-Type: application/json');
+
+    if ($_POST['action'] === 'mark_read') {
+        $notifId = intval($_POST['notif_id'] ?? 0);
+        $stmt = $pdo->prepare("
+            UPDATE notification SET is_read = 1
+            WHERE notif_id = ? AND resident_id = ?
+        ");
+        $ok = $stmt->execute([$notifId, $_SESSION['user_id']]);
+        echo json_encode(['success' => $ok]);
+        exit();
+    }
+
+    if ($_POST['action'] === 'mark_all_read') {
+        $stmt = $pdo->prepare("
+            UPDATE notification SET is_read = 1
+            WHERE resident_id = ?
+        ");
+        $ok = $stmt->execute([$_SESSION['user_id']]);
+        echo json_encode(['success' => $ok]);
+        exit();
+    }
+
+    if ($_POST['action'] === 'dismiss') {
+        $notifId = intval($_POST['notif_id'] ?? 0);
+        $stmt = $pdo->prepare("
+            DELETE FROM notification
+            WHERE notif_id = ? AND resident_id = ?
+        ");
+        $ok = $stmt->execute([$notifId, $_SESSION['user_id']]);
+        echo json_encode(['success' => $ok]);
+        exit();
+    }
+
+    echo json_encode(['success' => false, 'message' => 'Unknown action.']);
+    exit();
+}
+
+// ── Fetch notifications ───────────────────────────────────────────────────────
+$stmt = $pdo->prepare("
+    SELECT * FROM notification
+    WHERE resident_id = ?
+    ORDER BY created_at DESC
+");
+$stmt->execute([$_SESSION['user_id']]);
+$notifications = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+$unreadCount = count(array_filter($notifications, fn($n) => !$n['is_read']));
+
+// ── Fetch user ────────────────────────────────────────────────────────────────
+$stmt = $pdo->prepare("SELECT first_name, last_name, resident_id FROM resident WHERE resident_id = ?");
+$stmt->execute([$_SESSION['user_id']]);
+$user = $stmt->fetch();
+
+$initials   = strtoupper(substr($user['first_name'], 0, 1) . substr($user['last_name'], 0, 1));
+$fullName   = htmlspecialchars($user['first_name'] . ' ' . $user['last_name']);
+$firstname  = htmlspecialchars($user['first_name']);
+$residentId = 'RES-' . str_pad($user['resident_id'], 5, '0', STR_PAD_LEFT);
+
+// ── Notification icon helper ──────────────────────────────────────────────────
+function notifIcon($type) {
+    return match($type) {
+        'request'      => ['bi-file-earmark-check-fill', '#e8f3fc', '#1a7fd4'],
+        'announcement' => ['bi-megaphone-fill',           '#e6f7ef', '#1a9e5f'],
+        'payment'      => ['bi-cash-coin',                '#fde8e8', '#dc2626'],
+        'system'       => ['bi-gear-fill',                '#f1f5f9', '#64748b'],
+        default        => ['bi-bell-fill',                '#e8f3fc', '#1a7fd4'],
+    };
+}
+
+function timeAgo($datetime) {
+    $diff = time() - strtotime($datetime);
+    if ($diff < 3600)  return round($diff / 60) . ' minutes ago';
+    if ($diff < 86400) return round($diff / 3600) . ' hours ago';
+    if ($diff < 604800) return round($diff / 86400) . ' days ago';
+    return date('M j, Y', strtotime($datetime));
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>MySerbisyo — Notifications</title>
+  <title>KALASUNGAY — Notifications</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
@@ -12,88 +97,25 @@
   <link href="css/resident-requests.css" rel="stylesheet">
 </head>
 <body>
-
-  <!-- ── Sidebar ── -->
-  <aside class="r-sidebar" id="rSidebar">
-    <div class="r-sidebar-brand">
-      <div class="r-brand-logo"><i class="bi bi-buildings-fill"></i></div>
-      <div class="r-brand-text">
-        <span class="r-brand-name">MySerbisyo</span>
-        <span class="r-brand-sub">Resident Portal</span>
-      </div>
-    </div>
-    <nav class="r-sidebar-nav">
-      <div class="r-nav-label">Menu</div>
-      <a href="resident-home.php" class="r-nav-item" data-tooltip="Home">
-        <i class="bi bi-house-fill r-nav-icon"></i>
-        <span class="r-nav-text">Home</span>
-      </a>
-      <a href="resident-requests.php" class="r-nav-item" data-tooltip="My Requests">
-        <i class="bi bi-file-earmark-text r-nav-icon"></i>
-        <span class="r-nav-text">My Requests</span>
-        <span class="r-nav-badge">2</span>
-      </a>
-      <a href="services/resident-payment.php" class="r-nav-item" data-tooltip="Payments">
-        <i class="bi bi-cash-coin r-nav-icon"></i>
-        <span class="r-nav-text">Payments</span>
-      </a>
-      <a href="services/appointments.php" class="r-nav-item" data-tooltip="Appointments">
-        <i class="bi bi-calendar-check r-nav-icon"></i>
-        <span class="r-nav-text">Appointments</span>
-      </a>
-      <a href="resident-notifications.php" class="r-nav-item active" data-tooltip="Notifications">
-        <i class="bi bi-bell-fill r-nav-icon"></i>
-        <span class="r-nav-text">Notifications</span>
-        <span class="r-nav-badge">5</span>
-      </a>
-      <div class="r-nav-divider"></div>
-      <div class="r-nav-label">Account</div>
-      <a href="resident-profile.php" class="r-nav-item" data-tooltip="My Profile">
-        <i class="bi bi-person-circle r-nav-icon"></i>
-        <span class="r-nav-text">My Profile</span>
-      </a>
-      <a href="#" class="r-nav-item" data-tooltip="Settings">
-        <i class="bi bi-gear r-nav-icon"></i>
-        <span class="r-nav-text">Settings</span>
-      </a>
-      <a href="#" class="r-nav-item" data-tooltip="Help">
-        <i class="bi bi-question-circle r-nav-icon"></i>
-        <span class="r-nav-text">Help & Support</span>
-      </a>
-    </nav>
-    <div class="r-sidebar-footer">
-      <div class="r-user-row">
-        <div class="r-user-avatar">JD</div>
-        <div class="r-user-info">
-          <span class="r-user-name">Juan Dela Cruz</span>
-          <span class="r-user-sub">Resident ID: RES-00412</span>
-        </div>
-        <a href="resident-portal.php" class="r-logout-btn" title="Sign out">
-          <i class="bi bi-box-arrow-right"></i>
-        </a>
-      </div>
-    </div>
-  </aside>
-
-  <!-- ── Main ── -->
   <div class="r-main" id="rMain">
-
     <header class="r-topbar">
       <div class="r-topbar-left">
         <button class="r-menu-btn" id="rMenuBtn"><i class="bi bi-list"></i></button>
         <div class="r-topbar-brand">
           <div class="r-tb-logo"><i class="bi bi-buildings-fill"></i></div>
-          <span class="r-tb-name">MySerbisyo</span>
+          <span class="r-tb-name">KALASUNGAY</span>
         </div>
       </div>
       <div class="r-topbar-right">
-        <a href="resident-notifications.php" class="r-topbar-btn" style="color:var(--sky);" title="Notifications">
+        <a href="resident-notifications.php" class="r-topbar-btn" title="Notifications">
           <i class="bi bi-bell-fill"></i>
-          <span class="r-notif-dot"></span>
+          <?php if ($unreadCount > 0): ?>
+            <span class="r-notif-dot"></span>
+          <?php endif; ?>
         </a>
         <a href="resident-profile.php" class="r-profile-chip">
-          <div class="r-chip-avatar">JD</div>
-          <span class="r-chip-name">Juan</span>
+          <div class="r-chip-avatar"><?= $initials ?></div>
+          <span class="r-chip-name"><?= $firstname ?></span>
           <i class="bi bi-chevron-down"></i>
         </a>
       </div>
@@ -101,181 +123,86 @@
 
     <main class="r-content">
 
-      <!-- Page header -->
       <div class="rq-page-header">
         <div>
           <h1 class="rq-page-title">Notifications</h1>
           <p class="rq-page-sub">Stay updated on your requests and LGU announcements</p>
         </div>
-        <button class="rq-mark-all-btn" id="markAllReadBtn" onclick="markAllRead()">
-          <i class="bi bi-check2-all"></i> Mark all as read
-        </button>
+        <?php if ($unreadCount > 0): ?>
+          <button class="rq-mark-all-btn" id="markAllReadBtn" onclick="markAllRead()">
+            <i class="bi bi-check2-all"></i> Mark all as read
+          </button>
+        <?php endif; ?>
       </div>
 
-      <!-- ── Notif layout ── -->
       <div class="notif-layout">
-
-        <!-- Left: notification feed -->
         <div class="notif-feed-col">
 
           <!-- Filter tabs -->
           <div class="notif-tabs">
             <button class="notif-tab active" data-tab="all">
-              All <span class="notif-tab-count">8</span>
+              All <span class="notif-tab-count"><?= count($notifications) ?></span>
             </button>
             <button class="notif-tab" data-tab="unread">
-              Unread <span class="notif-tab-count unread">5</span>
+              Unread <span class="notif-tab-count unread"><?= $unreadCount ?></span>
             </button>
-            <button class="notif-tab" data-tab="requests">
-              Requests <span class="notif-tab-count">4</span>
+            <button class="notif-tab" data-tab="request">
+              Requests
             </button>
-            <button class="notif-tab" data-tab="announcements">
-              Announcements <span class="notif-tab-count">3</span>
+            <button class="notif-tab" data-tab="announcement">
+              Announcements
             </button>
             <button class="notif-tab" data-tab="system">
-              System <span class="notif-tab-count">1</span>
+              System
             </button>
           </div>
 
           <!-- Notification items -->
           <div class="notif-list" id="notifList">
 
-            <!-- Unread: request status update -->
-            <div class="notif-item unread" data-type="requests" data-id="n1">
-              <div class="notif-icon-wrap" style="background:#e8f3fc;">
-                <i class="bi bi-file-earmark-check-fill" style="color:#1a7fd4;"></i>
+            <?php if (empty($notifications)): ?>
+              <div class="notif-empty" id="notifEmpty">
+                <div class="notif-empty-icon"><i class="bi bi-bell-slash"></i></div>
+                <div class="notif-empty-title">All caught up!</div>
+                <div class="notif-empty-sub">You have no notifications yet.</div>
               </div>
-              <div class="notif-body">
-                <div class="notif-title">Your Barangay Clearance is under review</div>
-                <div class="notif-text">Ref #2026-04-0841 has been received by the Barangay Office and is currently being reviewed by the staff.</div>
-                <div class="notif-meta">
-                  <span class="notif-time"><i class="bi bi-clock"></i> 2 hours ago</span>
-                  <a href="resident-requests.php" class="notif-link">View Request</a>
+            <?php else: ?>
+              <?php foreach ($notifications as $notif):
+                [$nIcon, $nBg, $nColor] = notifIcon($notif['type']);
+                $unreadClass = $notif['is_read'] ? '' : 'unread';
+              ?>
+              <div class="notif-item <?= $unreadClass ?>"
+                   data-type="<?= $notif['type'] ?>"
+                   data-id="<?= $notif['notif_id'] ?>"
+                   data-read="<?= $notif['is_read'] ?>">
+                <div class="notif-icon-wrap" style="background:<?= $nBg ?>;">
+                  <i class="bi <?= $nIcon ?>" style="color:<?= $nColor ?>;"></i>
                 </div>
-              </div>
-              <div class="notif-dot-indicator"></div>
-              <button class="notif-dismiss" onclick="dismissNotif('n1')" title="Dismiss"><i class="bi bi-x"></i></button>
-            </div>
-
-            <!-- Unread: appointment confirmed -->
-            <div class="notif-item unread" data-type="requests" data-id="n2">
-              <div class="notif-icon-wrap" style="background:#fef3c7;">
-                <i class="bi bi-calendar-check-fill" style="color:#d97706;"></i>
-              </div>
-              <div class="notif-body">
-                <div class="notif-title">Appointment Request Received</div>
-                <div class="notif-text">Your appointment at the Civil Registrar on April 25, 2026 at 10:00 AM is pending confirmation. Please wait for an update.</div>
-                <div class="notif-meta">
-                  <span class="notif-time"><i class="bi bi-clock"></i> 5 hours ago</span>
-                  <a href="resident-requests.php" class="notif-link">View Request</a>
+                <div class="notif-body">
+                  <div class="notif-title"><?= htmlspecialchars($notif['title']) ?></div>
+                  <div class="notif-text"><?= htmlspecialchars($notif['message']) ?></div>
+                  <div class="notif-meta">
+                    <span class="notif-time"><i class="bi bi-clock"></i> <?= timeAgo($notif['created_at']) ?></span>
+                    <?php if ($notif['link_url']): ?>
+                      <a href="<?= htmlspecialchars($notif['link_url']) ?>" class="notif-link">View</a>
+                    <?php endif; ?>
+                    <span class="notif-tag <?= $notif['type'] ?>"><?= ucfirst($notif['type']) ?></span>
+                  </div>
                 </div>
+                <?php if (!$notif['is_read']): ?>
+                  <div class="notif-dot-indicator"></div>
+                <?php endif; ?>
+                <button class="notif-dismiss"
+                        onclick="dismissNotif(<?= $notif['notif_id'] ?>)"
+                        title="Dismiss">
+                  <i class="bi bi-x"></i>
+                </button>
               </div>
-              <div class="notif-dot-indicator"></div>
-              <button class="notif-dismiss" onclick="dismissNotif('n2')" title="Dismiss"><i class="bi bi-x"></i></button>
-            </div>
-
-            <!-- Unread: announcement -->
-            <div class="notif-item unread" data-type="announcements" data-id="n3">
-              <div class="notif-icon-wrap" style="background:#e6f7ef;">
-                <i class="bi bi-megaphone-fill" style="color:#1a9e5f;"></i>
-              </div>
-              <div class="notif-body">
-                <div class="notif-title">Free Medical Mission — April 28</div>
-                <div class="notif-text">The Municipal Health Office will conduct a free medical mission at the Barangay Hall on April 28, 2026. Free check-up, medicines, and dental services available.</div>
-                <div class="notif-meta">
-                  <span class="notif-time"><i class="bi bi-clock"></i> Yesterday</span>
-                  <span class="notif-tag announcement">Announcement</span>
-                </div>
-              </div>
-              <div class="notif-dot-indicator"></div>
-              <button class="notif-dismiss" onclick="dismissNotif('n3')" title="Dismiss"><i class="bi bi-x"></i></button>
-            </div>
-
-            <!-- Unread: payment reminder -->
-            <div class="notif-item unread" data-type="requests" data-id="n4">
-              <div class="notif-icon-wrap" style="background:#fde8e8;">
-                <i class="bi bi-cash-coin" style="color:#dc2626;"></i>
-              </div>
-              <div class="notif-body">
-                <div class="notif-title">Payment Required — Cedula/CTC</div>
-                <div class="notif-text">Your Cedula application (Ref #2026-03-0712) is ready for pickup. Please bring ₱30.00 to the Treasurer's Office to complete your transaction.</div>
-                <div class="notif-meta">
-                  <span class="notif-time"><i class="bi bi-clock"></i> 2 days ago</span>
-                  <a href="resident-requests.php" class="notif-link">View Request</a>
-                </div>
-              </div>
-              <div class="notif-dot-indicator"></div>
-              <button class="notif-dismiss" onclick="dismissNotif('n4')" title="Dismiss"><i class="bi bi-x"></i></button>
-            </div>
-
-            <!-- Unread: announcement -->
-            <div class="notif-item unread" data-type="announcements" data-id="n5">
-              <div class="notif-icon-wrap" style="background:#e8f3fc;">
-                <i class="bi bi-mortarboard-fill" style="color:#0369a1;"></i>
-              </div>
-              <div class="notif-body">
-                <div class="notif-title">Scholarship Applications Now Open — SY 2026–2027</div>
-                <div class="notif-text">Qualified residents may now apply for the LGU Scholarship Program for SY 2026–2027. Deadline is May 15, 2026. Requirements available at the MSWD Office.</div>
-                <div class="notif-meta">
-                  <span class="notif-time"><i class="bi bi-clock"></i> Apr 15, 2026</span>
-                  <span class="notif-tag announcement">Announcement</span>
-                </div>
-              </div>
-              <div class="notif-dot-indicator"></div>
-              <button class="notif-dismiss" onclick="dismissNotif('n5')" title="Dismiss"><i class="bi bi-x"></i></button>
-            </div>
-
-            <!-- Read: request approved -->
-            <div class="notif-item" data-type="requests" data-id="n6">
-              <div class="notif-icon-wrap" style="background:#e6f7ef;">
-                <i class="bi bi-patch-check-fill" style="color:#1a9e5f;"></i>
-              </div>
-              <div class="notif-body">
-                <div class="notif-title">Health Certificate Approved ✓</div>
-                <div class="notif-text">Your Health Certificate (Ref #2026-02-0589) has been approved and is ready for pickup at the Municipal Health Office. Valid until February 21, 2027.</div>
-                <div class="notif-meta">
-                  <span class="notif-time"><i class="bi bi-clock"></i> Feb 21, 2026</span>
-                  <a href="resident-requests.php" class="notif-link">View & Download</a>
-                </div>
-              </div>
-              <button class="notif-dismiss" onclick="dismissNotif('n6')" title="Dismiss"><i class="bi bi-x"></i></button>
-            </div>
-
-            <!-- Read: announcement -->
-            <div class="notif-item" data-type="announcements" data-id="n7">
-              <div class="notif-icon-wrap" style="background:#fef3c7;">
-                <i class="bi bi-megaphone-fill" style="color:#d97706;"></i>
-              </div>
-              <div class="notif-body">
-                <div class="notif-title">Extended Office Hours — Civil Registrar</div>
-                <div class="notif-text">Starting May 1, 2026, the Civil Registrar's office will be open until 7:00 PM on weekdays. Weekend operations remain suspended.</div>
-                <div class="notif-meta">
-                  <span class="notif-time"><i class="bi bi-clock"></i> Apr 10, 2026</span>
-                  <span class="notif-tag announcement">Announcement</span>
-                </div>
-              </div>
-              <button class="notif-dismiss" onclick="dismissNotif('n7')" title="Dismiss"><i class="bi bi-x"></i></button>
-            </div>
-
-            <!-- Read: system -->
-            <div class="notif-item" data-type="system" data-id="n8">
-              <div class="notif-icon-wrap" style="background:#f1f5f9;">
-                <i class="bi bi-gear-fill" style="color:#64748b;"></i>
-              </div>
-              <div class="notif-body">
-                <div class="notif-title">System Maintenance — April 25, 2:00–4:00 AM</div>
-                <div class="notif-text">The MySerbisyo portal will undergo scheduled maintenance. Services will be temporarily unavailable during this window. We apologize for the inconvenience.</div>
-                <div class="notif-meta">
-                  <span class="notif-time"><i class="bi bi-clock"></i> Apr 9, 2026</span>
-                  <span class="notif-tag system">System</span>
-                </div>
-              </div>
-              <button class="notif-dismiss" onclick="dismissNotif('n8')" title="Dismiss"><i class="bi bi-x"></i></button>
-            </div>
+              <?php endforeach; ?>
+            <?php endif; ?>
 
           </div>
 
-          <!-- Empty state -->
           <div class="notif-empty" id="notifEmpty" style="display:none;">
             <div class="notif-empty-icon"><i class="bi bi-bell-slash"></i></div>
             <div class="notif-empty-title">All caught up!</div>
@@ -284,25 +211,20 @@
 
         </div>
 
-        <!-- Right: preferences & summary -->
+        <!-- Right: stat + preferences -->
         <div class="notif-right-col">
 
-          <!-- Unread count card -->
           <div class="notif-stat-card">
             <div class="notif-stat-icon"><i class="bi bi-bell-fill"></i></div>
             <div>
-              <div class="notif-stat-val" id="unreadCount">5</div>
+              <div class="notif-stat-val" id="unreadCount"><?= $unreadCount ?></div>
               <div class="notif-stat-label">Unread Notifications</div>
             </div>
           </div>
 
-          <!-- Notification preferences -->
           <div class="notif-pref-card">
-            <div class="notif-pref-title">
-              <i class="bi bi-sliders"></i> Preferences
-            </div>
+            <div class="notif-pref-title"><i class="bi bi-sliders"></i> Preferences</div>
             <div class="notif-pref-list">
-
               <div class="notif-pref-item">
                 <div class="notif-pref-info">
                   <div class="notif-pref-name">Request Updates</div>
@@ -313,7 +235,6 @@
                   <span class="notif-toggle-track"></span>
                 </label>
               </div>
-
               <div class="notif-pref-item">
                 <div class="notif-pref-info">
                   <div class="notif-pref-name">Announcements</div>
@@ -324,7 +245,6 @@
                   <span class="notif-toggle-track"></span>
                 </label>
               </div>
-
               <div class="notif-pref-item">
                 <div class="notif-pref-info">
                   <div class="notif-pref-name">Payment Reminders</div>
@@ -335,7 +255,6 @@
                   <span class="notif-toggle-track"></span>
                 </label>
               </div>
-
               <div class="notif-pref-item">
                 <div class="notif-pref-info">
                   <div class="notif-pref-name">System Notices</div>
@@ -346,7 +265,6 @@
                   <span class="notif-toggle-track"></span>
                 </label>
               </div>
-
               <div class="notif-pref-item">
                 <div class="notif-pref-info">
                   <div class="notif-pref-name">Email Notifications</div>
@@ -357,18 +275,16 @@
                   <span class="notif-toggle-track"></span>
                 </label>
               </div>
-
             </div>
           </div>
 
-          <!-- Quick links -->
           <div class="notif-quick-card">
             <div class="notif-pref-title"><i class="bi bi-lightning-charge-fill"></i> Quick Links</div>
             <div class="notif-quick-links">
               <a href="resident-requests.php" class="notif-quick-link">
                 <i class="bi bi-file-earmark-text"></i> My Requests
               </a>
-              <a href="resident-payment.php" class="notif-quick-link">
+              <a href="services/resident-payment.php" class="notif-quick-link">
                 <i class="bi bi-cart-fill"></i> Payments
               </a>
               <a href="resident-home.php" class="notif-quick-link">

@@ -14,7 +14,7 @@ if (!empty($_SESSION['loggedin'])) {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>MySerbisyo — Resident Portal</title>
+  <title>KALASUNGAY — Resident Portal</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Lora:ital,wght@0,500;0,600;1,400&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
@@ -29,7 +29,7 @@ if (!empty($_SESSION['loggedin'])) {
     <a href="#" class="nav-brand">
       <div class="brand-logo"><i class="bi bi-buildings-fill"></i></div>
       <div class="brand-text">
-        <span class="brand-name">MySerbisyo</span>
+        <span class="brand-name">KALASUNGAY</span>
         <span class="brand-tagline">Municipal Resident Portal</span>
       </div>
     </a>

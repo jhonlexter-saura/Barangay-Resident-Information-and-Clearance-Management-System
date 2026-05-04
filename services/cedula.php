@@ -1,5 +1,7 @@
 <?php
 $active_nav = 'payments';
+require '../aut.php';
+require '../config.php';
 include 'resident-sidebar.php';
 ?>
 <!DOCTYPE html>
@@ -7,7 +9,7 @@ include 'resident-sidebar.php';
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>MySerbisyo — Cedula / Community Tax Certificate</title>
+  <title>KALASUNGAY — Cedula / Community Tax Certificate</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
@@ -23,7 +25,7 @@ include 'resident-sidebar.php';
         <button class="r-menu-btn" id="rMenuBtn"><i class="bi bi-list"></i></button>
         <div class="r-topbar-brand">
           <div class="r-tb-logo"><i class="bi bi-buildings-fill"></i></div>
-          <span class="r-tb-name">MySerbisyo</span>
+          <span class="r-tb-name">KALASUNGAY</span>
         </div>
       </div>
       <div class="r-topbar-right">

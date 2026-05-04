@@ -35,7 +35,7 @@ CREATE TABLE resident (
   created_at        TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at        TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (resident_id),
-  INDEX idx_resident_name      (last_name, first_name),
+  INDEX idx_resident_name       (last_name, first_name),
   INDEX idx_resident_birth_date (birth_date)
 ) ENGINE=InnoDB COMMENT='Core personal information of every barangay resident.';
 
@@ -242,3 +242,25 @@ CREATE TABLE payment (
   INDEX idx_payment_status   (payment_status),
   INDEX idx_payment_date     (payment_date)
 ) ENGINE=InnoDB COMMENT='Payment records linked to document/service requests.';
+
+
+-- ============================================================
+-- 9. NOTIFICATION
+-- ============================================================
+CREATE TABLE notification (
+  notif_id      INT UNSIGNED  NOT NULL AUTO_INCREMENT,
+  resident_id   INT UNSIGNED  NOT NULL,
+  type          ENUM('request','announcement','payment','system') NOT NULL DEFAULT 'system',
+  title         VARCHAR(200)  NOT NULL,
+  message       TEXT              NULL,
+  is_read       TINYINT(1)    NOT NULL DEFAULT 0,
+  link_url      VARCHAR(255)      NULL,
+  created_at    TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (notif_id),
+  CONSTRAINT fk_notif_resident
+    FOREIGN KEY (resident_id)
+    REFERENCES resident (resident_id)
+    ON UPDATE CASCADE ON DELETE CASCADE,
+  INDEX idx_notif_resident (resident_id),
+  INDEX idx_notif_read     (is_read)
+) ENGINE=InnoDB COMMENT='Notifications per resident.';

@@ -1,9 +1,156 @@
+<?php
+require 'aut.php';
+require 'config.php';
+require 'res-sidebar.php';
+
+// ── Handle AJAX actions ───────────────────────────────────────────────────────
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
+    header('Content-Type: application/json');
+
+    // Cancel a request
+    if ($_POST['action'] === 'cancel_request') {
+        $requestId = intval($_POST['request_id'] ?? 0);
+
+        // Verify ownership and that it's still cancellable
+        $stmt = $pdo->prepare("
+            SELECT request_id, status FROM service_request
+            WHERE request_id = ? AND resident_id = ?
+        ");
+        $stmt->execute([$requestId, $_SESSION['user_id']]);
+        $req = $stmt->fetch();
+
+        if (!$req) {
+            echo json_encode(['success' => false, 'message' => 'Request not found.']);
+            exit();
+        }
+
+        if (!in_array($req['status'], ['Pending', 'Processing'])) {
+            echo json_encode(['success' => false, 'message' => 'This request can no longer be cancelled.']);
+            exit();
+        }
+
+        $stmt = $pdo->prepare("
+            UPDATE service_request SET status = 'Cancelled'
+            WHERE request_id = ? AND resident_id = ?
+        ");
+        $ok = $stmt->execute([$requestId, $_SESSION['user_id']]);
+
+        echo json_encode([
+            'success' => $ok,
+            'message' => $ok ? 'Request cancelled successfully.' : 'Database error.'
+        ]);
+        exit();
+    }
+
+    // Get single request detail for modal
+    if ($_POST['action'] === 'get_request') {
+        $requestId = intval($_POST['request_id'] ?? 0);
+
+        $stmt = $pdo->prepare("
+            SELECT sr.*, p.amount, p.payment_method, p.payment_status AS pay_status,
+                   p.or_number, p.payment_date
+            FROM service_request sr
+            LEFT JOIN payment p ON p.request_id = sr.request_id
+            WHERE sr.request_id = ? AND sr.resident_id = ?
+        ");
+        $stmt->execute([$requestId, $_SESSION['user_id']]);
+        $req = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$req) {
+            echo json_encode(['success' => false, 'message' => 'Request not found.']);
+            exit();
+        }
+
+        // Get extra fields
+        $stmt = $pdo->prepare("
+            SELECT field_key, field_value FROM service_request_detail
+            WHERE request_id = ?
+        ");
+        $stmt->execute([$requestId]);
+        $details = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
+
+        // Get files
+        $stmt = $pdo->prepare("
+            SELECT file_id, original_name, file_size, uploaded_at
+            FROM service_request_file
+            WHERE request_id = ?
+        ");
+        $stmt->execute([$requestId]);
+        $files = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $req['reference_no'] = 'REQ-' . date('Y', strtotime($req['date_requested']))
+                             . '-' . str_pad($req['request_id'], 6, '0', STR_PAD_LEFT);
+        $req['details'] = $details;
+        $req['files']   = $files;
+
+        echo json_encode(['success' => true, 'request' => $req]);
+        exit();
+    }
+
+    echo json_encode(['success' => false, 'message' => 'Unknown action.']);
+    exit();
+}
+
+// ── Fetch all requests for this resident ─────────────────────────────────────
+$stmt = $pdo->prepare("
+    SELECT sr.request_id, sr.document_type, sr.purpose, sr.status,
+           sr.payment_status, sr.date_requested, sr.date_issued, sr.remarks,
+           p.amount, p.payment_status AS pay_status
+    FROM service_request sr
+    LEFT JOIN payment p ON p.request_id = sr.request_id
+    WHERE sr.resident_id = ?
+    ORDER BY sr.date_requested DESC, sr.request_id DESC
+");
+$stmt->execute([$_SESSION['user_id']]);
+$requests = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// ── Counts per status ────────────────────────────────────────────────────────
+$counts = ['all' => count($requests), 'Pending' => 0, 'Processing' => 0, 'Released' => 0, 'Denied' => 0, 'Cancelled' => 0];
+foreach ($requests as $r) {
+    if (isset($counts[$r['status']])) $counts[$r['status']]++;
+}
+
+// ── Fetch user ────────────────────────────────────────────────────────────────
+$stmt = $pdo->prepare("SELECT first_name, last_name, resident_id FROM resident WHERE resident_id = ?");
+$stmt->execute([$_SESSION['user_id']]);
+$user = $stmt->fetch();
+
+$initials   = strtoupper(substr($user['first_name'], 0, 1) . substr($user['last_name'], 0, 1));
+$fullName   = htmlspecialchars($user['first_name'] . ' ' . $user['last_name']);
+$firstname  = htmlspecialchars($user['first_name']);
+$residentId = 'RES-' . str_pad($user['resident_id'], 5, '0', STR_PAD_LEFT);
+
+// ── Status display helpers ────────────────────────────────────────────────────
+function statusBadgeClass($status) {
+    return match($status) {
+        'Pending'        => 'pending',
+        'Processing'     => 'processing',
+        'Ready for Pickup', 'Released' => 'approved',
+        'Denied', 'Cancelled' => 'rejected',
+        default          => 'pending'
+    };
+}
+
+function statusIcon($docType) {
+    return match($docType) {
+        'Barangay Clearance'               => ['bi-file-earmark-text-fill', '#e8f3fc', '#1a7fd4'],
+        'Cedula / Community Tax Certificate' => ['bi-card-heading',         '#e6f7ef', '#1a9e5f'],
+        'Business Permit'                  => ['bi-house-fill',             '#fef3c7', '#d97706'],
+        'Health Certificate'               => ['bi-heart-pulse-fill',       '#fde8e8', '#dc2626'],
+        'Certificate of Indigency'         => ['bi-people-fill',            '#f0e8ff', '#7c3aed'],
+        'Real Property Tax'                => ['bi-cash-coin',              '#e8f5e8', '#16a34a'],
+        'Scholarship Application'          => ['bi-mortarboard-fill',       '#e8f3fc', '#0369a1'],
+        'Book an Appointment'              => ['bi-calendar-heart-fill',    '#fef3c7', '#b45309'],
+        default                            => ['bi-file-earmark-fill',      '#f1f5f9', '#64748b'],
+    };
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>MySerbisyo — My Requests</title>
+  <title>KALASUNGAY — My Requests</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
@@ -13,77 +160,13 @@
 </head>
 <body>
 
-  <!-- ── Sidebar ── -->
-  <aside class="r-sidebar" id="rSidebar">
-    <div class="r-sidebar-brand">
-      <div class="r-brand-logo"><i class="bi bi-buildings-fill"></i></div>
-      <div class="r-brand-text">
-        <span class="r-brand-name">MySerbisyo</span>
-        <span class="r-brand-sub">Resident Portal</span>
-      </div>
-    </div>
-    <nav class="r-sidebar-nav">
-      <div class="r-nav-label">Menu</div>
-      <a href="resident-home.php" class="r-nav-item" data-tooltip="Home">
-        <i class="bi bi-house-fill r-nav-icon"></i>
-        <span class="r-nav-text">Home</span>
-      </a>
-      <a href="resident-requests.php" class="r-nav-item active" data-tooltip="My Requests">
-        <i class="bi bi-file-earmark-text r-nav-icon"></i>
-        <span class="r-nav-text">My Requests</span>
-        <span class="r-nav-badge">2</span>
-      </a>
-      <a href="services/resident-payment.php" class="r-nav-item" data-tooltip="Payments">
-        <i class="bi bi-cash-coin r-nav-icon"></i>
-        <span class="r-nav-text">Payments</span>
-      </a>
-      <a href="services/appointments.php" class="r-nav-item" data-tooltip="Appointments">
-        <i class="bi bi-calendar-check r-nav-icon"></i>
-        <span class="r-nav-text">Appointments</span>
-      </a>
-      <a href="resident-notifications.php" class="r-nav-item" data-tooltip="Notifications">
-        <i class="bi bi-bell r-nav-icon"></i>
-        <span class="r-nav-text">Notifications</span>
-        <span class="r-nav-badge">5</span>
-      </a>
-      <div class="r-nav-divider"></div>
-      <div class="r-nav-label">Account</div>
-      <a href="resident-profile.php" class="r-nav-item" data-tooltip="My Profile">
-        <i class="bi bi-person-circle r-nav-icon"></i>
-        <span class="r-nav-text">My Profile</span>
-      </a>
-      <a href="#" class="r-nav-item" data-tooltip="Settings">
-        <i class="bi bi-gear r-nav-icon"></i>
-        <span class="r-nav-text">Settings</span>
-      </a>
-      <a href="#" class="r-nav-item" data-tooltip="Help">
-        <i class="bi bi-question-circle r-nav-icon"></i>
-        <span class="r-nav-text">Help & Support</span>
-      </a>
-    </nav>
-    <div class="r-sidebar-footer">
-      <div class="r-user-row">
-        <div class="r-user-avatar">JD</div>
-        <div class="r-user-info">
-          <span class="r-user-name">Juan Dela Cruz</span>
-          <span class="r-user-sub">Resident ID: RES-00412</span>
-        </div>
-        <a href="resident-portal.php" class="r-logout-btn" title="Sign out">
-          <i class="bi bi-box-arrow-right"></i>
-        </a>
-      </div>
-    </div>
-  </aside>
-
-  <!-- ── Main ── -->
   <div class="r-main" id="rMain">
-
     <header class="r-topbar">
       <div class="r-topbar-left">
         <button class="r-menu-btn" id="rMenuBtn"><i class="bi bi-list"></i></button>
         <div class="r-topbar-brand">
           <div class="r-tb-logo"><i class="bi bi-buildings-fill"></i></div>
-          <span class="r-tb-name">MySerbisyo</span>
+          <span class="r-tb-name">KALASUNGAY</span>
         </div>
       </div>
       <div class="r-topbar-right">
@@ -92,8 +175,8 @@
           <span class="r-notif-dot"></span>
         </a>
         <a href="resident-profile.php" class="r-profile-chip">
-          <div class="r-chip-avatar">JD</div>
-          <span class="r-chip-name">Juan</span>
+          <div class="r-chip-avatar"><?= $initials ?></div>
+          <span class="r-chip-name"><?= $firstname ?></span>
           <i class="bi bi-chevron-down"></i>
         </a>
       </div>
@@ -101,7 +184,6 @@
 
     <main class="r-content">
 
-      <!-- Page header -->
       <div class="rq-page-header">
         <div>
           <h1 class="rq-page-title">My Requests</h1>
@@ -112,35 +194,35 @@
         </a>
       </div>
 
-      <!-- ── Summary strip ── -->
+      <!-- Summary strip -->
       <div class="rq-summary-strip">
         <div class="rq-summary-card" data-filter="all">
-          <div class="rqs-value" id="countAll">10</div>
+          <div class="rqs-value"><?= $counts['all'] ?></div>
           <div class="rqs-label">All Requests</div>
         </div>
         <div class="rq-summary-card" data-filter="pending">
           <div class="rqs-dot" style="background:#f59e0b;"></div>
-          <div class="rqs-value" id="countPending">2</div>
+          <div class="rqs-value"><?= $counts['Pending'] ?></div>
           <div class="rqs-label">Pending</div>
         </div>
         <div class="rq-summary-card" data-filter="processing">
           <div class="rqs-dot" style="background:#1a7fd4;"></div>
-          <div class="rqs-value" id="countProcessing">1</div>
+          <div class="rqs-value"><?= $counts['Processing'] ?></div>
           <div class="rqs-label">Processing</div>
         </div>
         <div class="rq-summary-card" data-filter="approved">
           <div class="rqs-dot" style="background:#1a9e5f;"></div>
-          <div class="rqs-value" id="countApproved">6</div>
-          <div class="rqs-label">Approved</div>
+          <div class="rqs-value"><?= $counts['Released'] ?></div>
+          <div class="rqs-label">Released</div>
         </div>
         <div class="rq-summary-card" data-filter="rejected">
           <div class="rqs-dot" style="background:#dc2626;"></div>
-          <div class="rqs-value" id="countRejected">1</div>
-          <div class="rqs-label">Rejected</div>
+          <div class="rqs-value"><?= $counts['Denied'] ?></div>
+          <div class="rqs-label">Denied</div>
         </div>
       </div>
 
-      <!-- ── Filters & search ── -->
+      <!-- Filters & search -->
       <div class="rq-toolbar">
         <div class="rq-search-wrap">
           <i class="bi bi-search rq-search-icon"></i>
@@ -150,8 +232,8 @@
           <button class="rq-filter-btn active" data-filter="all">All</button>
           <button class="rq-filter-btn" data-filter="pending">Pending</button>
           <button class="rq-filter-btn" data-filter="processing">Processing</button>
-          <button class="rq-filter-btn" data-filter="approved">Approved</button>
-          <button class="rq-filter-btn" data-filter="rejected">Rejected</button>
+          <button class="rq-filter-btn" data-filter="approved">Released</button>
+          <button class="rq-filter-btn" data-filter="rejected">Denied</button>
         </div>
         <div class="rq-sort-wrap">
           <select class="rq-sort" id="rqSort">
@@ -162,271 +244,74 @@
         </div>
       </div>
 
-      <!-- ── Requests list ── -->
+      <!-- Requests list -->
       <div class="rq-list" id="rqList">
 
-        <!-- Request item: Pending -->
-        <div class="rq-item" data-status="pending" data-ref="2026-04-0841">
-          <div class="rq-item-icon" style="background:#e8f3fc; color:#1a7fd4;">
-            <i class="bi bi-file-earmark-text-fill"></i>
+        <?php if (empty($requests)): ?>
+          <div class="rq-empty" id="rqEmpty">
+            <div class="rq-empty-icon"><i class="bi bi-folder2-open"></i></div>
+            <div class="rq-empty-title">No requests yet</div>
+            <div class="rq-empty-sub">You haven't filed any service requests yet.</div>
+            <a href="resident-home.php" class="rq-empty-link">
+              <i class="bi bi-plus-lg"></i> Start a New Request
+            </a>
           </div>
-          <div class="rq-item-body">
-            <div class="rq-item-top">
-              <div class="rq-item-name">Barangay Clearance</div>
-              <span class="rq-status-badge pending">
-                <span class="rq-status-dot"></span> Pending
-              </span>
+        <?php else: ?>
+          <?php foreach ($requests as $req):
+            $refNo     = 'REQ-' . date('Y', strtotime($req['date_requested'])) . '-' . str_pad($req['request_id'], 6, '0', STR_PAD_LEFT);
+            $badgeClass = statusBadgeClass($req['status']);
+            [$icon, $iconBg, $iconColor] = statusIcon($req['document_type']);
+            $fee = $req['amount'] ? '₱' . number_format($req['amount'], 2) : ($req['payment_status'] === 'Exempted' ? 'Free' : 'Varies');
+            $canCancel = in_array($req['status'], ['Pending', 'Processing']);
+            $canDownload = $req['status'] === 'Released';
+          ?>
+          <div class="rq-item" data-status="<?= strtolower($badgeClass) ?>" data-ref="<?= $refNo ?>">
+            <div class="rq-item-icon" style="background:<?= $iconBg ?>; color:<?= $iconColor ?>;">
+              <i class="bi <?= $icon ?>"></i>
             </div>
-            <div class="rq-item-ref">Ref # <strong>2026-04-0841</strong></div>
-            <div class="rq-item-meta">
-              <span><i class="bi bi-calendar3"></i> Filed: Apr 21, 2026</span>
-              <span><i class="bi bi-cash"></i> ₱50.00</span>
-              <span><i class="bi bi-clock"></i> Est. release: Apr 23, 2026</span>
+            <div class="rq-item-body">
+              <div class="rq-item-top">
+                <div class="rq-item-name"><?= htmlspecialchars($req['document_type']) ?></div>
+                <span class="rq-status-badge <?= $badgeClass ?>">
+                  <span class="rq-status-dot"></span> <?= $req['status'] ?>
+                </span>
+              </div>
+              <div class="rq-item-ref">Ref # <strong><?= $refNo ?></strong></div>
+              <div class="rq-item-meta">
+                <span><i class="bi bi-calendar3"></i> Filed: <?= date('M j, Y', strtotime($req['date_requested'])) ?></span>
+                <span><i class="bi bi-cash"></i> <?= $fee ?></span>
+                <?php if ($req['date_issued']): ?>
+                  <span><i class="bi bi-check-circle"></i> Released: <?= date('M j, Y', strtotime($req['date_issued'])) ?></span>
+                <?php endif; ?>
+              </div>
+              <?php if ($req['remarks'] && in_array($req['status'], ['Denied', 'Cancelled'])): ?>
+                <div class="rq-rejection-note">
+                  <i class="bi bi-exclamation-triangle-fill"></i>
+                  <span><strong>Reason:</strong> <?= htmlspecialchars($req['remarks']) ?></span>
+                </div>
+              <?php endif; ?>
             </div>
-            <div class="rq-timeline">
-              <div class="rq-tl-step done"><div class="rq-tl-dot"></div><span>Submitted</span></div>
-              <div class="rq-tl-line done"></div>
-              <div class="rq-tl-step active"><div class="rq-tl-dot"></div><span>Under Review</span></div>
-              <div class="rq-tl-line"></div>
-              <div class="rq-tl-step"><div class="rq-tl-dot"></div><span>Processing</span></div>
-              <div class="rq-tl-line"></div>
-              <div class="rq-tl-step"><div class="rq-tl-dot"></div><span>Ready</span></div>
-            </div>
-          </div>
-          <div class="rq-item-actions">
-            <button class="rq-action-btn primary" onclick="viewRequest('2026-04-0841')">
-              <i class="bi bi-eye"></i> View
-            </button>
-            <button class="rq-action-btn danger" onclick="cancelRequest('2026-04-0841')">
-              <i class="bi bi-x-lg"></i> Cancel
-            </button>
-          </div>
-        </div>
-
-        <!-- Request item: Processing -->
-        <div class="rq-item" data-status="processing" data-ref="2026-03-0712">
-          <div class="rq-item-icon" style="background:#e6f7ef; color:#1a9e5f;">
-            <i class="bi bi-card-heading"></i>
-          </div>
-          <div class="rq-item-body">
-            <div class="rq-item-top">
-              <div class="rq-item-name">Cedula / Community Tax Certificate</div>
-              <span class="rq-status-badge processing">
-                <span class="rq-status-dot"></span> Processing
-              </span>
-            </div>
-            <div class="rq-item-ref">Ref # <strong>2026-03-0712</strong></div>
-            <div class="rq-item-meta">
-              <span><i class="bi bi-calendar3"></i> Filed: Mar 15, 2026</span>
-              <span><i class="bi bi-cash"></i> ₱30.00</span>
-              <span><i class="bi bi-clock"></i> Est. release: Today</span>
-            </div>
-            <div class="rq-timeline">
-              <div class="rq-tl-step done"><div class="rq-tl-dot"></div><span>Submitted</span></div>
-              <div class="rq-tl-line done"></div>
-              <div class="rq-tl-step done"><div class="rq-tl-dot"></div><span>Under Review</span></div>
-              <div class="rq-tl-line done"></div>
-              <div class="rq-tl-step active"><div class="rq-tl-dot"></div><span>Processing</span></div>
-              <div class="rq-tl-line"></div>
-              <div class="rq-tl-step"><div class="rq-tl-dot"></div><span>Ready</span></div>
+            <div class="rq-item-actions">
+              <button class="rq-action-btn primary" onclick="viewRequest(<?= $req['request_id'] ?>)">
+                <i class="bi bi-eye"></i> View
+              </button>
+              <?php if ($canCancel): ?>
+                <button class="rq-action-btn danger" onclick="cancelRequest(<?= $req['request_id'] ?>)">
+                  <i class="bi bi-x-lg"></i> Cancel
+                </button>
+              <?php endif; ?>
+              <?php if ($canDownload): ?>
+                <button class="rq-action-btn success" onclick="downloadDoc(<?= $req['request_id'] ?>)">
+                  <i class="bi bi-download"></i> Download
+                </button>
+              <?php endif; ?>
             </div>
           </div>
-          <div class="rq-item-actions">
-            <button class="rq-action-btn primary" onclick="viewRequest('2026-03-0712')">
-              <i class="bi bi-eye"></i> View
-            </button>
-          </div>
-        </div>
-
-        <!-- Request item: Approved -->
-        <div class="rq-item" data-status="approved" data-ref="2026-02-0589">
-          <div class="rq-item-icon" style="background:#fde8e8; color:#dc2626;">
-            <i class="bi bi-heart-pulse-fill"></i>
-          </div>
-          <div class="rq-item-body">
-            <div class="rq-item-top">
-              <div class="rq-item-name">Health Certificate</div>
-              <span class="rq-status-badge approved">
-                <span class="rq-status-dot"></span> Approved
-              </span>
-            </div>
-            <div class="rq-item-ref">Ref # <strong>2026-02-0589</strong></div>
-            <div class="rq-item-meta">
-              <span><i class="bi bi-calendar3"></i> Filed: Feb 20, 2026</span>
-              <span><i class="bi bi-cash"></i> ₱100.00</span>
-              <span><i class="bi bi-check-circle"></i> Released: Feb 21, 2026</span>
-            </div>
-            <div class="rq-timeline">
-              <div class="rq-tl-step done"><div class="rq-tl-dot"></div><span>Submitted</span></div>
-              <div class="rq-tl-line done"></div>
-              <div class="rq-tl-step done"><div class="rq-tl-dot"></div><span>Under Review</span></div>
-              <div class="rq-tl-line done"></div>
-              <div class="rq-tl-step done"><div class="rq-tl-dot"></div><span>Processing</span></div>
-              <div class="rq-tl-line done"></div>
-              <div class="rq-tl-step done"><div class="rq-tl-dot"></div><span>Ready</span></div>
-            </div>
-          </div>
-          <div class="rq-item-actions">
-            <button class="rq-action-btn primary" onclick="viewRequest('2026-02-0589')">
-              <i class="bi bi-eye"></i> View
-            </button>
-            <button class="rq-action-btn success" onclick="downloadDoc('2026-02-0589')">
-              <i class="bi bi-download"></i> Download
-            </button>
-          </div>
-        </div>
-
-        <!-- Request item: Approved -->
-        <div class="rq-item" data-status="approved" data-ref="2026-01-0441">
-          <div class="rq-item-icon" style="background:#f0e8ff; color:#7c3aed;">
-            <i class="bi bi-people-fill"></i>
-          </div>
-          <div class="rq-item-body">
-            <div class="rq-item-top">
-              <div class="rq-item-name">Indigency Certificate</div>
-              <span class="rq-status-badge approved">
-                <span class="rq-status-dot"></span> Approved
-              </span>
-            </div>
-            <div class="rq-item-ref">Ref # <strong>2026-01-0441</strong></div>
-            <div class="rq-item-meta">
-              <span><i class="bi bi-calendar3"></i> Filed: Jan 10, 2026</span>
-              <span><i class="bi bi-cash"></i> Free</span>
-              <span><i class="bi bi-check-circle"></i> Released: Jan 10, 2026</span>
-            </div>
-            <div class="rq-timeline">
-              <div class="rq-tl-step done"><div class="rq-tl-dot"></div><span>Submitted</span></div>
-              <div class="rq-tl-line done"></div>
-              <div class="rq-tl-step done"><div class="rq-tl-dot"></div><span>Under Review</span></div>
-              <div class="rq-tl-line done"></div>
-              <div class="rq-tl-step done"><div class="rq-tl-dot"></div><span>Processing</span></div>
-              <div class="rq-tl-line done"></div>
-              <div class="rq-tl-step done"><div class="rq-tl-dot"></div><span>Ready</span></div>
-            </div>
-          </div>
-          <div class="rq-item-actions">
-            <button class="rq-action-btn primary" onclick="viewRequest('2026-01-0441')">
-              <i class="bi bi-eye"></i> View
-            </button>
-            <button class="rq-action-btn success" onclick="downloadDoc('2026-01-0441')">
-              <i class="bi bi-download"></i> Download
-            </button>
-          </div>
-        </div>
-
-        <!-- Request item: Rejected -->
-        <div class="rq-item" data-status="rejected" data-ref="2025-12-0388">
-          <div class="rq-item-icon" style="background:#fef3c7; color:#d97706;">
-            <i class="bi bi-house-fill"></i>
-          </div>
-          <div class="rq-item-body">
-            <div class="rq-item-top">
-              <div class="rq-item-name">Business Permit</div>
-              <span class="rq-status-badge rejected">
-                <span class="rq-status-dot"></span> Rejected
-              </span>
-            </div>
-            <div class="rq-item-ref">Ref # <strong>2025-12-0388</strong></div>
-            <div class="rq-item-meta">
-              <span><i class="bi bi-calendar3"></i> Filed: Dec 5, 2025</span>
-              <span><i class="bi bi-cash"></i> Varies</span>
-              <span><i class="bi bi-x-circle"></i> Rejected: Dec 9, 2025</span>
-            </div>
-            <div class="rq-rejection-note">
-              <i class="bi bi-exclamation-triangle-fill"></i>
-              <span><strong>Reason:</strong> Incomplete documents — DTI Certificate of Business Name missing. Please re-apply with complete requirements.</span>
-            </div>
-          </div>
-          <div class="rq-item-actions">
-            <button class="rq-action-btn primary" onclick="viewRequest('2025-12-0388')">
-              <i class="bi bi-eye"></i> View
-            </button>
-            <button class="rq-action-btn warning" onclick="reapply('2025-12-0388')">
-              <i class="bi bi-arrow-clockwise"></i> Re-apply
-            </button>
-          </div>
-        </div>
-
-        <!-- Request items 6-10: Approved (collapsed style) -->
-        <div class="rq-item" data-status="approved" data-ref="2025-11-0301">
-          <div class="rq-item-icon" style="background:#e8f5e8; color:#16a34a;">
-            <i class="bi bi-cash-coin"></i>
-          </div>
-          <div class="rq-item-body">
-            <div class="rq-item-top">
-              <div class="rq-item-name">Real Property Tax Payment</div>
-              <span class="rq-status-badge approved"><span class="rq-status-dot"></span> Approved</span>
-            </div>
-            <div class="rq-item-ref">Ref # <strong>2025-11-0301</strong></div>
-            <div class="rq-item-meta">
-              <span><i class="bi bi-calendar3"></i> Filed: Nov 3, 2025</span>
-              <span><i class="bi bi-cash"></i> ₱3,750.00</span>
-              <span><i class="bi bi-check-circle"></i> Released: Nov 3, 2025</span>
-            </div>
-          </div>
-          <div class="rq-item-actions">
-            <button class="rq-action-btn primary" onclick="viewRequest('2025-11-0301')"><i class="bi bi-eye"></i> View</button>
-            <button class="rq-action-btn success" onclick="downloadDoc('2025-11-0301')"><i class="bi bi-download"></i> Download</button>
-          </div>
-        </div>
-
-        <div class="rq-item" data-status="approved" data-ref="2025-09-0244">
-          <div class="rq-item-icon" style="background:#e8f3fc; color:#0369a1;">
-            <i class="bi bi-mortarboard-fill"></i>
-          </div>
-          <div class="rq-item-body">
-            <div class="rq-item-top">
-              <div class="rq-item-name">Scholarship Application</div>
-              <span class="rq-status-badge approved"><span class="rq-status-dot"></span> Approved</span>
-            </div>
-            <div class="rq-item-ref">Ref # <strong>2025-09-0244</strong></div>
-            <div class="rq-item-meta">
-              <span><i class="bi bi-calendar3"></i> Filed: Sep 12, 2025</span>
-              <span><i class="bi bi-cash"></i> Free</span>
-              <span><i class="bi bi-check-circle"></i> Approved: Sep 20, 2025</span>
-            </div>
-          </div>
-          <div class="rq-item-actions">
-            <button class="rq-action-btn primary" onclick="viewRequest('2025-09-0244')"><i class="bi bi-eye"></i> View</button>
-            <button class="rq-action-btn success" onclick="downloadDoc('2025-09-0244')"><i class="bi bi-download"></i> Download</button>
-          </div>
-        </div>
-
-        <!-- Pending (2nd) -->
-        <div class="rq-item" data-status="pending" data-ref="2026-04-0862">
-          <div class="rq-item-icon" style="background:#fef3c7; color:#b45309;">
-            <i class="bi bi-calendar-heart-fill"></i>
-          </div>
-          <div class="rq-item-body">
-            <div class="rq-item-top">
-              <div class="rq-item-name">Book Appointment — Civil Registrar</div>
-              <span class="rq-status-badge pending"><span class="rq-status-dot"></span> Pending</span>
-            </div>
-            <div class="rq-item-ref">Ref # <strong>2026-04-0862</strong></div>
-            <div class="rq-item-meta">
-              <span><i class="bi bi-calendar3"></i> Filed: Apr 22, 2026</span>
-              <span><i class="bi bi-cash"></i> Free</span>
-              <span><i class="bi bi-clock"></i> Appointment: Apr 25, 2026 10:00 AM</span>
-            </div>
-            <div class="rq-timeline">
-              <div class="rq-tl-step done"><div class="rq-tl-dot"></div><span>Submitted</span></div>
-              <div class="rq-tl-line active"></div>
-              <div class="rq-tl-step active"><div class="rq-tl-dot"></div><span>Under Review</span></div>
-              <div class="rq-tl-line"></div>
-              <div class="rq-tl-step"><div class="rq-tl-dot"></div><span>Confirmed</span></div>
-              <div class="rq-tl-line"></div>
-              <div class="rq-tl-step"><div class="rq-tl-dot"></div><span>Done</span></div>
-            </div>
-          </div>
-          <div class="rq-item-actions">
-            <button class="rq-action-btn primary" onclick="viewRequest('2026-04-0862')"><i class="bi bi-eye"></i> View</button>
-            <button class="rq-action-btn danger" onclick="cancelRequest('2026-04-0862')"><i class="bi bi-x-lg"></i> Cancel</button>
-          </div>
-        </div>
+          <?php endforeach; ?>
+        <?php endif; ?>
 
       </div>
 
-      <!-- Empty state -->
       <div class="rq-empty" id="rqEmpty" style="display:none;">
         <div class="rq-empty-icon"><i class="bi bi-folder2-open"></i></div>
         <div class="rq-empty-title">No requests found</div>
@@ -439,16 +324,14 @@
     </main>
   </div>
 
-  <!-- ── Request detail modal ── -->
+  <!-- Request detail modal -->
   <div class="rq-modal-backdrop" id="rqModalBackdrop">
     <div class="rq-modal" id="rqModal">
       <div class="rq-modal-header">
         <div class="rq-modal-title" id="rqModalTitle">Request Details</div>
         <button class="rq-modal-close" onclick="closeModal()"><i class="bi bi-x-lg"></i></button>
       </div>
-      <div class="rq-modal-body" id="rqModalBody">
-        <!-- Filled by JS -->
-      </div>
+      <div class="rq-modal-body" id="rqModalBody"></div>
     </div>
   </div>
 

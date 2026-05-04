@@ -1,5 +1,24 @@
 <?php
 $active_nav = 'appointments';
+require '../aut.php';
+require '../config.php';
+
+// Unread notification count
+$stmt = $pdo->prepare("
+    SELECT COUNT(*) FROM notification
+    WHERE resident_id = ? AND is_read = 0
+");
+$stmt->execute([$_SESSION['user_id']]);
+$unread_notifs = (int) $stmt->fetchColumn();
+
+// Pending request count (requests resident hasn't seen a resolution on yet)
+$stmt = $pdo->prepare("
+    SELECT COUNT(*) FROM service_request
+    WHERE resident_id = ? AND status IN ('Pending', 'Processing', 'Ready for Pickup')
+");
+$stmt->execute([$_SESSION['user_id']]);
+$active_requests = (int) $stmt->fetchColumn();
+
 include 'resident-sidebar.php';
 ?>
 <!DOCTYPE html>
@@ -7,7 +26,7 @@ include 'resident-sidebar.php';
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>MySerbisyo — Book an Appointment</title>
+  <title>KALASUNGAY — Book an Appointment</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
@@ -23,18 +42,26 @@ include 'resident-sidebar.php';
         <button class="r-menu-btn" id="rMenuBtn"><i class="bi bi-list"></i></button>
         <div class="r-topbar-brand">
           <div class="r-tb-logo"><i class="bi bi-buildings-fill"></i></div>
-          <span class="r-tb-name">MySerbisyo</span>
+          <span class="r-tb-name">KALASUNGAY</span>
         </div>
       </div>
+      <!-- REPLACE the entire r-topbar-right div with this: -->
       <div class="r-topbar-right">
         <a href="resident-payment.php" class="r-topbar-btn" style="position:relative;" title="View cart">
           <i class="bi bi-cart3"></i>
           <span class="r-notif-dot" id="cartDot" style="display:none;"></span>
         </a>
-        <button class="r-topbar-btn"><i class="bi bi-bell"></i><span class="r-notif-dot"></span></button>
+
+        <a href="../resident-notifications.php" class="r-topbar-btn" style="position:relative;" title="Notifications">
+          <i class="bi bi-bell"></i>
+          <?php if ($unread_notifs > 0): ?>
+            <span class="r-notif-dot"></span>
+          <?php endif; ?>
+        </a>
+
         <a href="../resident-profile.php" class="r-profile-chip">
-          <div class="r-chip-avatar">JD</div>
-          <span class="r-chip-name">Juan</span>
+          <div class="r-chip-avatar" id="topbarAvatar">??</div>
+          <span class="r-chip-name" id="topbarName">...</span>
           <i class="bi bi-chevron-down"></i>
         </a>
       </div>

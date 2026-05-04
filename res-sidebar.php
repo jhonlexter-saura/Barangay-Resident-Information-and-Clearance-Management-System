@@ -12,6 +12,7 @@ $stmt = $pdo->prepare("
 ");
 $stmt->execute([$_SESSION['user_id']]);
 $active_requests = (int) $stmt->fetchColumn();
+
 /**
  * resident-sidebar.php
  * Reusable sidebar component for the KALASUNGAY Resident Portal.
@@ -66,14 +67,14 @@ if (!function_exists('nav_active')) {
   <nav class="r-sidebar-nav">
     <div class="r-nav-label">Menu</div>
 
-    <a href="../resident-home.php"
+    <a href="resident-home.php"
        class="r-nav-item<?= nav_active('home') ?>"
        data-tooltip="Home">
       <i class="bi bi-house-fill r-nav-icon"></i>
       <span class="r-nav-text">Home</span>
     </a>
 
-    <a href="../resident-requests.php" class="r-nav-item <?= $active_nav === 'requests' ? 'active' : '' ?>" data-tooltip="My Requests">
+    <a href="resident-requests.php" class="r-nav-item <?= $active_nav === 'requests' ? 'active' : '' ?>" data-tooltip="My Requests">
       <i class="bi bi-file-earmark-text r-nav-icon"></i>
       <span class="r-nav-text">My Requests</span>
       <?php if ($active_requests > 0): ?>
@@ -81,7 +82,7 @@ if (!function_exists('nav_active')) {
       <?php endif; ?>
     </a>
 
-    <a href="resident-payment.php"
+    <a href="services/resident-payment.php"
        class="r-nav-item<?= nav_active('payments') ?>"
        data-tooltip="Payments">
       <i class="bi bi-cash-coin r-nav-icon"></i>
@@ -93,14 +94,14 @@ if (!function_exists('nav_active')) {
       <?php endif; ?>
     </a>
 
-    <a href="appointments.php"
+    <a href="services/appointments.php"
        class="r-nav-item<?= nav_active('appointments') ?>"
        data-tooltip="Appointments">
       <i class="bi bi-calendar-check r-nav-icon"></i>
       <span class="r-nav-text">Appointments</span>
     </a>
 
-    <a href="../resident-notifications.php" class="r-nav-item <?= $active_nav === 'notifications' ? 'active' : '' ?>" data-tooltip="Notifications">
+    <a href="resident-notifications.php" class="r-nav-item <?= $active_nav === 'notifications' ? 'active' : '' ?>" data-tooltip="Notifications">
       <i class="bi bi-bell r-nav-icon"></i>
       <span class="r-nav-text">Notifications</span>
       <?php if ($unread_notifs > 0): ?>
@@ -111,18 +112,21 @@ if (!function_exists('nav_active')) {
     <div class="r-nav-divider"></div>
     <div class="r-nav-label">Account</div>
 
-    <a href="../resident-profile.php"
+    <a href="resident-profile.php"
        class="r-nav-item<?= nav_active('profile') ?>"
        data-tooltip="My Profile">
       <i class="bi bi-person-circle r-nav-icon"></i>
       <span class="r-nav-text">My Profile</span>
     </a>
 
-    <a href="../resident-settings.php"
+    <a href="resident-settings.php"
        class="r-nav-item<?= nav_active('settings') ?>"
        data-tooltip="Settings">
       <i class="bi bi-gear r-nav-icon"></i>
       <span class="r-nav-text">Settings</span>
+      
+      <a href="resident-helpsupport.php" class="r-nav-item" data-tooltip="Help">
+        <i class="bi bi-question-circle r-nav-icon"></i><span class="r-nav-text">Help & Support</span>
     </a>
 
   </nav>
@@ -135,7 +139,7 @@ if (!function_exists('nav_active')) {
         <span class="r-user-name">Juan Dela Cruz</span>
         <span class="r-user-sub">Resident ID: RES-00412</span>
       </div>
-      <a href="../resident-portal.php" class="r-logout-btn" title="Sign out">
+      <a href="resident-portal.php" class="r-logout-btn" title="Sign out">
         <i class="bi bi-box-arrow-right"></i>
       </a>
     </div>
