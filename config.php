@@ -7,8 +7,8 @@ $password = "";
 
 // reCAPTCHA Configuration
 // Get your keys from: https://www.google.com/recaptcha/admin
-$recaptcha_site_key   = "YOUR_RECAPTCHA_SITE_KEY";   // Replace with your actual site key
-$recaptcha_secret_key = "YOUR_RECAPTCHA_SECRET_KEY"; // Replace with your actual secret key
+$recaptcha_site_key   = "6LedQNssAAAAAKj9DK8CPN2cfse4dcl7b1Tat1xJ";   // Replace with your actual site key
+$recaptcha_secret_key = "6LedQNssAAAAAHzZordQrUznYDP_IwcR8XZfMKBe"; // Replace with your actual secret key
 
 try {
     $pdo = new PDO(
