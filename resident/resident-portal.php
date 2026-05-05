@@ -229,7 +229,7 @@ if (!empty($_SESSION['loggedin'])) {
                 <input type="checkbox" class="form-check-input" id="remember" name="remember">
                 <label class="form-check-label" for="remember">Stay signed in</label>
               </div>
-              <a href="#" class="forgot-link">Forgot password?</a>
+              <a href="../forgot_pass.php" class="forgot-link">Forgot password?</a>
             </div>
 
             <!-- Submit -->

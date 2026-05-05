@@ -5,6 +5,11 @@ $dbname   = "bricms_db";
 $username = "root";
 $password = "";
 
+// reCAPTCHA Configuration
+// Get your keys from: https://www.google.com/recaptcha/admin
+$recaptcha_site_key   = "YOUR_RECAPTCHA_SITE_KEY";   // Replace with your actual site key
+$recaptcha_secret_key = "YOUR_RECAPTCHA_SECRET_KEY"; // Replace with your actual secret key
+
 try {
     $pdo = new PDO(
         "mysql:host=$host;dbname=$dbname;charset=utf8mb4",
