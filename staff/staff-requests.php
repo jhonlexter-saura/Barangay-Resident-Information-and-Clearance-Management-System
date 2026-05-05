@@ -113,7 +113,7 @@ function requestStatusClass($status) {
       <a href="staff-requests.php" class="nav-item active" data-tooltip="Requests">
         <i class="bi bi-file-earmark-text nav-icon"></i>
         <span class="nav-label">Requests</span>
-        <span class="nav-badge"><?= number_format($pendingRequests) ?></span>
+        <span class="nav-badge" id="pendingRequestsBadge"><?= number_format($awaitingApproval) ?></span>
       </a>
 
       <a href="staff-notifications.php" class="nav-item" data-tooltip="Notifications">

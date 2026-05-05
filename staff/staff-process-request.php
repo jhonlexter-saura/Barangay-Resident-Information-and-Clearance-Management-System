@@ -55,6 +55,7 @@ function buildFileUrl($storedName) {
 }
 
 $pendingRequests = (int) $pdo->query("SELECT COUNT(*) FROM service_request WHERE status = 'Pending'")->fetchColumn();
+$unprocessedRequests = (int) $pdo->query("SELECT COUNT(*) FROM service_request WHERE status IN ('Pending','Processing')")->fetchColumn();
 $unreadNotifs = (int) $pdo->query("SELECT COUNT(*) FROM notification WHERE is_read = 0")->fetchColumn();
 
 $requestId = intval($_GET['request_id'] ?? 0);
@@ -226,6 +227,7 @@ $referenceNo = 'REQ-' . date('Y', strtotime($request['date_requested'])) . '-' .
       <a href="staff-requests.php" class="nav-item active" data-tooltip="Requests">
         <i class="bi bi-file-earmark-text nav-icon"></i>
         <span class="nav-label">Requests</span>
+        <span class="nav-badge"><?= number_format($unprocessedRequests) ?></span>
       </a>
       <a href="staff-notifications.php" class="nav-item" data-tooltip="Notifications">
         <i class="bi bi-bell nav-icon"></i>

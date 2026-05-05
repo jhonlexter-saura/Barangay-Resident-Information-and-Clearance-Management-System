@@ -18,7 +18,7 @@ function initials($first, $last) {
     return strtoupper(substr($first, 0, 1) . substr($last, 0, 1));
 }
 
-$stmt = $pdo->query("SELECT COUNT(*) FROM service_request WHERE status IN ('Pending','Processing','Ready for Pickup')");
+$stmt = $pdo->query("SELECT COUNT(*) FROM service_request WHERE status IN ('Pending','Processing')");
 $pendingRequests = (int) $stmt->fetchColumn();
 
 $stmt = $pdo->query("SELECT COUNT(*) FROM notification WHERE is_read = 0");

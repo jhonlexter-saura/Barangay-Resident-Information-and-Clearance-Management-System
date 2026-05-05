@@ -85,6 +85,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         echo json_encode(['success' => true, 'request' => $req]);
         exit();
     }
+    // Mark notifications as read for a request
+if ($_POST['action'] === 'mark_notif_read') {
+    $requestId = intval($_POST['request_id'] ?? 0);
+
+    // Find and mark any unread notifications linked to this request
+    $stmt = $pdo->prepare("
+        UPDATE notification
+        SET is_read = 1
+        WHERE resident_id = ?
+        AND is_read = 0
+        AND (
+            link_url LIKE ?
+            OR message LIKE ?
+        )
+    ");
+    $refPattern = '%' . str_pad($requestId, 6, '0', STR_PAD_LEFT) . '%';
+    $ok = $stmt->execute([
+        $_SESSION['user_id'],
+        $refPattern,
+        $refPattern
+    ]);
+
+    // Return updated unread count
+    $stmt = $pdo->prepare("
+        SELECT COUNT(*) FROM notification
+        WHERE resident_id = ? AND is_read = 0
+    ");
+    $stmt->execute([$_SESSION['user_id']]);
+    $newCount = (int) $stmt->fetchColumn();
+
+    echo json_encode([
+        'success'       => true,
+        'unread_count'  => $newCount
+    ]);
+    exit();
+}
 
     echo json_encode(['success' => false, 'message' => 'Unknown action.']);
     exit();
@@ -118,6 +154,9 @@ $initials   = strtoupper(substr($user['first_name'], 0, 1) . substr($user['last_
 $fullName   = htmlspecialchars($user['first_name'] . ' ' . $user['last_name']);
 $firstname  = htmlspecialchars($user['first_name']);
 $residentId = 'RES-' . str_pad($user['resident_id'], 5, '0', STR_PAD_LEFT);
+
+$active_nav = 'requests';
+require '../res-sidebar.php';
 
 // ── Status display helpers ────────────────────────────────────────────────────
 function statusBadgeClass($status) {
@@ -302,12 +341,6 @@ function statusIcon($docType) {
 </style>
 </head>
 <body>
-
-  <?php
-  $active_nav = 'requests';
-  require '../res-sidebar.php';
-  ?>
-
   <div class="r-main" id="rMain">
     <header class="r-topbar">
       <div class="r-topbar-left">
@@ -323,7 +356,7 @@ function statusIcon($docType) {
           <?php if ($unread_notifs > 0): ?>
             <span class="r-notif-dot"></span>
           <?php endif; ?>
-        </a>>
+        </a>
         <a href="resident-profile.php" class="r-profile-chip">
           <div class="r-chip-avatar"><?= $initials ?></div>
           <span class="r-chip-name"><?= $firstname ?></span>
@@ -499,12 +532,12 @@ function statusIcon($docType) {
 
 <script>
 // ── View request modal ────────────────────────────────────────────────────────
+// ── View request modal ────────────────────────────────────────────────────────
 function viewRequest(requestId) {
   const backdrop = document.getElementById('rqModalBackdrop');
   const body     = document.getElementById('rqModalBody');
   const title    = document.getElementById('rqModalTitle');
 
-  // Show modal with loading state
   backdrop.classList.add('open');
   document.body.style.overflow = 'hidden';
   title.textContent = 'Request Details';
@@ -514,7 +547,6 @@ function viewRequest(requestId) {
     </div>
   `;
 
-  // Fetch from server
   const fd = new FormData();
   fd.append('action', 'get_request');
   fd.append('request_id', requestId);
@@ -528,12 +560,51 @@ function viewRequest(requestId) {
         </div>`;
         return;
       }
+
       renderModal(data.request);
+
+      // ── Mark related notifications as read ────────────────────────────────
+      markNotifsRead(requestId);
     })
     .catch(() => {
       body.innerHTML = `<div class="rq-modal-loading" style="color:#dc2626;">
         <i class="bi bi-exclamation-circle"></i> Network error. Please try again.
       </div>`;
+    });
+}
+
+// ── Mark notifications read and update sidebar badge ──────────────────────────
+function markNotifsRead(requestId) {
+  const fd = new FormData();
+  fd.append('action', 'mark_notif_read');
+  fd.append('request_id', requestId);
+
+  fetch('resident-requests.php', { method: 'POST', body: fd })
+    .then(r => r.json())
+    .then(data => {
+      if (!data.success) return;
+
+      const count  = data.unread_count;
+      const badge  = document.querySelector('.r-nav-item[data-tooltip="Notifications"] .r-nav-badge');
+      const topDot = document.querySelector('.r-topbar-btn .r-notif-dot');
+
+      // Update sidebar badge
+      if (badge) {
+        if (count > 0) {
+          badge.textContent    = count;
+          badge.style.display  = 'inline-flex';
+        } else {
+          badge.style.display  = 'none';
+        }
+      }
+
+      // Update topbar dot
+      if (topDot) {
+        if (count === 0) topDot.style.display = 'none';
+      }
+    })
+    .catch(() => {
+      // Silently fail — not critical
     });
 }
 

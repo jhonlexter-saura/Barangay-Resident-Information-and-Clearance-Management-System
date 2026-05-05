@@ -19,6 +19,8 @@ $currentMonth = (int) $now->format('n');
 $currentYear  = (int) $now->format('Y');
 
 $pendingRequests = (int) $pdo->query("SELECT COUNT(*) FROM service_request WHERE status = 'Pending'")->fetchColumn();
+$unprocessedRequests = (int) $pdo->query("SELECT COUNT(*) FROM service_request WHERE status IN ('Pending','Processing')")->fetchColumn();
+$unreadNotifs = (int) $pdo->query("SELECT COUNT(*) FROM notification WHERE is_read = 0")->fetchColumn();
 
 $processedStmt = $pdo->prepare(
     "SELECT COUNT(*) FROM service_request
@@ -116,13 +118,13 @@ function initials($first, $last) {
       <a href="staff-requests.php" class="nav-item" data-tooltip="Requests">
         <i class="bi bi-file-earmark-text nav-icon"></i>
         <span class="nav-label">Requests</span>
-        <span class="nav-badge"><?= number_format($pendingRequests) ?></span>
+        <span class="nav-badge"><?= number_format($unprocessedRequests) ?></span>
       </a>
 
       <a href="staff-notifications.php" class="nav-item" data-tooltip="Notifications">
         <i class="bi bi-bell nav-icon"></i>
         <span class="nav-label">Notifications</span>
-        <span class="nav-badge">2</span>
+        <span class="nav-badge"><?= number_format($unreadNotifs) ?></span>
       </a>
 
       <div class="nav-divider"></div>
@@ -191,7 +193,7 @@ function initials($first, $last) {
         <!-- Notification bell -->
         <button class="topbar-btn notif-btn" aria-label="Notifications">
           <i class="bi bi-bell"></i>
-          <span class="notif-count">5</span>
+          <span class="notif-count"><?= number_format($unreadNotifs) ?></span>
         </button>
 
         <!-- Profile -->

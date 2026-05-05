@@ -21,8 +21,8 @@ function initials($first, $last) {
 $stmt = $pdo->query("SELECT COUNT(*) FROM notification WHERE is_read = 0");
 $unreadNotifs = (int) $stmt->fetchColumn();
 
-$stmt = $pdo->query("SELECT COUNT(*) FROM service_request WHERE status IN ('Pending','Processing','Ready for Pickup')");
-$pendingRequests = (int) $stmt->fetchColumn();
+$stmt = $pdo->query("SELECT COUNT(*) FROM service_request WHERE status IN ('Pending','Processing')");
+$unprocessedRequestCount = (int) $stmt->fetchColumn();
 
 $stmt = $pdo->query("SELECT * FROM notification ORDER BY created_at DESC");
 $notifications = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -44,6 +44,44 @@ function timeAgo($datetime) {
     if ($diff < 604800) return round($diff / 86400) . ' days ago';
     return date('M j, Y', strtotime($datetime));
 }
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
+    $action = $_POST['action'];
+
+    if ($action === 'mark_read') {
+        $notifId = intval($_POST['notif_id'] ?? 0);
+        if ($notifId > 0) {
+            $update = $pdo->prepare("UPDATE notification SET is_read = 1 WHERE notif_id = ?");
+            $update->execute([$notifId]);
+        }
+
+        $stmt = $pdo->query("SELECT COUNT(*) FROM notification WHERE is_read = 0");
+        $unreadNotifs = (int) $stmt->fetchColumn();
+
+        header('Content-Type: application/json');
+        echo json_encode(['success' => true, 'unreadCount' => $unreadNotifs]);
+        exit();
+    }
+
+    if ($action === 'mark_all_read') {
+        $pdo->exec("UPDATE notification SET is_read = 1 WHERE is_read = 0");
+        $stmt = $pdo->query("SELECT COUNT(*) FROM notification WHERE is_read = 0");
+        $unreadNotifs = (int) $stmt->fetchColumn();
+
+        header('Content-Type: application/json');
+        echo json_encode(['success' => true, 'unreadCount' => $unreadNotifs]);
+        exit();
+    }
+}
+
+$stmt = $pdo->query("SELECT COUNT(*) FROM notification WHERE is_read = 0");
+$unreadNotifs = (int) $stmt->fetchColumn();
+
+$stmt = $pdo->query("SELECT * FROM notification ORDER BY created_at DESC");
+$notifications = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+$unreadTotal = count(array_filter($notifications, fn($n) => !$n['is_read']));
+$notificationTotal = count($notifications);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -56,6 +94,73 @@ function timeAgo($datetime) {
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
   <link href="../css/shared.css" rel="stylesheet">
   <link href="../css/dashboard.css" rel="stylesheet">
+  <style>
+    .notification-item {
+      width: 100%;
+      text-align: left;
+      cursor: pointer;
+      border-color: rgba(0,0,0,0.06);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .notification-item:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.06);
+    }
+    .notification-item.notification-read {
+      background: #f8fafc;
+    }
+    .notification-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.6);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      padding: 1.5rem;
+    }
+    .notification-overlay.show {
+      display: flex;
+    }
+    .notification-modal {
+      width: min(100%, 680px);
+      max-height: 90vh;
+      overflow: auto;
+      background: #ffffff;
+      border-radius: 24px;
+      padding: 2rem;
+      box-shadow: 0 30px 70px rgba(15, 23, 42, 0.18);
+      position: relative;
+    }
+    .notification-modal-close {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      border: none;
+      background: transparent;
+      font-size: 1.3rem;
+      color: #475569;
+      cursor: pointer;
+    }
+    .notification-modal-header {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      margin-bottom: 1rem;
+    }
+    .notification-modal-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 18px;
+      display: grid;
+      place-items: center;
+      font-size: 1.35rem;
+    }
+    .notification-modal-meta {
+      color: #64748b;
+      font-size: 0.96rem;
+    }
+  </style>
 </head>
 <body>
   <aside class="sidebar" id="sidebar">
@@ -87,13 +192,13 @@ function timeAgo($datetime) {
       <a href="staff-requests.php" class="nav-item" data-tooltip="Requests">
         <i class="bi bi-file-earmark-text nav-icon"></i>
         <span class="nav-label">Requests</span>
-        <span class="nav-badge"><?= number_format($pendingRequests) ?></span>
+        <span class="nav-badge" id="sidebarRequestsBadge"><?= number_format($unprocessedRequestCount) ?></span>
       </a>
 
       <a href="staff-notifications.php" class="nav-item active" data-tooltip="Notifications">
         <i class="bi bi-bell nav-icon"></i>
         <span class="nav-label">Notifications</span>
-        <span class="nav-badge"><?= number_format($unreadNotifs) ?></span>
+        <span class="nav-badge" id="sidebarNotifBadge"><?= number_format($unreadNotifs) ?></span>
       </a>
 
       <div class="nav-divider"></div>
@@ -145,7 +250,7 @@ function timeAgo($datetime) {
       <div class="topbar-right">
         <button class="topbar-btn notif-btn" aria-label="Notifications">
           <i class="bi bi-bell"></i>
-          <span class="notif-count"><?= number_format($unreadNotifs) ?></span>
+          <span class="notif-count" id="topbarNotifCount"><?= number_format($unreadNotifs) ?></span>
         </button>
         <div class="topbar-profile">
           <div class="profile-avatar"><?= htmlspecialchars(initials($user['first_name'] ?? 'S', $user['last_name'] ?? 'T')) ?></div>
@@ -167,7 +272,7 @@ function timeAgo($datetime) {
           <button class="btn-outline-nav">
             <i class="bi bi-download"></i> Export
           </button>
-          <button class="btn-outline-nav"><i class="bi bi-check-all"></i> Mark all read</button>
+          <button type="button" id="markAllReadBtn" class="btn-outline-nav"><i class="bi bi-check-all"></i> Mark all read</button>
         </div>
       </div>
       <div class="dash-card dash-card-wide">
@@ -176,37 +281,35 @@ function timeAgo($datetime) {
           <a href="staff-notifications.php" class="dash-card-link">Refresh <i class="bi bi-arrow-clockwise"></i></a>
         </div>
         <div class="dash-card-body">
-          <div class="notification-list">
-            <div class="notification-item p-3 mb-3 rounded-3 border">
-              <div class="d-flex justify-content-between align-items-start gap-3">
-                <div>
-                  <div class="h6 mb-1">New request submitted</div>
-                  <p class="text-muted mb-1">A Barangay Clearance request was filed by Marites Santos.</p>
-                  <small class="text-muted">5 minutes ago</small>
-                </div>
-                <span class="badge bg-warning text-dark">Unread</span>
-              </div>
-            </div>
-            <div class="notification-item p-3 mb-3 rounded-3 border bg-gray-50">
-              <div class="d-flex justify-content-between align-items-start gap-3">
-                <div>
-                  <div class="h6 mb-1">Document checklist updated</div>
-                  <p class="text-muted mb-1">Health Certificate requirements were revised for new applicants.</p>
-                  <small class="text-muted">35 minutes ago</small>
-                </div>
-                <span class="badge bg-secondary">Read</span>
-              </div>
-            </div>
-            <div class="notification-item p-3 mb-3 rounded-3 border">
-              <div class="d-flex justify-content-between align-items-start gap-3">
-                <div>
-                  <div class="h6 mb-1">System maintenance scheduled</div>
-                  <p class="text-muted mb-1">The portal will be unavailable on Apr 30, 10PM–12AM.</p>
-                  <small class="text-muted">1 hour ago</small>
-                </div>
-                <span class="badge bg-warning text-dark">Unread</span>
-              </div>
-            </div>
+          <div class="notification-list" id="notificationList">
+            <?php if (!empty($notifications)): ?>
+              <?php foreach ($notifications as $notif):
+                [$iconClass, $bgColor, $textColor] = notifIcon($notif['type'] ?? '');
+                $isUnread = !$notif['is_read'];
+                $itemClasses = 'notification-item p-3 mb-3 rounded-3 border d-flex align-items-start gap-3 text-start';
+                $itemClasses .= $isUnread ? ' notification-unread' : ' notification-read bg-gray-50';
+              ?>
+                <button type="button"
+                        class="<?= $itemClasses ?>"
+                        data-notif-id="<?= (int) $notif['notif_id'] ?>"
+                        data-notif-title="<?= htmlspecialchars($notif['title'] ?? '', ENT_QUOTES) ?>"
+                        data-notif-message="<?= htmlspecialchars($notif['message'] ?? '', ENT_QUOTES) ?>"
+                        data-notif-type="<?= htmlspecialchars($notif['type'] ?? '', ENT_QUOTES) ?>"
+                        data-notif-time="<?= htmlspecialchars($notif['created_at'] ?? '', ENT_QUOTES) ?>">
+                  <div class="notification-icon rounded-3 me-3" style="min-width:52px; width:52px; height:52px; background:<?= $bgColor ?>; color: <?= $textColor ?>; display:grid; place-items:center;">
+                    <i class="bi <?= htmlspecialchars($iconClass) ?>"></i>
+                  </div>
+                  <div class="flex-grow-1 text-start">
+                    <div class="h6 mb-1"><?= htmlspecialchars($notif['title'] ?? 'Notification') ?></div>
+                    <p class="text-muted mb-1"><?= htmlspecialchars($notif['message'] ?? '') ?></p>
+                    <small class="text-muted"><?= htmlspecialchars(timeAgo($notif['created_at'] ?? '')) ?></small>
+                  </div>
+                  <span class="badge <?= $isUnread ? 'bg-warning text-dark' : 'bg-secondary' ?> align-self-start"><?= $isUnread ? 'Unread' : 'Read' ?></span>
+                </button>
+              <?php endforeach; ?>
+            <?php else: ?>
+              <div class="text-center text-muted py-5">No notifications available.</div>
+            <?php endif; ?>
           </div>
         </div>
       </div>
@@ -230,11 +333,11 @@ function timeAgo($datetime) {
           <div class="dash-card-body">
             <div class="row text-center">
               <div class="col-6">
-                <div class="stat-value">8</div>
+                <div class="stat-value"><?= number_format($notificationTotal) ?></div>
                 <div class="stat-label">Total</div>
               </div>
               <div class="col-6">
-                <div class="stat-value">3</div>
+                <div class="stat-value" id="summaryUnreadCount"><?= number_format($unreadTotal) ?></div>
                 <div class="stat-label">Unread</div>
               </div>
             </div>
@@ -242,9 +345,160 @@ function timeAgo($datetime) {
         </div>
       </div>
     </main>
+    <div class="notification-overlay" id="notificationOverlay" aria-hidden="true">
+      <div class="notification-modal" role="dialog" aria-modal="true" aria-labelledby="notifModalTitle">
+        <button type="button" class="notification-modal-close" id="notificationOverlayClose" aria-label="Close notification overlay">&times;</button>
+        <div class="notification-modal-header">
+          <div class="notification-modal-icon" id="notifModalIcon" style="background:#e8f3fc;color:#1a7fd4;"></div>
+          <div>
+            <div class="h5 mb-1" id="notifModalTitle">Notification title</div>
+            <div class="notification-modal-meta" id="notifModalMeta">Type • time ago</div>
+          </div>
+        </div>
+        <div class="mb-4"><p id="notifModalMessage" class="mb-0 text-dark"></p></div>
+        <div class="d-flex gap-2 justify-content-end">
+          <button type="button" class="btn btn-outline-secondary" id="notificationOverlayCloseBtn">Close</button>
+          <button type="button" class="btn btn-primary" id="markAsReadBtn">Mark as Read</button>
+        </div>
+      </div>
+    </div>
   </div>
   <div class="sidebar-overlay" id="sidebarOverlay"></div>
   <script src="../js/dashboard.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const overlay = document.getElementById('notificationOverlay');
+      const closeOverlay = document.getElementById('notificationOverlayClose');
+      const closeOverlayBtn = document.getElementById('notificationOverlayCloseBtn');
+      const markAsReadBtn = document.getElementById('markAsReadBtn');
+      const sidebarBadge = document.getElementById('sidebarNotifBadge');
+      const topbarCount = document.getElementById('topbarNotifCount');
+      const summaryUnread = document.getElementById('summaryUnreadCount');
+      const notificationList = document.getElementById('notificationList');
+      let currentNotificationId = null;
+      let currentNotificationButton = null;
+
+      function updateCountDisplay(count) {
+        const formatted = Number(count).toLocaleString();
+        if (sidebarBadge) {
+          sidebarBadge.textContent = formatted;
+          sidebarBadge.style.display = count > 0 ? 'inline-flex' : 'none';
+        }
+        if (topbarCount) {
+          topbarCount.textContent = formatted;
+          topbarCount.style.display = count > 0 ? 'inline-flex' : 'none';
+        }
+        if (summaryUnread) {
+          summaryUnread.textContent = formatted;
+        }
+      }
+
+      function closeModal() {
+        overlay.classList.remove('show');
+        overlay.setAttribute('aria-hidden', 'true');
+      }
+
+      function openModal(button) {
+        currentNotificationButton = button;
+        currentNotificationId = button.dataset.notifId;
+        document.getElementById('notifModalTitle').textContent = button.dataset.notifTitle;
+        document.getElementById('notifModalMessage').textContent = button.dataset.notifMessage;
+        const type = button.dataset.notifType || 'system';
+        const time = button.dataset.notifTime || '';
+        document.getElementById('notifModalMeta').textContent = type.charAt(0).toUpperCase() + type.slice(1) + ' • ' + time;
+        const iconEl = document.getElementById('notifModalIcon');
+        const iconData = {
+          request: ['bi-file-earmark-check-fill', '#e8f3fc', '#1a7fd4'],
+          announcement: ['bi-megaphone-fill', '#e6f7ef', '#1a9e5f'],
+          payment: ['bi-cash-coin', '#fde8e8', '#dc2626'],
+          system: ['bi-gear-fill', '#f1f5f9', '#64748b'],
+        }[type] || ['bi-bell-fill', '#e8f3fc', '#1a7fd4'];
+        iconEl.className = 'notification-modal-icon bi ' + iconData[0];
+        iconEl.style.background = iconData[1];
+        iconEl.style.color = iconData[2];
+        overlay.classList.add('show');
+        overlay.setAttribute('aria-hidden', 'false');
+      }
+
+      function markNotificationRead(notifId, callback) {
+        const data = new FormData();
+        data.append('action', 'mark_read');
+        data.append('notif_id', notifId);
+
+        fetch('staff-notifications.php', {
+          method: 'POST',
+          body: data,
+        })
+        .then(response => response.json())
+        .then(result => {
+          if (result.success) {
+            callback(result.unreadCount);
+          }
+        });
+      }
+
+      function markAllRead() {
+        const data = new FormData();
+        data.append('action', 'mark_all_read');
+
+        fetch('staff-notifications.php', {
+          method: 'POST',
+          body: data,
+        })
+        .then(response => response.json())
+        .then(result => {
+          if (result.success) {
+            updateCountDisplay(result.unreadCount);
+            document.querySelectorAll('.notification-item.notification-unread').forEach(item => {
+              item.classList.remove('notification-unread');
+              item.classList.add('notification-read');
+              const badge = item.querySelector('.badge');
+              if (badge) {
+                badge.textContent = 'Read';
+                badge.className = 'badge bg-secondary align-self-start';
+              }
+            });
+          }
+        });
+      }
+
+      if (notificationList) {
+        notificationList.addEventListener('click', function(event) {
+          const button = event.target.closest('.notification-item');
+          if (!button) return;
+          openModal(button);
+        });
+      }
+
+      if (closeOverlay) closeOverlay.addEventListener('click', closeModal);
+      if (closeOverlayBtn) closeOverlayBtn.addEventListener('click', closeModal);
+      window.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') closeModal();
+      });
+
+      if (markAsReadBtn) {
+        markAsReadBtn.addEventListener('click', function() {
+          if (!currentNotificationId || !currentNotificationButton) return;
+          markNotificationRead(currentNotificationId, function(newCount) {
+            updateCountDisplay(newCount);
+            currentNotificationButton.classList.remove('notification-unread');
+            currentNotificationButton.classList.add('notification-read');
+            const badge = currentNotificationButton.querySelector('.badge');
+            if (badge) {
+              badge.textContent = 'Read';
+              badge.className = 'badge bg-secondary align-self-start';
+            }
+            closeModal();
+          });
+        });
+      }
+
+      const markAllReadBtn = document.getElementById('markAllReadBtn');
+      if (markAllReadBtn) {
+        markAllReadBtn.addEventListener('click', markAllRead);
+      }
+    });
+  </script>
 </body>
 </html>
 
