@@ -240,7 +240,7 @@ include 'resident-sidebar.php';
               <span class="svc-cart-fee-label">Service Fee</span>
               <span class="svc-cart-fee-value" id="displayFee">Varies</span>
             </div>
-            <button class="btn-add-cart" id="addCartBtn"
+            <button type="button" class="btn-add-cart" id="addCartBtn"
               onclick="addToCart('Business Permit', 'Varies', 'bi-house-fill', '#fef3c7', '#d97706')">
               <i class="bi bi-cart-plus-fill"></i> Add to Cart
             </button>

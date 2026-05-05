@@ -570,6 +570,33 @@ function cancelRequest(requestId) {
     });
 }
 
+function downloadDoc(requestId) {
+  const fd = new FormData();
+  fd.append('action', 'get_request');
+  fd.append('request_id', requestId);
+
+  fetch('resident-requests.php', { method: 'POST', body: fd })
+    .then(r => r.json())
+    .then(data => {
+      if (!data.success) {
+        alert(data.message || 'Unable to download request file.');
+        return;
+      }
+
+      const files = data.request.files || [];
+      if (!files.length) {
+        alert('No attached files are available for download.');
+        return;
+      }
+
+      const firstFile = files[0];
+      window.location.href = `../services/service-handler.php?action=download_file&file_id=${firstFile.file_id}`;
+    })
+    .catch(() => {
+      alert('Network error. Please try again.');
+    });
+}
+
 // ── Render modal content ──────────────────────────────────────────────────────
 function renderModal(req) {
   const title = document.getElementById('rqModalTitle');
@@ -619,14 +646,19 @@ function renderModal(req) {
           <div class="rq-file-icon ${iconCls}">
             <i class="bi ${icon}"></i>
           </div>
-          <span class="rq-file-name" title="${escHtml(f.original_name)}">
-            ${escHtml(f.original_name)}
-          </span>
-          <span class="rq-file-size">${size}</span>
-          <button class="rq-file-remove" onclick="removeFileFromView(${idx})"
-                  title="Remove from view">
-            <i class="bi bi-x-lg"></i>
-          </button>
+          <div class="rq-file-meta">
+            <span class="rq-file-name" title="${escHtml(f.original_name)}">
+              ${escHtml(f.original_name)}
+            </span>
+            <span class="rq-file-size">${size}</span>
+          </div>
+          <div class="rq-file-actions">
+            <a href="../services/service-handler.php?action=download_file&file_id=${f.file_id}"
+               class="btn btn-sm btn-outline-primary"
+               target="_blank" rel="noopener">
+              <i class="bi bi-download"></i> Download
+            </a>
+          </div>
         </div>
       `;
     }).join('');

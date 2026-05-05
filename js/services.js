@@ -42,6 +42,11 @@ function addToCart(name, fee, icon, iconBg, iconColor) {
 
   const feeNum = parseFee(fee);
 
+  if (_uploadInProgress) {
+    showServiceToast('Please wait for document upload to finish before adding to cart.', 'warning');
+    return;
+  }
+
   const item = {
     id:         Date.now(),
     name,
@@ -52,12 +57,21 @@ function addToCart(name, fee, icon, iconBg, iconColor) {
     iconColor,
     addedAt:    new Date().toISOString(),
     fields:     collectFormData(),
-    // files are handled separately at submit time via _uploadedFiles
+    files:      _uploadedFiles.map(f => ({
+                  token: f.token,
+                  original_name: f.name,
+                  file_size: f.size,
+                  mime_type: f.type
+                }))
   };
 
   cart.push(item);
   saveCart(cart);
   updateCartUI();
+
+  if (typeof window.clearUploadedFiles === 'function') {
+    window.clearUploadedFiles();
+  }
 
   const btn = document.getElementById('addCartBtn');
   if (btn) {
@@ -201,6 +215,8 @@ document.addEventListener('input', e => {
 // ════════════════════════════════════════════
 
 let _uploadedFiles = [];
+let _uploadedFileTokens = [];
+let _uploadInProgress = false;
 
 function initFileUpload() {
   const zone    = document.getElementById('fileDropZone');
@@ -209,6 +225,8 @@ function initFileUpload() {
   if (!zone || !input || !preview) return;
 
   _uploadedFiles = [];
+  _uploadedFileTokens = [];
+  _uploadInProgress = false;
 
   function renderPreview() {
     preview.innerHTML = '';
@@ -223,12 +241,65 @@ function initFileUpload() {
     });
   }
 
-  input.addEventListener('change', () => {
-    _uploadedFiles = [..._uploadedFiles, ...Array.from(input.files)];
-    renderPreview();
+  async function uploadTempFiles(files) {
+    if (!files || files.length === 0) return;
+    if (_uploadInProgress) {
+      showServiceToast('Please wait while documents finish uploading.', 'info');
+      return;
+    }
+
+    _uploadInProgress = true;
+    const formData = new FormData();
+    formData.append('action', 'upload_temp_file');
+    files.forEach(file => formData.append('files[]', file));
+
+    try {
+      const res = await fetch('service-handler.php', { method: 'POST', body: formData });
+      const data = await res.json();
+
+      if (!data.success || !Array.isArray(data.files)) {
+        showServiceToast(data.message || 'Unable to upload documents.', 'error');
+        return;
+      }
+
+      data.files.forEach(fileMeta => {
+        _uploadedFiles.push({
+          name: fileMeta.original_name,
+          size: fileMeta.file_size,
+          type: fileMeta.mime_type,
+          token: fileMeta.token
+        });
+        _uploadedFileTokens.push(fileMeta.token);
+      });
+      renderPreview();
+      input.value = '';
+    } catch (err) {
+      console.error('File upload error:', err);
+      showServiceToast('Unable to upload documents. Please try again.', 'error');
+    } finally {
+      _uploadInProgress = false;
+    }
+  }
+
+  function clearUploadedFiles() {
+    _uploadedFiles = [];
+    _uploadedFileTokens = [];
+    input.value = '';
+    preview.innerHTML = '';
+  }
+
+  input.addEventListener('click', e => {
+    e.stopPropagation();
   });
 
-  zone.addEventListener('click', () => input.click());
+  input.addEventListener('change', () => {
+    uploadTempFiles(Array.from(input.files));
+  });
+
+  zone.addEventListener('click', e => {
+    if (input.contains(e.target)) return;
+    input.click();
+  });
 
   zone.addEventListener('dragover', e => {
     e.preventDefault();
@@ -240,14 +311,34 @@ function initFileUpload() {
   zone.addEventListener('drop', e => {
     e.preventDefault();
     zone.classList.remove('drag-over');
-    _uploadedFiles = [..._uploadedFiles, ...Array.from(e.dataTransfer.files)];
-    renderPreview();
+    uploadTempFiles(Array.from(e.dataTransfer.files));
   });
 
-  window.removeFile = (idx) => {
+  window.removeFile = async (idx) => {
+    const file = _uploadedFiles[idx];
+    const token = file?.token;
+
     _uploadedFiles.splice(idx, 1);
+    _uploadedFileTokens.splice(idx, 1);
     renderPreview();
+
+    if (token) {
+      try {
+        const formData = new FormData();
+        formData.append('action', 'delete_temp_file');
+        formData.append('token', token);
+
+        await fetch('service-handler.php', {
+          method: 'POST',
+          body: formData
+        });
+      } catch (err) {
+        console.warn('Failed to delete temp upload:', err);
+      }
+    }
   };
+
+  window.clearUploadedFiles = clearUploadedFiles;
 }
 
 // ════════════════════════════════════════════
@@ -533,16 +624,7 @@ async function submitRequest() {
     formData.append('cart_json',      JSON.stringify(cart));
     formData.append('payment_method', method);
 
-    // ── Attach files per cart item index ─────────────────────────────────────
-    // Files are stored in _uploadedFiles only for the current page session.
-    // For the payment page (which has no form), we attach whatever was stored.
-    // Note: files added on individual service pages are not persisted across
-    // page navigations — this is a known limitation of localStorage-based carts.
-    // A future improvement would store files server-side when adding to cart.
-    _uploadedFiles.forEach(file => {
-      formData.append('files_0[]', file);
-    });
-
+    // ── Submit cart plus any uploaded file tokens in the cart JSON.
     const res  = await fetch('service-handler.php', { method: 'POST', body: formData });
     const data = await res.json();
 
@@ -576,7 +658,7 @@ async function submitRequest() {
 // INIT ON DOM READY
 // ════════════════════════════════════════════
 
-document.addEventListener('DOMContentLoaded', async () => {
+async function initServicePage() {
   await loadProfile();   // load profile first so cart display has real names
   updateCartUI();
   initFileUpload();
@@ -586,4 +668,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (document.getElementById('payItemsContainer')) {
     initPaymentPage();
   }
-});
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initServicePage);
+} else {
+  initServicePage();
+}

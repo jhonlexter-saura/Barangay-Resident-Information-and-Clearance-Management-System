@@ -250,7 +250,7 @@ include 'resident-sidebar.php';
               <span class="svc-cart-fee-label">Service Fee</span>
               <span class="svc-cart-fee-value" id="displayFee">Computed</span>
             </div>
-            <button class="btn-add-cart" id="addCartBtn"
+            <button type="button" class="btn-add-cart" id="addCartBtn"
               onclick="addToCart('Real Property Tax Payment', 'Computed', 'bi-cash-coin', '#e8f5e8', '#16a34a')">
               <i class="bi bi-cart-plus-fill"></i> Add to Cart
             </button>

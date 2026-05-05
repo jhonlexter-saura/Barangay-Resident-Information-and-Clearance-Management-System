@@ -219,7 +219,7 @@ include 'resident-sidebar.php';
               <span class="svc-cart-fee-label">Service Fee</span>
               <span class="svc-cart-fee-value" id="displayFee">₱50.00</span>
             </div>
-            <button class="btn-add-cart" id="addCartBtn"
+            <button type="button" class="btn-add-cart" id="addCartBtn"
               onclick="addToCart('Barangay Clearance', '₱50.00', 'bi-file-earmark-text-fill', '#e8f3fc', '#1a7fd4')">
               <i class="bi bi-cart-plus-fill"></i> Add to Cart
             </button>

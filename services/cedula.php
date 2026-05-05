@@ -222,7 +222,7 @@ include 'resident-sidebar.php';
               <span class="svc-cart-fee-label">Service Fee</span>
               <span class="svc-cart-fee-value" id="displayFee">₱25.00+</span>
             </div>
-            <button class="btn-add-cart" id="addCartBtn"
+            <button type="button" class="btn-add-cart" id="addCartBtn"
               onclick="addToCart('Cedula / Community Tax Certificate', '₱25.00+', 'bi-card-heading', '#e6f7ef', '#1a9e5f')">
               <i class="bi bi-cart-plus-fill"></i> Add to Cart
             </button>

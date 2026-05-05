@@ -1,3 +1,29 @@
+<?php
+require '../config.php';
+require '../aut.php';
+
+$user = null;
+if (!empty($_SESSION['user_id'])) {
+    $stmt = $pdo->prepare(
+        "SELECT bo.*, r.first_name, r.last_name
+         FROM barangay_official bo
+         JOIN resident r ON bo.resident_id = r.resident_id
+         WHERE bo.user_id = ?"
+    );
+    $stmt->execute([$_SESSION['user_id']]);
+    $user = $stmt->fetch();
+}
+
+function initials($first, $last) {
+    return strtoupper(substr($first, 0, 1) . substr($last, 0, 1));
+}
+
+$stmt = $pdo->query("SELECT COUNT(*) FROM service_request WHERE status IN ('Pending','Processing','Ready for Pickup')");
+$pendingRequests = (int) $stmt->fetchColumn();
+
+$stmt = $pdo->query("SELECT COUNT(*) FROM notification WHERE is_read = 0");
+$unreadNotifs = (int) $stmt->fetchColumn();
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -32,7 +58,7 @@
 
       <div class="nav-section-label">Main</div>
 
-      <a href="dashboard.php" class="nav-item" data-tooltip="Dashboard">
+      <a href="staff-dashboard.php" class="nav-item" data-tooltip="Dashboard">
         <i class="bi bi-grid-fill nav-icon"></i>
         <span class="nav-label">Dashboard</span>
       </a>
@@ -40,13 +66,13 @@
       <a href="staff-requests.php" class="nav-item" data-tooltip="Requests">
         <i class="bi bi-file-earmark-text nav-icon"></i>
         <span class="nav-label">Requests</span>
-        <span class="nav-badge">12</span>
+        <span class="nav-badge"><?= number_format($pendingRequests) ?></span>
       </a>
 
       <a href="staff-notifications.php" class="nav-item" data-tooltip="Notifications">
         <i class="bi bi-bell nav-icon"></i>
         <span class="nav-label">Notifications</span>
-        <span class="nav-badge">2</span>
+        <span class="nav-badge"><?= number_format($unreadNotifs) ?></span>
       </a>
 
       <div class="nav-divider"></div>
@@ -65,12 +91,12 @@
     </nav>
     <div class="sidebar-footer">
       <div class="sidebar-user">
-        <div class="user-avatar">AC</div>
+        <div class="user-avatar"><?= htmlspecialchars(initials($user['first_name'] ?? 'S', $user['last_name'] ?? 'T')) ?></div>
         <div class="user-info">
-          <span class="user-name">Ana Cruz</span>
-          <span class="user-role">Records Officer</span>
+          <span class="user-name"><?= htmlspecialchars(trim(($user['first_name'] ?? 'Staff') . ' ' . ($user['last_name'] ?? 'User'))) ?></span>
+          <span class="user-role"><?= htmlspecialchars($user['role_position'] ?? 'Administrator') ?></span>
         </div>
-        <button class="user-logout" title="Sign out">
+        <button class="user-logout" title="Sign out" onclick="location.href='staff-logout.php'">
           <i class="bi bi-box-arrow-right"></i>
         </button>
       </div>
@@ -98,13 +124,13 @@
       <div class="topbar-right">
         <button class="topbar-btn notif-btn" aria-label="Notifications">
           <i class="bi bi-bell"></i>
-          <span class="notif-count">1</span>
+          <span class="notif-count"><?= number_format($unreadNotifs) ?></span>
         </button>
         <div class="topbar-profile">
-          <div class="profile-avatar">AC</div>
+          <div class="profile-avatar"><?= htmlspecialchars(initials($user['first_name'] ?? 'S', $user['last_name'] ?? 'T')) ?></div>
           <div class="profile-info">
-            <span class="profile-name">Ana Cruz</span>
-            <span class="profile-dept">Records Section</span>
+            <span class="profile-name"><?= htmlspecialchars(trim(($user['first_name'] ?? 'Staff') . ' ' . ($user['last_name'] ?? 'User'))) ?></span>
+            <span class="profile-dept"><?= htmlspecialchars($user['role_position'] ?? 'Records Section') ?></span>
           </div>
           <i class="bi bi-chevron-down profile-chevron"></i>
         </div>
@@ -120,7 +146,7 @@
           <button class="btn-outline-nav">
             <i class="bi bi-download"></i> Export
           </button>
-          <button class="btn-primary-nav"><i class="bi bi-envelope"></i> Contact Helpdesk</button>
+          <a href="mailto:support@lgu.gov.ph" class="btn-primary-nav"><i class="bi bi-envelope"></i> Contact Helpdesk</a>
         </div>
       </div>
       <div class="dashboard-grid">
@@ -189,6 +215,7 @@
   </div>
   <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
   <script src="../js/dashboard.js"></script>
 </body>
 </html>

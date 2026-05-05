@@ -8,9 +8,14 @@ if (empty($_SESSION['user_id'])) {
     exit();
 }
 
-header('Content-Type: application/json');
-
 $action = $_POST['action'] ?? $_GET['action'] ?? '';
+
+if ($action === 'download_file') {
+    downloadFile();
+    exit();
+}
+
+header('Content-Type: application/json');
 
 // ============================================================
 // ROUTE
@@ -25,6 +30,14 @@ switch ($action) {
         submitRequests();
         break;
 
+    case 'upload_temp_file':
+        uploadTempFile();
+        break;
+
+    case 'delete_temp_file':
+        deleteTempFile();
+        break;
+
     case 'get_my_requests':
         getMyRequests();
         break;
@@ -36,6 +49,174 @@ switch ($action) {
     default:
         echo json_encode(['success' => false, 'message' => 'Unknown action.']);
         break;
+}
+
+function getPendingUploadDir() {
+    $uploadBase = realpath(__DIR__ . '/../../files');
+    if (!$uploadBase) {
+        mkdir(__DIR__ . '/../../files', 0755, true);
+        $uploadBase = realpath(__DIR__ . '/../../files');
+    }
+
+    $tempDir = $uploadBase . DIRECTORY_SEPARATOR . 'temp' . DIRECTORY_SEPARATOR . session_id();
+    if (!is_dir($tempDir)) {
+        mkdir($tempDir, 0755, true);
+    }
+    return $tempDir;
+}
+
+function uploadTempFile() {
+    if (empty($_FILES['files'])) {
+        echo json_encode(['success' => false, 'message' => 'No files uploaded.']);
+        return;
+    }
+
+    $files = $_FILES['files'];
+    $tempDir = getPendingUploadDir();
+    if (!isset($_SESSION['pending_uploads'])) {
+        $_SESSION['pending_uploads'] = [];
+    }
+
+    $uploaded = [];
+    $count = is_array($files['name']) ? count($files['name']) : 1;
+
+    for ($i = 0; $i < $count; $i++) {
+        $error = is_array($files['error']) ? $files['error'][$i] : $files['error'];
+        if ($error !== UPLOAD_ERR_OK) {
+            continue;
+        }
+
+        $originalName = basename(is_array($files['name']) ? $files['name'][$i] : $files['name']);
+        $size = is_array($files['size']) ? (int) $files['size'][$i] : (int) $files['size'];
+        $mimeType = is_array($files['type']) ? $files['type'][$i] : $files['type'];
+        $tmpName = is_array($files['tmp_name']) ? $files['tmp_name'][$i] : $files['tmp_name'];
+
+        $ext = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
+        if (!in_array($ext, ['jpg', 'jpeg', 'png', 'pdf'])) {
+            continue;
+        }
+
+        if ($size > 5 * 1024 * 1024) {
+            continue;
+        }
+
+        $token = bin2hex(random_bytes(16));
+        $storedName = $token . '.' . $ext;
+        $destPath = $tempDir . DIRECTORY_SEPARATOR . $storedName;
+
+        if (move_uploaded_file($tmpName, $destPath)) {
+            $_SESSION['pending_uploads'][$token] = [
+                'path'          => $destPath,
+                'original_name' => $originalName,
+                'mime_type'     => $mimeType,
+                'file_size'     => $size,
+                'uploaded_at'   => date('Y-m-d H:i:s')
+            ];
+
+            $uploaded[] = [
+                'token'         => $token,
+                'original_name' => $originalName,
+                'mime_type'     => $mimeType,
+                'file_size'     => $size
+            ];
+        }
+    }
+
+    if (empty($uploaded)) {
+        echo json_encode(['success' => false, 'message' => 'No valid files were uploaded.']);
+        return;
+    }
+
+    echo json_encode(['success' => true, 'files' => $uploaded]);
+}
+
+function deleteTempFile() {
+    $token = trim($_POST['token'] ?? '');
+    if ($token === '' || empty($_SESSION['pending_uploads'][$token])) {
+        echo json_encode(['success' => false, 'message' => 'No file token found.']);
+        return;
+    }
+
+    $upload = $_SESSION['pending_uploads'][$token];
+    if (!empty($upload['path']) && file_exists($upload['path'])) {
+        @unlink($upload['path']);
+    }
+
+    unset($_SESSION['pending_uploads'][$token]);
+    echo json_encode(['success' => true]);
+}
+
+function ensureServiceRequestFileBlobColumn() {
+    global $pdo;
+    $column = $pdo->query("SHOW COLUMNS FROM service_request_file LIKE 'file_data'")->fetch();
+    if (!$column) {
+        $pdo->exec("ALTER TABLE service_request_file ADD COLUMN file_data LONGBLOB NULL COMMENT 'Raw file content stored in database' AFTER mime_type");
+    }
+}
+
+function isStaffUser() {
+    return !empty($_SESSION['role']);
+}
+
+function downloadFile() {
+    global $pdo;
+    ensureServiceRequestFileBlobColumn();
+
+    $fileId = intval($_GET['file_id'] ?? 0);
+    if ($fileId <= 0) {
+        http_response_code(400);
+        echo 'Invalid file ID.';
+        return;
+    }
+
+    $stmt = $pdo->prepare(
+        "SELECT sf.file_id, sf.original_name, sf.mime_type, sf.file_size, sf.file_data, sf.stored_name, sr.resident_id
+         FROM service_request_file sf
+         JOIN service_request sr ON sr.request_id = sf.request_id
+         WHERE sf.file_id = ?
+         LIMIT 1"
+    );
+    $stmt->execute([$fileId]);
+    $file = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$file) {
+        http_response_code(404);
+        echo 'File not found.';
+        return;
+    }
+
+    if (!isStaffUser() && (int) $file['resident_id'] !== (int) $_SESSION['user_id']) {
+        http_response_code(403);
+        echo 'Access denied.';
+        return;
+    }
+
+    $filename = basename($file['original_name'] ?? 'attachment');
+    $mimeType = $file['mime_type'] ?: 'application/octet-stream';
+    $data = $file['file_data'];
+
+    if (is_resource($data)) {
+        $data = stream_get_contents($data);
+    }
+
+    if ($data === null && !empty($file['stored_name'])) {
+        $uploadBase = realpath(__DIR__ . '/../../files');
+        $path = $uploadBase . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $file['stored_name']);
+        if (file_exists($path)) {
+            $data = @file_get_contents($path);
+        }
+    }
+
+    if ($data === null || $data === false) {
+        http_response_code(404);
+        echo 'File content unavailable.';
+        return;
+    }
+
+    header('Content-Type: ' . $mimeType);
+    header('Content-Length: ' . strlen($data));
+    header('Content-Disposition: attachment; filename="' . str_replace('"', '\\"', $filename) . '"');
+    echo $data;
 }
 
 // ============================================================
@@ -115,6 +296,8 @@ function submitRequests() {
     $paymentMethod = $_POST['payment_method'] ?? 'counter';
     $items         = json_decode($cartJson, true) ?? [];
     $residentId    = $_SESSION['user_id'];
+
+    ensureServiceRequestFileBlobColumn();
 
     // ── Validate after decoding
     if (empty($items) || !is_array($items)) {
@@ -220,36 +403,33 @@ function submitRequests() {
                 ]);
             }
 
-            // ── Handle uploaded files ─────────────────────────────────────────
-            $fileKey = "files_{$index}";
-            if (!empty($_FILES[$fileKey])) {
-                $files = $_FILES[$fileKey];
-
-                // Normalize to array structure
-                if (!is_array($files['name'])) {
-                    $files = array_map(fn($v) => [$v], $files);
-                }
-
+            // ── Handle uploaded temp files referenced by cart tokens ────────────
+            if (!empty($item['files']) && is_array($item['files'])) {
                 $fileStmt = $pdo->prepare("
                     INSERT INTO service_request_file
-                        (request_id, original_name, stored_name, file_size, mime_type)
-                    VALUES (?, ?, ?, ?, ?)
+                        (request_id, original_name, stored_name, file_size, mime_type, file_data)
+                    VALUES (?, ?, ?, ?, ?, ?)
                 ");
 
-                $count = count($files['name']);
-                for ($i = 0; $i < $count; $i++) {
-                    if ($files['error'][$i] !== UPLOAD_ERR_OK) continue;
+                foreach ($item['files'] as $fileMeta) {
+                    $token = trim($fileMeta['token'] ?? '');
+                    if ($token === '' || empty($_SESSION['pending_uploads'][$token])) {
+                        continue;
+                    }
 
-                    $originalName = basename($files['name'][$i]);
-                    $ext          = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
+                    $upload = $_SESSION['pending_uploads'][$token];
+                    if (empty($upload['path']) || !file_exists($upload['path'])) {
+                        unset($_SESSION['pending_uploads'][$token]);
+                        continue;
+                    }
 
-                    // Validate extension
-                    if (!in_array($ext, ['jpg', 'jpeg', 'png', 'pdf'])) continue;
+                    $originalName = basename($upload['original_name'] ?? ($fileMeta['original_name'] ?? 'document'));
+                    $ext = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
+                    if (!in_array($ext, ['jpg', 'jpeg', 'png', 'pdf'])) {
+                        unset($_SESSION['pending_uploads'][$token]);
+                        continue;
+                    }
 
-                    // Validate size (5MB max)
-                    if ($files['size'][$i] > 5 * 1024 * 1024) continue;
-
-                    // Build folder: files/2026/REQ-2026-000001/
                     $folder = $uploadBase . DIRECTORY_SEPARATOR
                             . date('Y') . DIRECTORY_SEPARATOR
                             . $refNo;
@@ -259,14 +439,27 @@ function submitRequests() {
                     $storedName = uniqid('', true) . '.' . $ext;
                     $destPath   = $folder . DIRECTORY_SEPARATOR . $storedName;
 
-                    if (move_uploaded_file($files['tmp_name'][$i], $destPath)) {
-                        $fileStmt->execute([
-                            $requestId,
-                            $originalName,
-                            date('Y') . '/' . $refNo . '/' . $storedName,
-                            $files['size'][$i],
-                            $files['type'][$i]
-                        ]);
+                    $moved = @rename($upload['path'], $destPath);
+                    if (!$moved && file_exists($upload['path'])) {
+                        $moved = @copy($upload['path'], $destPath);
+                    }
+
+                    if ($moved && file_exists($destPath)) {
+                        $fileData = @file_get_contents($destPath);
+                        if ($fileData !== false) {
+                            $fileStmt->execute([
+                                $requestId,
+                                $originalName,
+                                date('Y') . '/' . $refNo . '/' . $storedName,
+                                (int) ($upload['file_size'] ?? 0),
+                                $upload['mime_type'] ?? 'application/octet-stream',
+                                $fileData
+                            ]);
+                            if (file_exists($upload['path']) && $upload['path'] !== $destPath) {
+                                @unlink($upload['path']);
+                            }
+                            unset($_SESSION['pending_uploads'][$token]);
+                        }
                     }
                 }
             }

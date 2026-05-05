@@ -225,7 +225,7 @@ include 'resident-sidebar.php';
               <span class="svc-cart-fee-label">Service Fee</span>
               <span class="svc-cart-fee-value" id="displayFee">₱100.00</span>
             </div>
-            <button class="btn-add-cart" id="addCartBtn"
+            <button type="button" class="btn-add-cart" id="addCartBtn"
               onclick="addToCart('Health Certificate', '₱100.00', 'bi-heart-pulse-fill', '#fde8e8', '#dc2626')">
               <i class="bi bi-cart-plus-fill"></i> Add to Cart
             </button>

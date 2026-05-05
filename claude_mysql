@@ -192,6 +192,7 @@ CREATE TABLE service_request_file (
   stored_name    VARCHAR(255)  NOT NULL COMMENT 'Relative path on disk',
   file_size      INT UNSIGNED      NULL COMMENT 'Bytes',
   mime_type      VARCHAR(100)      NULL,
+  file_data      LONGBLOB         NULL COMMENT 'Raw file content stored in database',
   uploaded_at    TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (file_id),
   CONSTRAINT fk_file_request

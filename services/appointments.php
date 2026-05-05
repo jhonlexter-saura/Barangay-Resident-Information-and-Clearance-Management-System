@@ -265,7 +265,7 @@ include 'resident-sidebar.php';
               <span class="svc-cart-fee-label">Service Fee</span>
               <span class="svc-cart-fee-value" id="displayFee">Free</span>
             </div>
-            <button class="btn-add-cart" id="addCartBtn"
+            <button type="button" class="btn-add-cart" id="addCartBtn"
               onclick="addToCart('Book an Appointment', 'Free', 'bi-calendar-heart-fill', '#fef3c7', '#b45309')">
               <i class="bi bi-cart-plus-fill"></i> Add to Cart
             </button>

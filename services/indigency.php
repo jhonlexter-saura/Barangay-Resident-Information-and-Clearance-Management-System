@@ -223,7 +223,7 @@ include 'resident-sidebar.php';
               <span class="svc-cart-fee-label">Service Fee</span>
               <span class="svc-cart-fee-value" id="displayFee">Free</span>
             </div>
-            <button class="btn-add-cart" id="addCartBtn"
+            <button type="button" class="btn-add-cart" id="addCartBtn"
               onclick="addToCart('Indigency Certificate', 'Free', 'bi-people-fill', '#f0e8ff', '#7c3aed')">
               <i class="bi bi-cart-plus-fill"></i> Add to Cart
             </button>

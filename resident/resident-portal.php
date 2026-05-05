@@ -30,7 +30,7 @@ if (!empty($_SESSION['loggedin'])) {
       <div class="brand-logo"><i class="bi bi-buildings-fill"></i></div>
       <div class="brand-text">
         <span class="brand-name">KALASUNGAY</span>
-        <span class="brand-tagline">Municipal Resident Portal</span>
+        <span class="brand-tagline">Barangay Resident Portal</span>
       </div>
     </a>
     <div class="nav-links">
