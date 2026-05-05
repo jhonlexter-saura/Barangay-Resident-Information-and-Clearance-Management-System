@@ -1,9 +1,17 @@
--- Update resident portal password
-UPDATE resident
-SET password = 'your_new_bcrypt_hash'
-WHERE email = 'admin@kalasungay.gov.ph';
 
--- Update staff portal password
-UPDATE barangay_official
-SET hashed_password = 'your_new_bcrypt_hash'
-WHERE username = 'admin';
+SELECT resident_id, first_name, last_name, email
+FROM resident
+WHERE first_name = '' AND last_name = '';
+
+-- Step 2: Insert that resident as a barangay official
+-- Replace the resident_id value (1) with whatever Step 1 returned
+INSERT INTO barangay_official
+    (resident_id, role_position, access_level, username, hashed_password, is_active)
+VALUES (
+    1,
+    'Admin',
+    'Admin',
+    'admin',
+    '$2y$10$GKXJhfdu.7WxT8HBavqaG.s2u4fU6uDJoaErQ3XdFd2PZqaumWh8O',
+    1
+);
