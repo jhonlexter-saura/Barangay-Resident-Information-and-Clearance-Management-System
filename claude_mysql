@@ -1,11 +1,9 @@
 -- ============================================================
--- Barangay Management System - MySQL Schema
--- KALASUNGAY / BRICMS
+-- DATABASE
 -- ============================================================
-
 CREATE DATABASE IF NOT EXISTS bricms_db
-  CHARACTER SET utf8mb4
-  COLLATE utf8mb4_unicode_ci;
+CHARACTER SET utf8mb4
+COLLATE utf8mb4_unicode_ci;
 
 USE bricms_db;
 
@@ -13,295 +11,153 @@ USE bricms_db;
 -- 1. RESIDENT
 -- ============================================================
 CREATE TABLE resident (
-  resident_id       INT UNSIGNED    NOT NULL AUTO_INCREMENT,
-  first_name        VARCHAR(80)     NOT NULL,
-  middle_name       VARCHAR(80)         NULL,
-  last_name         VARCHAR(80)     NOT NULL,
-  suffix            VARCHAR(10)         NULL COMMENT 'Jr., Sr., II, III …',
-  birth_date        DATE                NULL,
-  birth_place       VARCHAR(150)        NULL,
-  gender            ENUM('Male','Female','Non-binary') NULL,
-  civil_status      ENUM('Single','Married','Widowed','Separated','Annulled','Common-Law') NULL,
-  citizenship       ENUM('Filipino','Foreigner') NOT NULL DEFAULT 'Filipino',
-  occupation        VARCHAR(100)        NULL,
-  voter_status      ENUM('Registered','Not Registered') NOT NULL DEFAULT 'Not Registered',
-  mobile_number     VARCHAR(15)         NULL,
-  emergency_contact VARCHAR(150)        NULL,
-  email             VARCHAR(150)        NULL UNIQUE,
-  password          VARCHAR(255)        NULL COMMENT 'bcrypt hash',
-  is_verified       TINYINT(1)      NOT NULL DEFAULT 0,
-  national_id       VARCHAR(50)         NULL UNIQUE,
-  sss_number        VARCHAR(20)         NULL UNIQUE,
-  gsis_number       VARCHAR(20)         NULL UNIQUE,
-  created_at        TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at        TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (resident_id),
-  INDEX idx_resident_name       (last_name, first_name),
-  INDEX idx_resident_birth_date (birth_date)
-) ENGINE=InnoDB COMMENT='Core personal information of every barangay resident.';
-
-
--- ============================================================
--- 2. HOUSEHOLD
--- ============================================================
-CREATE TABLE household (
-  household_id      INT UNSIGNED  NOT NULL AUTO_INCREMENT,
-  household_head_id INT UNSIGNED  NOT NULL COMMENT 'FK → resident.resident_id',
-  house_number      VARCHAR(30)       NULL,
-  street            VARCHAR(150)      NULL,
-  sitio_purok       VARCHAR(100)      NULL,
-  barangay          VARCHAR(100)      NULL,
-  municipality      VARCHAR(100)      NULL,
-  province          VARCHAR(100)      NULL,
-  zip_code          VARCHAR(10)       NULL,
-  tenure_status     ENUM('Owner','Renter','Informal Settler','Caretaker') NOT NULL DEFAULT 'Owner',
-  total_members     SMALLINT UNSIGNED NOT NULL DEFAULT 1,
-  created_at        TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at        TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (household_id),
-  CONSTRAINT fk_household_head
-    FOREIGN KEY (household_head_id)
-    REFERENCES resident (resident_id)
-    ON UPDATE CASCADE
-    ON DELETE RESTRICT,
-  INDEX idx_household_head (household_head_id)
-) ENGINE=InnoDB COMMENT='Household/family units within the barangay.';
-
-
--- ============================================================
--- 3. HOUSEHOLD MEMBER (junction: household ↔ resident)
--- ============================================================
-CREATE TABLE household_member (
-  id            INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  household_id  INT UNSIGNED NOT NULL,
-  resident_id   INT UNSIGNED NOT NULL,
-  PRIMARY KEY (id),
-  UNIQUE KEY uq_household_resident (household_id, resident_id),
-  CONSTRAINT fk_hm_household
-    FOREIGN KEY (household_id)
-    REFERENCES household (household_id)
-    ON UPDATE CASCADE ON DELETE CASCADE,
-  CONSTRAINT fk_hm_resident
-    FOREIGN KEY (resident_id)
-    REFERENCES resident (resident_id)
-    ON UPDATE CASCADE ON DELETE CASCADE
-) ENGINE=InnoDB COMMENT='Maps residents to their household(s).';
-
-
--- ============================================================
--- 4. BARANGAY OFFICIAL / USER
--- ============================================================
-CREATE TABLE barangay_official (
-  user_id         INT UNSIGNED  NOT NULL AUTO_INCREMENT,
-  resident_id     INT UNSIGNED  NOT NULL,
-  role_position   ENUM(
-                    'Chairman','Secretary','Treasurer',
-                    'Councilor','Tanod','Clerk','Admin'
-                  ) NOT NULL,
-  access_level    ENUM('Admin','Editor','Viewer') NOT NULL DEFAULT 'Viewer',
-  username        VARCHAR(60)   NOT NULL UNIQUE,
-  hashed_password VARCHAR(255)  NOT NULL COMMENT 'bcrypt / Argon2 hash',
-  is_active       TINYINT(1)    NOT NULL DEFAULT 1,
-  last_login      TIMESTAMP         NULL,
-  created_at      TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at      TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (user_id),
-  CONSTRAINT fk_official_resident
-    FOREIGN KEY (resident_id)
-    REFERENCES resident (resident_id)
-    ON UPDATE CASCADE ON DELETE RESTRICT,
-  INDEX idx_official_resident (resident_id)
-) ENGINE=InnoDB COMMENT='System users (barangay officials) with role-based access.';
-
-
--- ============================================================
--- 5. SERVICE / DOCUMENT REQUEST
--- ============================================================
-CREATE TABLE service_request (
-  request_id      INT UNSIGNED  NOT NULL AUTO_INCREMENT,
-  resident_id     INT UNSIGNED  NOT NULL,
-  document_type   ENUM(
-                    'Barangay Clearance',
-                    'Certificate of Indigency',
-                    'Certificate of Residency',
-                    'Business Permit',
-                    'Barangay ID',
-                    'First-Time Job Seeker',
-                    'Health Certificate',
-                    'Real Property Tax',
-                    'Scholarship Application',
-                    'Cedula / Community Tax Certificate',
-                    'Book an Appointment',
-                    'Other'
-                  ) NOT NULL,
-  purpose         VARCHAR(200)      NULL COMMENT 'Employment, Schooling, Travel, etc.',
-  status          ENUM(
-                    'Pending',
-                    'Processing',
-                    'Ready for Pickup',
-                    'Released',
-                    'Denied',
-                    'Cancelled'
-                  ) NOT NULL DEFAULT 'Pending',
-  payment_status  ENUM('Pending','Paid','Exempted') NOT NULL DEFAULT 'Pending',
-  date_requested  DATE          NOT NULL DEFAULT (CURDATE()),
-  date_issued     DATE              NULL,
-  remarks         TEXT              NULL,
-  processed_by    INT UNSIGNED      NULL COMMENT 'FK → barangay_official.user_id',
-  created_at      TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at      TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (request_id),
-  CONSTRAINT fk_request_resident
-    FOREIGN KEY (resident_id)
-    REFERENCES resident (resident_id)
-    ON UPDATE CASCADE ON DELETE RESTRICT,
-  CONSTRAINT fk_request_official
-    FOREIGN KEY (processed_by)
-    REFERENCES barangay_official (user_id)
-    ON UPDATE CASCADE ON DELETE SET NULL,
-  INDEX idx_request_resident (resident_id),
-  INDEX idx_request_status   (status),
-  INDEX idx_request_date     (date_requested)
-) ENGINE=InnoDB COMMENT='Document/service requests submitted by residents.';
-
-
--- ============================================================
--- 6. SERVICE REQUEST DETAIL
--- ============================================================
-CREATE TABLE service_request_detail (
-  detail_id    INT UNSIGNED  NOT NULL AUTO_INCREMENT,
-  request_id   INT UNSIGNED  NOT NULL,
-  field_key    VARCHAR(100)  NOT NULL,
-  field_value  TEXT              NULL,
-  PRIMARY KEY (detail_id),
-  CONSTRAINT fk_detail_request
-    FOREIGN KEY (request_id)
-    REFERENCES service_request (request_id)
-    ON UPDATE CASCADE ON DELETE CASCADE,
-  INDEX idx_detail_request (request_id)
-) ENGINE=InnoDB COMMENT='Extra form fields submitted per service request.';
-
-
--- ============================================================
--- 7. SERVICE REQUEST FILE
--- ============================================================
-CREATE TABLE service_request_file (
-  file_id        INT UNSIGNED  NOT NULL AUTO_INCREMENT,
-  request_id     INT UNSIGNED  NOT NULL,
-  original_name  VARCHAR(255)  NOT NULL,
-  stored_name    VARCHAR(255)  NOT NULL COMMENT 'Relative path on disk',
-  file_size      INT UNSIGNED      NULL COMMENT 'Bytes',
-  mime_type      VARCHAR(100)      NULL,
-  file_data      LONGBLOB         NULL COMMENT 'Raw file content stored in database',
-  uploaded_at    TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (file_id),
-  CONSTRAINT fk_file_request
-    FOREIGN KEY (request_id)
-    REFERENCES service_request (request_id)
-    ON UPDATE CASCADE ON DELETE CASCADE,
-  INDEX idx_file_request (request_id)
-) ENGINE=InnoDB COMMENT='Uploaded files attached to service requests.';
-
-
--- ============================================================
--- 8. PAYMENT
--- ============================================================
-CREATE TABLE payment (
-  payment_id       INT UNSIGNED    NOT NULL AUTO_INCREMENT,
-  request_id       INT UNSIGNED    NOT NULL COMMENT 'FK → service_request.request_id',
-  resident_id      INT UNSIGNED    NOT NULL COMMENT 'FK → resident.resident_id',
-  amount           DECIMAL(10,2)   NOT NULL DEFAULT 0.00,
-  payment_method   ENUM(
-                     'Cash',
-                     'GCash',
-                     'Maya',
-                     'Bank Transfer',
-                     'Postal Money Order',
-                     'Other'
-                   ) NOT NULL DEFAULT 'Cash',
-  payment_status   ENUM('Paid','Pending','Refunded','Waived') NOT NULL DEFAULT 'Pending',
-  reference_number VARCHAR(100)        NULL COMMENT 'GCash / bank reference',
-  or_number        VARCHAR(50)         NULL COMMENT 'Official Receipt number',
-  processed_by     INT UNSIGNED        NULL COMMENT 'FK → barangay_official.user_id',
-  payment_date     TIMESTAMP           NULL,
-  remarks          TEXT                NULL,
-  created_at       TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (payment_id),
-  CONSTRAINT fk_payment_request
-    FOREIGN KEY (request_id)
-    REFERENCES service_request (request_id)
-    ON UPDATE CASCADE ON DELETE RESTRICT,
-  CONSTRAINT fk_payment_resident
-    FOREIGN KEY (resident_id)
-    REFERENCES resident (resident_id)
-    ON UPDATE CASCADE ON DELETE RESTRICT,
-  CONSTRAINT fk_payment_official
-    FOREIGN KEY (processed_by)
-    REFERENCES barangay_official (user_id)
-    ON UPDATE CASCADE ON DELETE SET NULL,
-  INDEX idx_payment_request  (request_id),
-  INDEX idx_payment_resident (resident_id),
-  INDEX idx_payment_status   (payment_status),
-  INDEX idx_payment_date     (payment_date)
-) ENGINE=InnoDB COMMENT='Payment records linked to document/service requests.';
-
-
--- ============================================================
--- 9. NOTIFICATION
--- ============================================================
-CREATE TABLE notification (
-  notif_id      INT UNSIGNED  NOT NULL AUTO_INCREMENT,
-  resident_id   INT UNSIGNED  NOT NULL,
-  type          ENUM('request','announcement','payment','system') NOT NULL DEFAULT 'system',
-  title         VARCHAR(200)  NOT NULL,
-  message       TEXT              NULL,
-  is_read       TINYINT(1)    NOT NULL DEFAULT 0,
-  link_url      VARCHAR(255)      NULL,
-  created_at    TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (notif_id),
-  CONSTRAINT fk_notif_resident
-    FOREIGN KEY (resident_id)
-    REFERENCES resident (resident_id)
-    ON UPDATE CASCADE ON DELETE CASCADE,
-  INDEX idx_notif_resident (resident_id),
-  INDEX idx_notif_read     (is_read)
-) ENGINE=InnoDB COMMENT='Notifications per resident.';
-
-
--- ============================================================
--- INITIAL DATA — System Administrator
--- Password for both accounts: admin123
--- Hash: password_hash('admin123', PASSWORD_DEFAULT)
--- ============================================================
-
--- Step 1: Insert the resident record
-INSERT INTO resident (
-  first_name, last_name, email, citizenship,
-  is_verified, password
-) VALUES (
-  'System',
-  'Administrator',
-  'admin@kalasungay.gov.ph',
-  'Filipino',
-  1,
-  -- bcrypt hash of 'admin123'
-  '$2y$12$eImiTXuWVxfM37uY4JANjQ==uye/G7EbEBtE6W38p0MKJRHuFpBiO'
+  resident_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  first_name VARCHAR(80) NOT NULL,
+  middle_name VARCHAR(80),
+  last_name VARCHAR(80) NOT NULL,
+  suffix VARCHAR(10),
+  birth_date DATE,
+  birth_place VARCHAR(150),
+  gender ENUM('Male','Female','Non-binary'),
+  civil_status ENUM('Single','Married','Widowed','Separated','Annulled','Common-Law'),
+  citizenship ENUM('Filipino','Foreigner') DEFAULT 'Filipino',
+  occupation VARCHAR(100),
+  voter_status ENUM('Registered','Not Registered') DEFAULT 'Not Registered',
+  mobile_number VARCHAR(15),
+  emergency_contact VARCHAR(150),
+  email VARCHAR(150) UNIQUE,
+  password VARCHAR(255),
+  is_verified TINYINT(1) DEFAULT 0,
+  national_id VARCHAR(50) UNIQUE,
+  sss_number VARCHAR(20) UNIQUE,
+  gsis_number VARCHAR(20) UNIQUE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
--- Step 2: Insert the barangay official linked to that resident
-INSERT INTO barangay_official (
-  resident_id,
-  role_position,
-  access_level,
-  username,
-  hashed_password,
-  is_active
-) VALUES (
-  LAST_INSERT_ID(),
-  'Admin',
-  'Admin',
-  'admin',
-  -- bcrypt hash of 'admin123'
-  '$2y$12$eImiTXuWVxfM37uY4JANjQ==uye/G7EbEBtE6W38p0MKJRHuFpBiO',
-  1
+-- ============================================================
+-- 2. PROPERTY (formerly household)
+-- ============================================================
+CREATE TABLE property (
+  property_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  property_head_id INT UNSIGNED NOT NULL,
+
+  house_number VARCHAR(30),
+  street VARCHAR(150),
+  sitio_purok VARCHAR(100),
+
+  tenure_status ENUM('Owner','Renter','Informal Settler','Caretaker') NOT NULL,
+
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+  FOREIGN KEY (property_head_id)
+    REFERENCES resident(resident_id)
+);
+
+-- ============================================================
+-- 3. PROPERTY MEMBER
+-- ============================================================
+CREATE TABLE property_member (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  property_id INT UNSIGNED NOT NULL,
+  resident_id INT UNSIGNED NOT NULL,
+
+  UNIQUE(property_id, resident_id),
+
+  FOREIGN KEY (property_id) REFERENCES property(property_id) ON DELETE CASCADE,
+  FOREIGN KEY (resident_id) REFERENCES resident(resident_id) ON DELETE CASCADE
+);
+
+-- ============================================================
+-- 4. BARANGAY OFFICIAL
+-- ============================================================
+CREATE TABLE barangay_official (
+  user_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  resident_id INT UNSIGNED NOT NULL,
+
+  role_position ENUM(
+    'Chairman','Secretary','Treasurer',
+    'Councilor','Tanod','Clerk','Admin'
+  ) NOT NULL,
+
+  access_level ENUM('Admin','Editor','Viewer') DEFAULT 'Viewer',
+
+  username VARCHAR(60) UNIQUE NOT NULL,
+  hashed_password VARCHAR(255) NOT NULL,
+
+  is_active TINYINT(1) DEFAULT 1,
+  last_login TIMESTAMP NULL,
+
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+  FOREIGN KEY (resident_id) REFERENCES resident(resident_id)
+);
+
+-- ============================================================
+-- 5. DOCUMENT TYPE (NEW)
+-- ============================================================
+CREATE TABLE document_type (
+  document_type_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+
+  is_payable TINYINT(1) DEFAULT 1,
+  default_fee DECIMAL(10,2) DEFAULT 0.00
+);
+
+-- ============================================================
+-- 6. SERVICE REQUEST
+-- ============================================================
+CREATE TABLE service_request (
+  request_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  resident_id INT UNSIGNED NOT NULL,
+  document_type_id INT UNSIGNED NOT NULL,
+
+  purpose VARCHAR(200),
+
+  status ENUM(
+    'Pending','Processing','Ready for Pickup',
+    'Released','Denied','Cancelled'
+  ) DEFAULT 'Pending',
+
+  date_requested DATE DEFAULT (CURDATE()),
+  date_issued DATE,
+  remarks TEXT,
+
+  processed_by INT UNSIGNED,
+
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+  FOREIGN KEY (resident_id) REFERENCES resident(resident_id),
+  FOREIGN KEY (document_type_id) REFERENCES document_type(document_type_id),
+  FOREIGN KEY (processed_by) REFERENCES barangay_official(user_id)
+);
+
+-- ============================================================
+-- 7. PAYMENT (CLEANED)
+-- ============================================================
+CREATE TABLE payment (
+  payment_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  request_id INT UNSIGNED NOT NULL,
+
+  amount DECIMAL(10,2) NOT NULL,
+
+  payment_method ENUM(
+    'Cash','GCash','Maya','Bank Transfer','Other'
+  ) DEFAULT 'Cash',
+
+  payment_status ENUM('Pending','Paid','Refunded') DEFAULT 'Pending',
+
+  reference_number VARCHAR(100),
+  or_number VARCHAR(50),
+
+  processed_by INT UNSIGNED,
+  payment_date TIMESTAMP NULL,
+
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+  FOREIGN KEY (request_id) REFERENCES service_request(request_id),
+  FOREIGN KEY (processed_by) REFERENCES barangay_official(user_id)
 );
