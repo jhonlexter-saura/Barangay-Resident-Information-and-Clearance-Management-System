@@ -340,7 +340,7 @@ function statusIcon($docType) {
   .rq-modal-status.rejected   { background:#fde8e8; color:#991b1b; }
 </style>
 </head>
-<body>
+<body>  
   <div class="r-main" id="rMain">
     <header class="r-topbar">
       <div class="r-topbar-left">
